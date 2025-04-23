@@ -32,6 +32,16 @@ st.markdown("""
         font-size: 0.875rem !important; /* 14px */
     }
 
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3,
+    section[data-testid="stSidebar"] h4,
+    section[data-testid="stSidebar"] h5,
+    section[data-testid="stSidebar"] h6 {
+        font-size: 1.125rem !important; /* reduced by 2 from default ~18px to ~16px */
+        text-decoration: underline;
+    }
+
     h1 {
         font-family: 'FCKSerifBold', serif !important;
         font-size: 3.5rem !important; /* Increased by 2 levels */
@@ -81,6 +91,7 @@ st.markdown("""
     <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
 """, unsafe_allow_html=True)
 
+# Her fortsætter resten af koden...
 
 # Custom CSS for FCK style
 table_style = """
