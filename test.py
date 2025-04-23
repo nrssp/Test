@@ -29,7 +29,7 @@ st.markdown("""
 
     section[data-testid="stSidebar"] * {
         font-family: 'FCKSerifBold', serif !important;
-        font-size: 0.75rem !important; /* 12px */
+        font-size: 0.875rem !important; /* 14px */
     }
 
     section[data-testid="stSidebar"] h1,
@@ -37,16 +37,17 @@ st.markdown("""
     section[data-testid="stSidebar"] h3,
     section[data-testid="stSidebar"] h4,
     section[data-testid="stSidebar"] h5,
-    section[data-testid="stSidebar"] h6 {
-        font-size: 1rem !important; /* ~16px */
+    section[data-testid="stSidebar"] h6,
+    section[data-testid="stSidebar"] label[data-testid="stWidgetLabel"] {
+        font-size: 1.25rem !important; /* 20px */
         text-decoration: underline;
         font-weight: bold !important;
+        font-family: 'FCKSerifBold', serif !important;
     }
 
     h1 {
         font-family: 'FCKSerifBold', serif !important;
-        font-size: 3rem !important; /* Decreased slightly */
-        text-decoration: none;
+        font-size: 3rem !important; /* Adjusted down slightly */
     }
 
     .centered-header th {
@@ -91,6 +92,8 @@ st.markdown("""
     </div>
     <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
 """, unsafe_allow_html=True)
+
+# Her fortsætter resten af koden...
 
 # Custom CSS for FCK style
 table_style = """
