@@ -23,7 +23,7 @@ st.markdown("""
         src: url('https://raw.githubusercontent.com/nrssp/Test/fc9ee1c1f14f9038c3b0c4c3b8dee274a7f74adf/FCKText-SemiBold.ttf') format('truetype');
     }
 
-    html, body, [class*="css"] {
+    html, body, [ව් [class*="css"] {
         font-family: 'FCKTextSemiBold', sans-serif;
     }
 
@@ -72,10 +72,8 @@ st.markdown("""
         background-color: #f1f1f1;
     }
 
-    /* Underline specific sidebar headers for toggles */
-    section[data-testid="stSidebar"] .stCheckbox > label[data-testid="stWidgetLabel"],
-    section[data-testid="stSidebar"] h2,
-    section[data-testid="stSidebar"] div[data-testid="stWidgetLabel"] > p {
+    /* Underline sidebar headers for toggles */
+    section[data-testid="stSidebar"] h2 {
         text-decoration: underline !important;
     }
     </style>
@@ -86,18 +84,15 @@ csv_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_kampresul
 
 try:
     df = pd.read_csv(csv_url)
-    # Print column names for debugging
-    st.write("CSV Columns:", df.columns.tolist())
 except FileNotFoundError:
     st.error(f"Could not find CSV file at {csv_url}. Please ensure the file exists.")
     st.stop()
 
 # Validate required columns
-required_columns = ["Home", "Away", "Home Goals", "Away Goals", "Season", "Round", "Date"]
+required_columns = ["Home", "Away", "Home Goals", "Away Goals", "“Season", "Round", "Date"]
 if not all(col in df.columns for col in required_columns):
     st.error("CSV file is missing required columns: " + ", ".join([col for col in required_columns if col not in df.columns]))
     st.stop()
-
 
 # Header with FCK branding
 st.markdown("""
