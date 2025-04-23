@@ -29,7 +29,7 @@ st.markdown("""
 
     section[data-testid="stSidebar"] * {
         font-family: 'FCKSerifBold', serif !important;
-        font-size: 1rem !important;
+        font-size: 0.95rem !important;
         text-decoration: none !important;
     }
 
@@ -37,14 +37,15 @@ st.markdown("""
     section[data-testid="stSidebar"] .stMultiSelect > label,
     section[data-testid="stSidebar"] div[role="slider"] > label,
     section[data-testid="stSidebar"] .stSelectbox > label {
-        font-size: 2.5rem !important;
+        font-size: 2rem !important;
         font-weight: bold !important;
         font-family: 'FCKSerifBold', serif !important;
         text-decoration: none !important;
     }
 
     section[data-testid="stSidebar"] > div > div:nth-child(6) > div > label,
-    section[data-testid="stSidebar"] > div > div:nth-child(8) > div > label {
+    section[data-testid="stSidebar"] > div > div:nth-child(8) > div > label,
+    section[data-testid="stSidebar"] > div > div:nth-child(10) > div > label {
         text-decoration: underline !important;
     }
 
@@ -92,7 +93,7 @@ if not all(col in df.columns for col in required_columns):
 st.markdown("""
     <div style='display: flex; align-items: center; gap: 20px;'>
         <img src='https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8391/teamlogo.png' width='60'>
-        <h1 style='margin: 0; color: #011a8b;'>F.C. København – Superliga Tabeltest</h1>
+        <h1 style='margin: 0; color: #011a8b;'>F.C. København – Superliga Tabel</h1>
     </div>
     <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
 """, unsafe_allow_html=True)
