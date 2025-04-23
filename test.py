@@ -86,15 +86,18 @@ csv_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_kampresul
 
 try:
     df = pd.read_csv(csv_url)
+    # Print column names for debugging
+    st.write("CSV Columns:", df.columns.tolist())
 except FileNotFoundError:
     st.error(f"Could not find CSV file at {csv_url}. Please ensure the file exists.")
     st.stop()
 
 # Validate required columns
-required_columns = ["Home", "Away", "Home Goals", "Away Goals", "“Season", "Round", "Date"]
+required_columns = ["Home", "Away", "Home Goals", "Away Goals", "Season", "Round", "Date"]
 if not all(col in df.columns for col in required_columns):
     st.error("CSV file is missing required columns: " + ", ".join([col for col in required_columns if col not in df.columns]))
     st.stop()
+
 
 # Header with FCK branding
 st.markdown("""
