@@ -11,7 +11,8 @@ st.set_page_config(
 )
 
 # Load CSV with match results
-csv_url = "csv_url" = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_kampresultater.csv"
+csv_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_kampresultater.csv"
+
 try:
     df = pd.read_csv(csv_url)
 except FileNotFoundError:
