@@ -30,6 +30,7 @@ st.markdown("""
     section[data-testid="stSidebar"] * {
         font-family: 'FCKSerifBold', serif !important;
         font-size: 0.875rem !important; /* 14px */
+        text-decoration: none !important;
     }
 
     section[data-testid="stSidebar"] h1,
@@ -41,10 +42,18 @@ st.markdown("""
     section[data-testid="stSidebar"] label,
     section[data-testid="stSidebar"] div[role="slider"] > label,
     section[data-testid="stSidebar"] .stMultiSelect > label {
-        font-size: 2.5rem !important; /* ~40px */
-        text-decoration: none !important;
+        font-size: 2.5rem !important;
         font-weight: bold !important;
         font-family: 'FCKSerifBold', serif !important;
+        text-decoration: none !important;
+    }
+
+    /* Specific labels that should be underlined */
+    section[data-testid="stSidebar"] label[for="Vis Championship-hold"],
+    section[data-testid="stSidebar"] label[for="Vis Relegation-hold"],
+    section[data-testid="stSidebar"] > div > div:nth-child(6) > div > label,
+    section[data-testid="stSidebar"] > div > div:nth-child(8) > div > label {
+        text-decoration: underline !important;
     }
 
     h1 {
@@ -95,9 +104,6 @@ st.markdown("""
     </div>
     <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
 """, unsafe_allow_html=True)
-
-# Her fortsætter resten af koden...
-
 
 # Custom CSS for FCK style
 table_style = """
