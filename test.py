@@ -29,7 +29,7 @@ st.markdown("""
 
     section[data-testid="stSidebar"] * {
         font-family: 'FCKSerifBold', serif !important;
-        font-size: 0.875rem !important; /* 14px */
+        font-size: 0.75rem !important; /* 12px */
     }
 
     section[data-testid="stSidebar"] h1,
@@ -38,15 +38,15 @@ st.markdown("""
     section[data-testid="stSidebar"] h4,
     section[data-testid="stSidebar"] h5,
     section[data-testid="stSidebar"] h6 {
-        font-size: 1.25rem !important; /* ~20px */
+        font-size: 1rem !important; /* ~16px */
         text-decoration: underline;
         font-weight: bold !important;
     }
 
     h1 {
         font-family: 'FCKSerifBold', serif !important;
-        font-size: 3.5rem !important; /* Increased by 2 levels */
-        text-decoration: underline;
+        font-size: 3rem !important; /* Decreased slightly */
+        text-decoration: none;
     }
 
     .centered-header th {
@@ -91,17 +91,6 @@ st.markdown("""
     </div>
     <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
 """, unsafe_allow_html=True)
-
-# Header with FCK branding
-st.markdown("""
-    <div style='display: flex; align-items: center; gap: 20px;'>
-        <img src='https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8391/teamlogo.png' width='60'>
-        <h1 style='margin: 0; color: #011a8b; font-family: FCKSerifBold, serif;'>F.C. København – Superliga Tabel</h1>
-    </div>
-    <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
-""", unsafe_allow_html=True)
-
-# Her fortsætter resten af koden...
 
 # Custom CSS for FCK style
 table_style = """
