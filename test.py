@@ -38,8 +38,10 @@ st.markdown("""
     section[data-testid="stSidebar"] h4,
     section[data-testid="stSidebar"] h5,
     section[data-testid="stSidebar"] h6,
-    section[data-testid="stSidebar"] label[data-testid="stWidgetLabel"] {
-        font-size: 1.25rem !important; /* 20px */
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] div[role="slider"] > label,
+    section[data-testid="stSidebar"] .stMultiSelect > label {
+        font-size: 1.25rem !important; /* ~20px */
         text-decoration: underline;
         font-weight: bold !important;
         font-family: 'FCKSerifBold', serif !important;
@@ -47,7 +49,8 @@ st.markdown("""
 
     h1 {
         font-family: 'FCKSerifBold', serif !important;
-        font-size: 3rem !important; /* Adjusted down slightly */
+        font-size: 3.5rem !important;
+        text-decoration: none;
     }
 
     .centered-header th {
