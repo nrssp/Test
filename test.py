@@ -10,6 +10,37 @@ st.set_page_config(
     layout="wide"
 )
 
+# Custom font and CSS
+st.markdown("""
+    <style>
+    @font-face {
+        font-family: 'FCKSerifBold';
+        src: url('fonts/FCKSerif-Bold.ttf') format('truetype');
+    }
+
+    html, body, [class*="css"] {
+        font-family: 'FCKSerifBold', serif;
+    }
+
+    .centered-header th {
+        text-align: center !important;
+        background-color: #011a8b !important;
+        color: white !important;
+    }
+    .kampoversigt th {
+        text-align: center !important;
+        background-color: #011a8b !important;
+        color: white !important;
+    }
+    .kampoversigt td {
+        text-align: center !important;
+    }
+    table tr:hover td {
+        background-color: #f1f1f1;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # Load CSV with match results
 csv_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_kampresultater.csv"
 
