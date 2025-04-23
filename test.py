@@ -79,15 +79,6 @@ st.markdown("""
     <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
 """, unsafe_allow_html=True)
 
-# Header with FCK branding
-st.markdown("""
-    <div style='display: flex; align-items: center; gap: 20px;'>
-        <img src='https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8391/teamlogo.png' width='60'>
-        <h1 style='margin: 0; color: #011a8b; font-family: FCKSerifBold, serif;'>F.C. København – Superliga Tabel</h1>
-    </div>
-    <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
-""", unsafe_allow_html=True)
-
 # Custom CSS for FCK style
 table_style = """
     <style>
