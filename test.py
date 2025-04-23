@@ -24,7 +24,7 @@ st.markdown("""
     }
 
     html, body, [class*="css"] {
-        font-family: 'FCKSerifBold', serif;
+        font-family: 'FCKTextSemiBold', sans-serif;
     }
 
     section[data-testid="stSidebar"] * {
@@ -78,6 +78,7 @@ st.markdown("""
     </div>
     <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
 """, unsafe_allow_html=True)
+
 
 # Custom CSS for FCK style
 table_style = """
