@@ -27,6 +27,10 @@ st.markdown("""
         font-family: 'FCKTextSemiBold', sans-serif;
     }
 
+    section[data-testid="stSidebar"] * {
+        font-family: 'FCKTextSemiBold', sans-serif !important;
+    }
+
     h1 {
         font-family: 'FCKSerifBold', serif !important;
         font-size: 4.5rem !important;
