@@ -38,8 +38,9 @@ st.markdown("""
     section[data-testid="stSidebar"] h4,
     section[data-testid="stSidebar"] h5,
     section[data-testid="stSidebar"] h6 {
-        font-size: 1.125rem !important; /* reduced by 2 from default ~18px to ~16px */
+        font-size: 1.25rem !important; /* ~20px */
         text-decoration: underline;
+        font-weight: bold !important;
     }
 
     h1 {
@@ -81,6 +82,15 @@ required_columns = ["Home", "Away", "Home Goals", "Away Goals", "Season", "Round
 if not all(col in df.columns for col in required_columns):
     st.error("CSV file is missing required columns: " + ", ".join([col for col in required_columns if col not in df.columns]))
     st.stop()
+
+# Header with FCK branding
+st.markdown("""
+    <div style='display: flex; align-items: center; gap: 20px;'>
+        <img src='https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8391/teamlogo.png' width='60'>
+        <h1 style='margin: 0; color: #011a8b; font-family: FCKSerifBold, serif;'>F.C. København – Superliga Tabel</h1>
+    </div>
+    <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
+""", unsafe_allow_html=True)
 
 # Header with FCK branding
 st.markdown("""
