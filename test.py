@@ -71,6 +71,13 @@ st.markdown("""
     table tr:hover td {
         background-color: #f1f1f1;
     }
+
+    /* Underline specific sidebar headers for toggles */
+    section[data-testid="stSidebar"] .stCheckbox > label[data-testid="stWidgetLabel"],
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] div[data-testid="stWidgetLabel"] > p {
+        text-decoration: underline !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -84,7 +91,7 @@ except FileNotFoundError:
     st.stop()
 
 # Validate required columns
-required_columns = ["Home", "Away", "Home Goals", "Away Goals", "Season", "Round", "Date"]
+required_columns = ["Home", "Away", "Home Goals", "Away Goals", "“Season", "Round", "Date"]
 if not all(col in df.columns for col in required_columns):
     st.error("CSV file is missing required columns: " + ", ".join([col for col in required_columns if col not in df.columns]))
     st.stop()
@@ -97,9 +104,6 @@ st.markdown("""
     </div>
     <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
 """, unsafe_allow_html=True)
-
-# Her fortsætter resten af koden...
-
 
 # Custom CSS for FCK style
 table_style = """
