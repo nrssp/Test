@@ -23,7 +23,7 @@ st.markdown("""
         src: url('https://raw.githubusercontent.com/nrssp/Test/fc9ee1c1f14f9038c3b0c4c3b8dee274a7f74adf/FCKText-SemiBold.ttf') format('truetype');
     }
 
-    html, body, [ව් [class*="css"] {
+    html, body, [class*="css"] {
         font-family: 'FCKTextSemiBold', sans-serif;
     }
 
@@ -71,11 +71,6 @@ st.markdown("""
     table tr:hover td {
         background-color: #f1f1f1;
     }
-
-    /* Underline sidebar headers for toggles */
-    section[data-testid="stSidebar"] h2 {
-        text-decoration: underline !important;
-    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -89,10 +84,20 @@ except FileNotFoundError:
     st.stop()
 
 # Validate required columns
-required_columns = ["Home", "Away", "Home Goals", "Away Goals", "“Season", "Round", "Date"]
+required_columns = ["Home", "Away", "Home Goals", "Away Goals", "Season", "Round", "Date"]
 if not all(col in df.columns for col in required_columns):
     st.error("CSV file is missing required columns: " + ", ".join([col for col in required_columns if col not in df.columns]))
     st.stop()
+
+# Header with FCK branding
+st.markdown("""
+    <div style='display: flex; align-items: center; gap: 20px;'>
+        <img src='https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8391/teamlogo.png' width='60'>
+        <h1 style='margin: 0; color: #011a8b;'>F.C. København – Superliga Tabel</h1>
+    </div>
+    <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
+""", unsafe_allow_html=True)
+
 
 # Header with FCK branding
 st.markdown("""
