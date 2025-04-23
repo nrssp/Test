@@ -34,24 +34,13 @@ st.markdown("""
     }
 
     section[data-testid="stSidebar"] label,
-    section[data-testid="stSidebar"] h1,
-    section[data-testid="stSidebar"] h2,
-    section[data-testid="stSidebar"] h3,
-    section[data-testid="stSidebar"] h4,
-    section[data-testid="stSidebar"] h5,
-    section[data-testid="stSidebar"] h6 {
-        font-size: 2.5rem !important;
+    section[data-testid="stSidebar"] .stMultiSelect > label,
+    section[data-testid="stSidebar"] div[role="slider"] > label,
+    section[data-testid="stSidebar"] .stSelectbox > label {
+        font-size: 2rem !important;
         font-weight: bold !important;
         font-family: 'FCKSerifBold', serif !important;
         text-decoration: underline !important;
-    }
-
-    /* Remove underline from regular labels but keep on overview headers */
-    section[data-testid="stSidebar"] label,
-    section[data-testid="stSidebar"] .stMultiSelect > label,
-    section[data-testid="stSidebar"] div[role="slider"] > label {
-        text-decoration: none !important;
-        font-size: 2.5rem !important;
     }
 
     section[data-testid="stSidebar"] > div > div:nth-child(6) > div > label,
