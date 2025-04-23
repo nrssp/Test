@@ -29,28 +29,31 @@ st.markdown("""
 
     section[data-testid="stSidebar"] * {
         font-family: 'FCKSerifBold', serif !important;
-        font-size: 0.875rem !important; /* 14px */
+        font-size: 0.875rem !important;
         text-decoration: none !important;
     }
 
+    section[data-testid="stSidebar"] label,
     section[data-testid="stSidebar"] h1,
     section[data-testid="stSidebar"] h2,
     section[data-testid="stSidebar"] h3,
     section[data-testid="stSidebar"] h4,
     section[data-testid="stSidebar"] h5,
-    section[data-testid="stSidebar"] h6,
-    section[data-testid="stSidebar"] label,
-    section[data-testid="stSidebar"] div[role="slider"] > label,
-    section[data-testid="stSidebar"] .stMultiSelect > label {
+    section[data-testid="stSidebar"] h6 {
         font-size: 2.5rem !important;
         font-weight: bold !important;
         font-family: 'FCKSerifBold', serif !important;
-        text-decoration: none !important;
+        text-decoration: underline !important;
     }
 
-    /* Specific labels that should be underlined */
-    section[data-testid="stSidebar"] label[for="Vis Championship-hold"],
-    section[data-testid="stSidebar"] label[for="Vis Relegation-hold"],
+    /* Remove underline from regular labels but keep on overview headers */
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] .stMultiSelect > label,
+    section[data-testid="stSidebar"] div[role="slider"] > label {
+        text-decoration: none !important;
+        font-size: 2.5rem !important;
+    }
+
     section[data-testid="stSidebar"] > div > div:nth-child(6) > div > label,
     section[data-testid="stSidebar"] > div > div:nth-child(8) > div > label {
         text-decoration: underline !important;
@@ -100,10 +103,12 @@ if not all(col in df.columns for col in required_columns):
 st.markdown("""
     <div style='display: flex; align-items: center; gap: 20px;'>
         <img src='https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8391/teamlogo.png' width='60'>
-        <h1 style='margin: 0; color: #011a8b;'>F.C. København – Superliga Tabeltest</h1>
+        <h1 style='margin: 0; color: #011a8b;'>F.C. København – Superliga Tabel</h1>
     </div>
     <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
 """, unsafe_allow_html=True)
+
+# Her fortsætter resten af koden...
 
 # Custom CSS for FCK style
 table_style = """
