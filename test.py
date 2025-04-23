@@ -24,7 +24,7 @@ st.markdown("""
 
     h1 {
         font-family: 'FCKSerifBold', serif !important;
-        font-size: 2.5rem !important;
+        font-size: 4.5rem !important;
     }
 
     .centered-header th {
