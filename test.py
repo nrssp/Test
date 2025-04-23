@@ -41,7 +41,7 @@ st.markdown("""
     section[data-testid="stSidebar"] label,
     section[data-testid="stSidebar"] div[role="slider"] > label,
     section[data-testid="stSidebar"] .stMultiSelect > label {
-        font-size: 1.25rem !important; /* ~20px */
+        font-size: 1.5rem !important; /* ~24px */
         text-decoration: underline;
         font-weight: bold !important;
         font-family: 'FCKSerifBold', serif !important;
@@ -97,6 +97,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Her fortsætter resten af koden...
+
 
 # Custom CSS for FCK style
 table_style = """
