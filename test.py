@@ -18,8 +18,13 @@ st.markdown("""
         src: url('https://raw.githubusercontent.com/nrssp/Test/d62a85fd81fa5d438140f0d5af7e1b4bf44d2489/FCKSerif-Bold.ttf') format('truetype');
     }
 
+    @font-face {
+        font-family: 'FCKTextSemiBold';
+        src: url('https://raw.githubusercontent.com/nrssp/Test/fc9ee1c1f14f9038c3b0c4c3b8dee274a7f74adf/FCKText-SemiBold.ttf') format('truetype');
+    }
+
     html, body, [class*="css"] {
-        font-family: 'FCKSerifBold', serif;
+        font-family: 'FCKTextSemiBold', sans-serif;
     }
 
     h1 {
@@ -69,7 +74,6 @@ st.markdown("""
     </div>
     <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
 """, unsafe_allow_html=True)
-
 
 # Custom CSS for FCK style
 table_style = """
