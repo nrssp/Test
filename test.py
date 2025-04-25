@@ -464,7 +464,7 @@ with tab5:
 
     acc_df = pd.concat(acc_df)
     acc_df.sort_values(by=["Team", "Round"], inplace=True)
-    acc_df['Cumulative Pts'] = acc_df.groupby('Team')['Pts'].transform(lambda x: x.cumsum())
+    acc_df["Cumulative Pts"] = acc_df.groupby("Team")["Pts"].cumsum()
 
     chart = alt.Chart(acc_df).mark_line(point=True).encode(
         x=alt.X("Round:O", title="Runde"),
