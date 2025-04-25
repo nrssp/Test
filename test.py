@@ -40,15 +40,12 @@ st.markdown("""
         font-size: 2rem !important;
         font-weight: bold !important;
         font-family: 'FCKSerifBold', serif !important;
-        text-decoration: underline !important;
+        text-decoration: none !important;
     }
 
     section[data-testid="stSidebar"] > div > div:nth-child(6) > div > label,
     section[data-testid="stSidebar"] > div > div:nth-child(8) > div > label,
     section[data-testid="stSidebar"] > div > div:nth-child(10) > div > label {
-        font-size: 2rem !important;
-        font-weight: bold !important;
-        font-family: 'FCKSerifBold', serif !important;
         text-decoration: underline !important;
     }
 
@@ -176,9 +173,8 @@ selected_round_range = st.sidebar.slider(
 )
 
 all_rounds = sorted(df["Round"].astype(int).unique())
-st.sidebar.markdown("<h3 style='font-family: FCKSerifBold; text-decoration: underline; font-size: 1.6rem;'>Vælg runde/r</h3>", unsafe_allow_html=True)
 selected_specific_rounds = st.sidebar.multiselect(
-    "",
+    "Vælg runde/r",
     options=all_rounds,
     default=st.session_state.get("selected_specific_rounds", []),
     key="selected_specific_rounds"
@@ -188,7 +184,7 @@ selected_specific_rounds = st.sidebar.multiselect(
 championship_teams = df[df["League"] == "championship round"]["Home"].unique().tolist()
 relegation_teams = df[df["League"] == "relegation round"]["Home"].unique().tolist()
 
-st.sidebar.markdown("<h3 style='font-family: FCKSerifBold; text-decoration: underline; font-size: 1.6rem;'>Vis/Skjul grupper</h3>", unsafe_allow_html=True)
+st.sidebar.header("Vis/Skjul grupper")
 show_championship = st.sidebar.checkbox(
     "Hold i mesterskabsspillet",
     value=st.session_state.get("Vis Championship-hold", True),
@@ -222,7 +218,7 @@ filtered_teams = [
 ]
 filtered_teams = sorted(filtered_teams, key=lambda team: visningsnavn_map.get(team, team))
 
-st.sidebar.markdown("<h3 style='font-family: FCKSerifBold; text-decoration: underline; font-size: 1.6rem;'>Vis/Skjul hold i tabel</h3>", unsafe_allow_html=True)
+st.sidebar.header("Vis/Skjul hold i tabel")
 select_all_changed = st.sidebar.checkbox(
     "Vælg/fravælg alle",
     value=st.session_state.get("select_all_toggle", True),
@@ -243,7 +239,7 @@ for team in filtered_teams:
     if st.sidebar.checkbox(visningsnavn, value=st.session_state[toggle_key], key=toggle_key):
         selected_teams.append(team)
 
-st.sidebar.markdown("<h3 style='font-family: FCKSerifBold; text-decoration: underline; font-size: 1.6rem;'>Hjemme/Ude</h3>", unsafe_allow_html=True)
+st.sidebar.header("Hjemme/Ude")
 show_home = st.sidebar.checkbox(
     "Hjemmekampe",
     value=st.session_state.get("Hjemmekampe", True),
