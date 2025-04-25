@@ -475,3 +475,40 @@ with tab5:
 
     st.altair_chart(chart, use_container_width=True)
 
+    st.subheader("Point pr. runde")
+    pr_df = []
+    for round_num in rounds_to_plot:
+        runde_kampe = df[df["Round"].astype(int) == round_num].copy()
+
+        home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
+        home_r.columns = ["Team", "Opponent", "GF", "GA"]
+        home_r["Result"] = home_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
+
+        away_r = runde_kampe[["Away", "Home", "Away Goals", "Home Goals"]].copy()
+        away_r.columns = ["Team", "Opponent", "GF", "GA"]
+        away_r["Result"] = away_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
+
+        match_r = pd.concat([home_r, away_r])
+        match_r = match_r[match_r["Team"].isin(selected_teams)]
+
+        tbl = match_r.groupby("Team").agg(
+            W=("Result", lambda x: (x == "W").sum()),
+            D=("Result", lambda x: (x == "D").sum())
+        ).reset_index()
+        tbl["Pts"] = tbl["W"] * 3 + tbl["D"]
+        tbl["Round"] = round_num
+        pr_df.append(tbl[["Team", "Round", "Pts"]])
+
+    pr_df = pd.concat(pr_df)
+    pr_df.sort_values(by=["Team", "Round"], inplace=True)
+
+    chart2 = alt.Chart(pr_df).mark_line(point=True).encode(
+        x=alt.X("Round:O", title="Runde"),
+        y=alt.Y("Pts:Q", title="Point denne runde"),
+        color="Team:N",
+        tooltip=["Team", "Round", "Pts"]
+    ).properties(height=500)
+
+    st.altair_chart(chart2, use_container_width=True)
+
+
