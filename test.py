@@ -501,12 +501,6 @@ chart = alt.layer(
     color='shared'
 ).configure_view(
     stroke=None
-).configure_legend(
-    orient='bottom',
-    title='Hold',
-    titleFontSize=14,
-    labelFontSize=12,
-    direction='horizontal'
 ).configure_axis(
     labelFontSize=12,
     titleFontSize=14
