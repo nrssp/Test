@@ -490,7 +490,7 @@ logo_points = alt.Chart(latest_round_df).mark_image(
 line_chart = alt.Chart(cumulative_df).mark_line(point=False).encode(
     x=alt.X("Round:O", title="Runde"),
     y=alt.Y("Total:Q", title="Akkumulerede point"),
-    color=alt.Color("Team:N", legend=alt.Legend(title="Hold")),
+    color=alt.Color("Team:N", legend=alt.Legend(title="Hold", orient="bottom")),
     tooltip=["Team", "Round", "Total"]
 )
 
