@@ -438,4 +438,24 @@ with tab4:
 
 with tab5:
     st.subheader("Akkumuleret ligatabel")
-    st.info("Her kan du fremover se, hvordan tabellen så ud runde for runde for alle hold. (Funktion under udvikling)")
+
+    pointudvikling = []
+    for team in selected_teams:
+        team_matches = all_matches[all_matches["Team"] == team].sort_values("Date")
+        team_matches["Point"] = team_matches["Result"].map({"W": 3, "D": 1, "L": 0})
+        team_matches["Akk. Point"] = team_matches["Point"].cumsum()
+        team_matches["Kamp"] = range(1, len(team_matches) + 1)
+        team_matches["Team"] = team
+        pointudvikling.append(team_matches[["Kamp", "Akk. Point", "Team"]])
+
+    if pointudvikling:
+        point_data = pd.concat(pointudvikling, ignore_index=True)
+        chart = alt.Chart(point_data).mark_line(point=True).encode(
+            x=alt.X("Kamp:O", title="Kamp #"),
+            y=alt.Y("Akk. Point:Q", title="Akkumulerede point"),
+            color=alt.Color("Team:N"),
+            tooltip=["Team", "Kamp", "Akk. Point"]
+        ).properties(height=500)
+        st.altair_chart(chart, use_container_width=True)
+    else:
+        st.warning("Ingen kampe tilgængelige for de valgte hold og filtre.")
