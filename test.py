@@ -40,7 +40,7 @@ st.markdown("""
         font-size: 2rem !important;
         font-weight: bold !important;
         font-family: 'FCKSerifBold', serif !important;
-        text-decoration: none !important;
+        text-decoration: underline !important;
     }
 
     section[data-testid="stSidebar"] > div > div:nth-child(6) > div > label,
