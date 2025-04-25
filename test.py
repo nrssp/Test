@@ -29,15 +29,21 @@ st.markdown("""
 
     section[data-testid="stSidebar"] * {
         font-family: 'FCKSerifBold', serif !important;
-        font-size: 0.95rem !important;
-        text-decoration: none !important;
     }
 
     section[data-testid="stSidebar"] label,
-    section[data-testid="stSidebar"] .stSlider label,
-    section[data-testid="stSidebar"] .stMultiSelect label,
-    section[data-testid="stSidebar"] .stSelectbox label,
-    section[data-testid="stSidebar"] .stTextInput label,
+    section[data-testid="stSidebar"] .stSlider > div > label,
+    section[data-testid="stSidebar"] .stMultiSelect > label,
+    section[data-testid="stSidebar"] .stSelectbox > label,
+    section[data-testid="stSidebar"] .stTextInput > label {
+        font-size: 1.2rem !important;
+        font-family: 'FCKSerifBold', serif !important;
+        text-decoration: underline !important;
+        font-weight: bold !important;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
     section[data-testid="stSidebar"] h1,
     section[data-testid="stSidebar"] h2,
     section[data-testid="stSidebar"] h3,
@@ -74,7 +80,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # (resten af din kode forbliver uændret og fortsætter herfra som i tidligere eksempel)
-# Nu har alle sidebar labels ensartet størrelse og underline
+# Nu har alle sidebar labels (inkl. widgets) korrekt størrelse og ensartet underline
+
 
 
 # Load CSV with match results
