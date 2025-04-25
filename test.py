@@ -494,7 +494,11 @@ line_chart = alt.Chart(cumulative_df).mark_line(point=False).encode(
     tooltip=["Team", "Round", "Total"]
 )
 
-chart = (line_chart + logo_points).properties(height=500)
+chart = (line_chart + logo_points).properties(
+    height=600,
+    width=1000,
+    padding={"right": 150, "top": 20, "left": 60, "bottom": 80}
+)
 
 st.altair_chart(chart, use_container_width=True)
 
