@@ -1,437 +1,78 @@
-import streamlit as st
+import requests
 import pandas as pd
-import altair as alt
 import os
 
-# Streamlit page configuration
-st.set_page_config(
-    page_title="FCK Superliga Tabel",
-    page_icon="https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8391/teamlogo.png",
-    layout="wide"
-)
+# URL til shotmap-data for event 13638597
+url = "https://www.sofascore.com/api/v1/event/13638597/shotmap"
 
-# Custom font and CSS
-st.markdown("""
-    <style>
-    @font-face {
-        font-family: 'FCKSerifBold';
-        src: url('https://raw.githubusercontent.com/nrssp/Test/d62a85fd81fa5d438140f0d5af7e1b4bf44d2489/FCKSerif-Bold.ttf') format('truetype');
-    }
+# Samme headers som i din cURL-kommando
+headers = {
+    'accept': '*/*',
+    'accept-language': 'en-US,en;q=0.9',
+    'baggage': 'sentry-environment=production,sentry-release=svEKXIsCQ5aVRxZbPHRQk,sentry-public_key=d693747a6bb242d9bb9cf7069fb57988,sentry-trace_id=89f51be8effa03c8d3c4a3115fb0fac7',
+    'cache-control': 'max-age=0',
+    'if-none-match': '"9923732d5a"',
+    'priority': 'u=1, i',
+    'referer': 'https://www.sofascore.com/da/football/match/randers-fc-fc-kobenhavn/JAsbB',
+    'sec-ch-ua': '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"macOS"',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin',
+    'sentry-trace': '89f51be8effa03c8d3c4a3115fb0fac7-bdf9dd99e68e0038',
+    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+    'x-requested-with': 'bccc28'
+}
 
-    @font-face {
-        font-family: 'FCKTextSemiBold';
-        src: url('https://raw.githubusercontent.com/nrssp/Test/fc9ee1c1f14f9038c3b0c4c3b8dee274a7f74adf/FCKText-SemiBold.ttf') format('truetype');
-    }
+# Cookie-strengen defineret med triple quotes
+cookies_str = """_lr_env_src_ats=false; _ga=GA1.1.955922899.1742818070; gcid_first=882bdaed-ec9e-44c0-9df8-fc9cbd995c5b; FCCDCF=%5Bnull%2Cnull%2Cnull%2C%5B%22CQOxkUAQOxkUAEsACBENBiFoAP_gAEPgAA6IKkAB5C5GTSFBYT51KIsEYAEHwAAAIsAgAgYBAwABQJKU4IQCBGAAEAhAhiICkAAAKlSBIAFACBAQAAAAAAAAIAAEIAAQgAAIICAAAAAAAABICAAoAIoAEAAAwDiABAUA0BgMANIISNyQCQAABSAAQgAAEACAAQAAAEhAAAEIIAAIECgEEIBAGAAAEEEYABlMhAAoIAgAAAAAQAgAQCQBRQACgAAEADwgABAMFRwA8hciJpCgsBwqkEWCEACL4AAAEWAQAAMAwYAAoElKcEIBCjAAAAQAABEACAAAESoAkACAAAwAAAAAAAAAEAASAAAIQAAEEBAAABAAAAAgAAAEAEUACAAAYBQAAgKAYIQGAGkAJC5IBIAQApAAIUAACABAAIAAACQgAACAEAAECAAACEAgDAAACAAIAAymQgAQEAAAAAAAIAQAIBIQogABAAAAABoQAAAEAAA.dngACAAAAAA%22%2C%222~55.70.89.108.135.147.149.184.211.259.313.314.358.415.442.486.540.621.938.981.1029.1031.1033.1046.1092.1097.1126.1205.1268.1301.1514.1516.1558.1579.1584.1598.1651.1697.1716.1753.1810.1832.1859.1985.1987.2010.2068.2069.2140.2224.2271.2282.2316.2328.2373.2387.2440.2571.2572.2575.2577.2628.2629.2642.2646.2650.2657.2677.2767.2778.2822.2860.2878.2887.2889.2922.2970.3169.3182.3190.3194.3215.3226.3234.3290.3292.3300.3330.3331.4631.10631.14332.28031.29631~dv.%22%2C%22CFDDA376-3000-46B8-905E-6A532D7CAE80%22%5D%5D; _cc_id=3cba0eabf8fcb3b899f31c6bbd55bbda; connectId={\"ttl\":86400000,\"lastUsed\":1742818071385,\"lastSynced\":1742818071385}; gc_session_id=gf8ixr49147msab7lamypi; cto_bundle=3cjgs19IYU5OR052VmhpZDk2UmpEdXhBdlNURTlCMlRMWlVDUUZGJTJCJTJCOWVNeThCYVEydyUyRnp4dG1mZ2FtMTBYWlolMkJTb3dsTWZzMm5iYzFnZlVNSzlXZ0FxWEVVRCUyRnZvUkxlWTZIdHBnQWxPeGVrWkFLVyUyQnU1MUN6T1ByQWtURHNnNmZnQXh6WHElMkY1MHJhWjR1ZmlWQnJMNGh1azVhOXd3eHhyUUNFZ1ZGUWQlMkJkNmZLNyUyQmhoTUlHWDlhZGpRcjBDeTAlMkZ2VGpBdzQ0a2prMkFURHI5NGM2QUlteXclM0QlM0Q; FCNEC=%5B%5B%22AKsRol-uLrw7yItq8hd47o85QhojiKSJ_S3qbFzY2mt8PB6fsrmlucUvVUh3dyGnmy52IXIOzObrBfP6Lm5IhP2VIocrJzdlok_1Z2TYKxDRjASHZPsozDZ02pD5M9fL7xtlLGULRTZpLDOnovSEhaCfD-4BipkCVQ%3D%3D%22%5D%5D; _ga_HNQ9P9MGZR=GS1.1.1743527537.13.1.1743529016.60.0.0; __gads=ID=1ef54ca32ed28a5a:T=1742818071:RT=1743529017:S=ALNI_Ma9VK0Y3pTpjR9Bnul9hJ3U6jJbgw; __gpi=UID=0000106dc95d1b3a:T=1742818071:RT=1743529017:S=ALNI_MbsFs_TlX140IAAjlRVKiRIFzL3Zw; __eoi=ID=19faf30e8787673fT=1742818071:RT=1743529017:S=AA-Afja_fy9W1j8iQsmXSOIngKsF"""
 
-    html, body, [class*="css"] {
-        font-family: 'FCKTextSemiBold', sans-serif;
-    }
+# Konverter cookie-strengen til en dictionary
+cookies = {}
+for part in cookies_str.split(";"):
+    if "=" in part:
+        name, value = part.split("=", 1)
+        cookies[name.strip()] = value.strip()
 
-    section[data-testid="stSidebar"] * {
-        font-family: 'FCKSerifBold', serif !important;
-        font-size: 0.95rem !important;
-        text-decoration: none !important;
-    }
+# Udfør GET-anmodningen med headers og cookies
+response = requests.get(url, headers=headers, cookies=cookies)
+print("Statuskode:", response.status_code)
 
-    section[data-testid="stSidebar"] label,
-    section[data-testid="stSidebar"] .stMultiSelect > label,
-    section[data-testid="stSidebar"] div[role="slider"] > label,
-    section[data-testid="stSidebar"] .stSelectbox > label {
-        font-size: 2rem !important;
-        font-weight: bold !important;
-        font-family: 'FCKSerifBold', serif !important;
-        text-decoration: none !important;
-    }
-
-    section[data-testid="stSidebar"] > div > div:nth-child(6) > div > label,
-    section[data-testid="stSidebar"] > div > div:nth-child(8) > div > label,
-    section[data-testid="stSidebar"] > div > div:nth-child(10) > div > label {
-        text-decoration: underline !important;
-    }
-
-    h1 {
-        font-family: 'FCKSerifBold', serif !important;
-        font-size: 3.5rem !important;
-        text-decoration: none;
-    }
-
-    .centered-header th {
-        text-align: center !important;
-        background-color: #011a8b !important;
-        color: white !important;
-    }
-    .kampoversigt th {
-        text-align: center !important;
-        background-color: #011a8b !important;
-        color: white !important;
-    }
-    .kampoversigt td {
-        text-align: center !important;
-    }
-    table tr:hover td {
-        background-color: #f1f1f1;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# Load CSV with match results
-csv_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_kampresultater.csv"
-
+# Forsøg at parse JSON-svaret
 try:
-    df = pd.read_csv(csv_url)
-except FileNotFoundError:
-    st.error(f"Could not find CSV file at {csv_url}. Please ensure the file exists.")
-    st.stop()
+    data = response.json()
+except Exception as e:
+    print("Kunne ikke parse JSON:", e)
+    data = {}
 
-# Validate required columns
-required_columns = ["Home", "Away", "Home Goals", "Away Goals", "Season", "Round", "Date"]
-if not all(col in df.columns for col in required_columns):
-    st.error("CSV file is missing required columns: " + ", ".join([col for col in required_columns if col not in df.columns]))
-    st.stop()
+# Udskriv nøglerne i det modtagne JSON
+print("Nøgler i JSON-svaret:", list(data.keys()))
 
-# Header with FCK branding
-st.markdown("""
-    <div style='display: flex; align-items: center; gap: 20px;'>
-        <img src='https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8391/teamlogo.png' width='60'>
-        <h1 style='margin: 0; color: #011a8b;'>F.C. København – Superliga Tabel</h1>
-    </div>
-    <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
-""", unsafe_allow_html=True)
+# Forsøg at udtrække shotmap-data
+shots = []
+if "shotmap" in data:
+    shotmap_data = data["shotmap"]
+    print("Type af shotmap_data:", type(shotmap_data))
+    if isinstance(shotmap_data, dict):
+        print("Nøgler i shotmap_data:", list(shotmap_data.keys()))
+        if "shots" in shotmap_data:
+            shots = shotmap_data["shots"]
+        else:
+            shots = [shotmap_data]
+    elif isinstance(shotmap_data, list):
+        shots = shotmap_data
 
-# Custom CSS for FCK style
-table_style = """
-    <style>
-    .centered-header th {
-        text-align: center !important;
-        background-color: #011a8b !important;
-        color: white !important;
-    }
-    .kampoversigt th {
-        text-align: center !important;
-        background-color: #011a8b !important;
-        color: white !important;
-    }
-    .kampoversigt td {
-        text-align: center !important;
-    }
-    table tr:hover td {
-        background-color: #f1f1f1;
-    }
-    </style>
-"""
-st.markdown(table_style, unsafe_allow_html=True)
-
-# Sidebar: Season selection
-# Reset filters button
-if st.sidebar.button("Nulstil alle filtre", key="reset_filters"):
-    keys_to_keep = []
-    for key in list(st.session_state.keys()):
-        if key not in keys_to_keep:
-            del st.session_state[key]
-    st.session_state["selected_optional"] = ["MP", "W", "D", "L", "GF", "GA", "GD", "Pts/MP", "Form"]
-    st.rerun()
-
-all_seasons = sorted(df["Season"].unique(), reverse=True)
-if "selected_specific_seasons" not in st.session_state:
-    st.session_state["selected_specific_seasons"] = [all_seasons[0]]
-if "select_all_toggle" not in st.session_state:
-    st.session_state["select_all_toggle"] = True
-if "Vis Championship-hold" not in st.session_state:
-    st.session_state["Vis Championship-hold"] = True
-if "Vis Relegation-hold" not in st.session_state:
-    st.session_state["Vis Relegation-hold"] = True
-if "Hjemmekampe" not in st.session_state:
-    st.session_state["Hjemmekampe"] = True
-if "Udekampe" not in st.session_state:
-    st.session_state["Udekampe"] = True
-
-# Her fortsætter den fulde oprindelige kode
-
-selected_specific_seasons = st.sidebar.multiselect(
-    "Vælg sæson",
-    options=all_seasons,
-    default=st.session_state.get("selected_specific_seasons", [all_seasons[0]]),
-    key="selected_specific_seasons"
-)
-
-if selected_specific_seasons:
-    selected_seasons = selected_specific_seasons
+# Hvis shotdata findes, gemmes de i en CSV-fil i mappen "test" på din Desktop
+if shots:
+    # Bestem stien til mappen "test" på Desktop
+    output_dir = os.path.expanduser("~/Desktop/test")
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    output_file = os.path.join(output_dir, "shotmap_data.csv")
+    
+    df = pd.DataFrame(shots)
+    df.to_csv(output_file, index=False)
+    print(f"Data gemt som '{output_file}'")
 else:
-    selected_seasons = all_seasons
-
-df = df[df["Season"].isin(selected_seasons)]
-
-# Sidebar: Round selection
-min_round = int(df["Round"].astype(int).min())
-max_round = int(df["Round"].astype(int).max())
-selected_round_range = st.sidebar.slider(
-    "Vælg rundeinterval",
-    min_value=min_round,
-    max_value=max_round,
-    value=st.session_state.get("selected_round_range", (min_round, max_round)),
-    key="selected_round_range"
-)
-
-all_rounds = sorted(df["Round"].astype(int).unique())
-selected_specific_rounds = st.sidebar.multiselect(
-    "Vælg runde/r",
-    options=all_rounds,
-    default=st.session_state.get("selected_specific_rounds", []),
-    key="selected_specific_rounds"
-)
-
-# Sidebar: Championship/Relegation teams toggle
-championship_teams = df[df["League"] == "championship round"]["Home"].unique().tolist()
-relegation_teams = df[df["League"] == "relegation round"]["Home"].unique().tolist()
-
-st.sidebar.header("Vis/Skjul grupper")
-show_championship = st.sidebar.checkbox(
-    "Hold i mesterskabsspillet",
-    value=st.session_state.get("Vis Championship-hold", True),
-    key="Vis Championship-hold"
-)
-show_relegation = st.sidebar.checkbox(
-    "Hold i nedrykningsslutspillet",
-    value=st.session_state.get("Vis Relegation-hold", True),
-    key="Vis Relegation-hold"
-)
-
-# Sidebar: Team selection
-visningsnavn_map = {
-    "Midtjylland": "FC Midtjylland",
-    "FC Copenhagen": "FC København",
-    "Brøndby": "Brøndby IF",
-    "Randers": "Randers FC",
-    "Silkeborg": "Silkeborg IF",
-    "Nordsjælland": "FC Nordsjælland",
-    "Viborg": "Viborg FF",
-    "Aalborg": "AAB",
-    "Lyngby": "Lyngby BK"
-}
-
-teams = sorted(pd.unique(df[["Home", "Away"]].values.ravel()))
-filtered_teams = [
-    team for team in teams if
-    (team in championship_teams and show_championship) or
-    (team in relegation_teams and show_relegation) or
-    (team not in championship_teams and team not in relegation_teams)
-]
-filtered_teams = sorted(filtered_teams, key=lambda team: visningsnavn_map.get(team, team))
-
-st.sidebar.header("Vis/Skjul hold i tabel")
-select_all_changed = st.sidebar.checkbox(
-    "Vælg/fravælg alle",
-    value=st.session_state.get("select_all_toggle", True),
-    key="select_all_toggle"
-)
-previous_toggle = st.session_state.get("_previous_select_all", None)
-st.session_state["_previous_select_all"] = select_all_changed
-if previous_toggle is not None and previous_toggle != select_all_changed:
-    for team in filtered_teams:
-        st.session_state[f"toggle_{team}"] = select_all_changed
-
-selected_teams = []
-for team in filtered_teams:
-    toggle_key = f"toggle_{team}"
-    visningsnavn = visningsnavn_map.get(team, team)
-    if toggle_key not in st.session_state:
-        st.session_state[toggle_key] = select_all_changed
-    if st.sidebar.checkbox(visningsnavn, value=st.session_state[toggle_key], key=toggle_key):
-        selected_teams.append(team)
-
-st.sidebar.header("Hjemme/Ude")
-show_home = st.sidebar.checkbox(
-    "Hjemmekampe",
-    value=st.session_state.get("Hjemmekampe", True),
-    key="Hjemmekampe"
-)
-show_away = st.sidebar.checkbox(
-    "Udekampe",
-    value=st.session_state.get("Udekampe", True),
-    key="Udekampe"
-)
-
-# Create home/away dataframes
-home_df = df[["Home", "Away", "Home Goals", "Away Goals", "Date"]].copy()
-home_df.columns = ["Team", "Opponent", "Goals For", "Goals Against", "Date"]
-home_df["Result"] = home_df.apply(
-    lambda row: "W" if row["Goals For"] > row["Goals Against"] else "L" if row["Goals For"] < row["Goals Against"] else "D",
-    axis=1
-)
-
-away_df = df[["Away", "Home", "Away Goals", "Home Goals", "Date"]].copy()
-away_df.columns = ["Team", "Opponent", "Goals For", "Goals Against", "Date"]
-away_df["Result"] = away_df.apply(
-    lambda row: "W" if row["Goals For"] > row["Goals Against"] else "L" if row["Goals For"] < row["Goals Against"] else "D",
-    axis=1
-)
-
-# Combine matches
-all_matches = pd.DataFrame(columns=["Team", "Opponent", "Goals For", "Goals Against", "Date", "Result"])
-if show_home:
-    all_matches = pd.concat([all_matches, home_df], ignore_index=True)
-if show_away:
-    all_matches = pd.concat([all_matches, away_df], ignore_index=True)
-
-# Filter matches for selected teams
-# Apply round filter to df before generating tables
-if selected_specific_rounds:
-    all_matches = all_matches[all_matches["Date"].isin(df[df["Round"].astype(int).isin(selected_specific_rounds)]["Date"])]
-else:
-    all_matches = all_matches[all_matches["Date"].isin(df[df["Round"].astype(int).between(selected_round_range[0], selected_round_range[1])]["Date"])]
-
-all_matches = all_matches[all_matches["Team"].isin(selected_teams)]
-
-# Compute league table
-@st.cache_data
-def compute_league_table(matches):
-    form_map = matches.sort_values(by="Date").groupby("Team")
-    def result_to_dots(results):
-        symbol_map = {"W": "<span style='color:green'>●</span>", "D": "<span style='color:orange'>●</span>", "L": "<span style='color:red'>●</span>"}
-        return ''.join(symbol_map.get(r, '') for r in results[-5:])
-
-    latest_results = form_map["Result"].apply(lambda x: result_to_dots(x.tolist())).reset_index(name="Form")
-
-    table = matches.groupby("Team").agg(
-        MP=("Result", "count"),
-        W=("Result", lambda x: (x == "W").sum()),
-        D=("Result", lambda x: (x == "D").sum()),
-        L=("Result", lambda x: (x == "L").sum()),
-        GF=("Goals For", "sum"),
-        GA=("Goals Against", "sum")
-    ).reset_index()
-    table = pd.merge(table, latest_results, on="Team", how="left")
-    table["GD"] = table["GF"] - table["GA"]
-    table["Pts"] = table["W"] * 3 + table["D"]
-    table["Pts/MP"] = (table["Pts"] / table["MP"]).round(2)
-    table = table.sort_values(by=["Pts", "GD", "GF"], ascending=False).reset_index(drop=True)
-    table.insert(0, "Nr.", range(1, len(table) + 1))
-    return table
-
-table = compute_league_table(all_matches)
-
-# Tilføj klublogoer og visningsnavne
-logo_map = {
-    "FC Copenhagen": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8391/teamlogo.png",
-    "Midtjylland": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8113/teamlogo.png",
-    "Brøndby": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8595/teamlogo.png",
-    "Randers": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8410/teamlogo.png",
-    "AGF": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8071/teamlogo.png",
-    "Silkeborg": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8415/teamlogo.png",
-    "Nordsjælland": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/10202/teamlogo.png",
-    "Viborg": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/9939/teamlogo.png",
-    "SønderjyskE": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8487/teamlogo.png",
-    "Aalborg": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8470/teamlogo.png",
-    "Lyngby": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/9907/teamlogo.png",
-    "Vejle BK": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8231/teamlogo.png"
-}
-display_name_map = {
-    "Midtjylland": "FC Midtjylland",
-    "FC Copenhagen": "FC København",
-    "Brøndby": "Brøndby IF",
-    "Randers": "Randers FC",
-    "Silkeborg": "Silkeborg IF",
-    "Nordsjælland": "FC Nordsjælland",
-    "Viborg": "Viborg FF",
-    "Aalborg": "AAB",
-    "Lyngby": "Lyngby BK"
-}
-table["Team"] = table.apply(
-    lambda row: f'<img src="{logo_map[row["Team"]]}" width="40" height="40"> {display_name_map.get(row["Team"], row["Team"])}'
-    if row["Team"] in logo_map else display_name_map.get(row["Team"], row["Team"]),
-    axis=1
-)
-
-# Tabs: League table, Matches, Trends
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel"])
-
-with tab1:
-    all_optional_columns = [col for col in table.columns if col not in ["Nr.", "Team", "Pts"]]
-    all_optional_columns = list(dict.fromkeys(all_optional_columns + ["Form"]))
-    if "selected_optional" not in st.session_state or not set(st.session_state["selected_optional"]).issubset(set(all_optional_columns)):
-        st.session_state["selected_optional"] = all_optional_columns
-
-    selected_optional = st.multiselect(
-        "Til/Fra vælg kolonner",
-        options=all_optional_columns,
-        default=st.session_state["selected_optional"],
-        key="selected_optional"
-    )
-    if "Form" in selected_optional:
-        selected_optional = [col for col in selected_optional if col != "Form"]
-        final_columns = ["Nr.", "Team"] + selected_optional + ["Pts", "Form"]
-    else:
-        final_columns = ["Nr.", "Team"] + selected_optional + ["Pts"]
-    table_html = table[final_columns].to_html(escape=False, index=False, classes="centered-header")
-    st.markdown(table_html, unsafe_allow_html=True)
-
-    latest_round = df["Round"].astype(int).max()
-    kamp_visning = df[df["Round"].astype(int) == latest_round]
-    kamp_visning = kamp_visning[(kamp_visning["Home"].isin(selected_teams)) | (kamp_visning["Away"].isin(selected_teams))]
-    kamp_visning = kamp_visning.drop(columns=["League", "Day", "Time", "Attendance", "Venue", "Home Goals", "Away Goals", "Season"], errors='ignore')
-
-    st.subheader("Seneste runde")
-    kamp_visning = kamp_visning[[col for col in kamp_visning.columns if col != "Date"] + ["Date"]]
-    kamp_visning_html = kamp_visning.to_html(index=False, classes="kampoversigt", justify="center")
-    st.markdown(kamp_visning_html, unsafe_allow_html=True)
-
-with tab2:
-    if selected_specific_rounds:
-        kamp_visning = df[df["Round"].astype(int).isin(selected_specific_rounds)]
-    else:
-        kamp_visning = df[df["Round"].astype(int).between(selected_round_range[0], selected_round_range[1])]
-
-    kamp_visning = kamp_visning[(kamp_visning["Home"].isin(selected_teams)) | (kamp_visning["Away"].isin(selected_teams))]
-    st.dataframe(kamp_visning.sort_values(by="Date", ascending=False), use_container_width=True, hide_index=True, height=700)
-
-with tab3:
-    st.subheader("Udvikling i placering")
-    position_df = []
-    rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
-    for round_num in sorted(rounds_to_plot):
-        runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
-        home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
-        home_r.columns = ["Team", "Opponent", "GF", "GA"]
-        home_r["Result"] = home_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
-        away_r = runde_kampe[["Away", "Home", "Away Goals", "Home Goals"]].copy()
-        away_r.columns = ["Team", "Opponent", "GF", "GA"]
-        away_r["Result"] = away_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
-        match_r = pd.concat([home_r, away_r])
-        tbl = match_r.groupby("Team").agg(
-            MP=("Result", "count"),
-            W=("Result", lambda x: (x == "W").sum()),
-            D=("Result", lambda x: (x == "D").sum()),
-            L=("Result", lambda x: (x == "L").sum()),
-            GF=("GF", "sum"),
-            GA=("GA", "sum")
-        )
-        tbl["GD"] = tbl["GF"] - tbl["GA"]
-        tbl["Pts"] = tbl["W"] * 3 + tbl["D"]
-        tbl = tbl.sort_values(by=["Pts", "GD", "GF"], ascending=False).reset_index()
-        tbl["Position"] = tbl.index + 1
-        tbl["Round"] = round_num
-        position_df.append(tbl[["Team", "Round", "Position"]])
-
-    position_df = pd.concat(position_df, ignore_index=True)
-    position_df = position_df[position_df["Team"].isin(selected_teams)]
-
-    chart = alt.Chart(position_df).mark_line(point=True).encode(
-        x=alt.X("Round:O", title="Runde"),
-        y=alt.Y("Position:Q", sort="descending", scale=alt.Scale(domain=[1, 12], reverse=True), title="Placering"),
-        color="Team:N",
-        tooltip=["Team", "Round", "Position"]
-    ).properties(height=500)
-
-    st.altair_chart(chart, use_container_width=True)
-
-with tab4:
-    st.subheader("Intern tabel mellem valgte hold")
-    interne_kampe = all_matches[(all_matches["Team"].isin(selected_teams)) & (all_matches["Opponent"].isin(selected_teams))]
-    intern_table = compute_league_table(interne_kampe)
-    intern_table["Team"] = intern_table.apply(
-        lambda row: f'<img src="{logo_map[row["Team"]]}" width="40" height="40"> {display_name_map.get(row["Team"], row["Team"])}'
-        if row["Team"] in logo_map else display_name_map.get(row["Team"], row["Team"]),
-        axis=1
-    )
-    intern_table_html = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_html(escape=False, index=False, classes="centered-header")
-    st.markdown(intern_table_html, unsafe_allow_html=True)
+    print("Ingen shotmap-data fundet")
