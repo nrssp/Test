@@ -417,7 +417,7 @@ with tab3:
     chart = alt.Chart(position_df).mark_line(point=True).encode(
         x=alt.X("Round:O", title="Runde"),
         y=alt.Y("Position:Q", sort="descending", scale=alt.Scale(domain=[1, 12], reverse=True), title="Placering"),
-        color="Team:N",
+        color=alt.Color("Team:N", legend=alt.Legend(title="Hold")),
         tooltip=["Team", "Round", "Position"]
     ).properties(height=500)
 
