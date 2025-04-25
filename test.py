@@ -112,31 +112,16 @@ st.markdown("""
     <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
 """, unsafe_allow_html=True)
 
-
-
+# Tabs
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "📊 Ligatabel",
+    "📅 Kampe",
+    "📈 Udvikling",
+    "🏆 Intern tabel",
+    "📉 Akkumuleret liga"
+])
 
 # Custom CSS for FCK style
-table_style = """
-    <style>
-    .centered-header th {
-        text-align: center !important;
-        background-color: #011a8b !important;
-        color: white !important;
-    }
-    .kampoversigt th {
-        text-align: center !important;
-        background-color: #011a8b !important;
-        color: white !important;
-    }
-    .kampoversigt td {
-        text-align: center !important;
-    }
-    table tr:hover td {
-        background-color: #f1f1f1;
-    }
-    </style>
-"""
-st.markdown(table_style, unsafe_allow_html=True)
 
 # Sidebar: Season selection
 # Reset filters button
