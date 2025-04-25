@@ -475,8 +475,8 @@ with tab5:
     cumulative_df.sort_values(by=["Team", "Round"], inplace=True)
     cumulative_df["Total"] = cumulative_df.groupby("Team")["Pts"].cumsum()
 
-    latest_round_df = cumulative_df.sort_values("Round").drop_duplicates("Team", keep="last")
-latest_round_df["Logo"] = latest_round_df["Team"].map(logo_map).fillna("")
+    latest_round_df = cumulative_df.sort_values(["Team", "Round"]).groupby("Team", as_index=False).last()
+latest_round_df["Logo"] = latest_round_df["Team"].map(logo_map)
 
 logo_points = alt.Chart(latest_round_df).mark_image(
     width=25,
@@ -489,6 +489,10 @@ logo_points = alt.Chart(latest_round_df).mark_image(
 
 line_chart = alt.Chart(cumulative_df).mark_line(point=False).encode(
     x=alt.X("Round:O", title="Runde"),
+    y=alt.Y("Total:Q", title="Akkumulerede point"),
+    color=alt.Color("Team:N", legend=alt.Legend(title="Hold")),
+    tooltip=["Team", "Round", "Total"]
+),
     y=alt.Y("Total:Q", title="Akkumulerede point"),
     color=alt.Color("Team:N", legend=alt.Legend(title="Hold")),
     tooltip=["Team", "Round", "Total"]
