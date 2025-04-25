@@ -88,10 +88,32 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# (resten af din kode forbliver uændret og fortsætter herfra som i tidligere eksempel)
-# Nu er filteroverskrifterne fede og understregede, og filtrenes labels er blot fede uden underline
+# Eksempel på fanestruktur inkl. Akkumuleret liga
+st.title("F.C. København – Superliga Tabel")
 
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "📊 Ligatabel",
+    "📅 Kampe",
+    "📈 Udvikling",
+    "🏆 Intern tabel",
+    "📉 Akkumuleret liga"
+])
 
+with tab1:
+    st.write("Her vises ligatabellen")
+
+with tab2:
+    st.write("Her vises kampprogram og resultater")
+
+with tab3:
+    st.write("Her vises udvikling i placering over tid")
+
+with tab4:
+    st.write("Her vises intern tabel mellem valgte hold")
+
+with tab5:
+    st.subheader("Akkumuleret pointudvikling")
+    st.write("Her kan du visualisere hvordan holdene har akkumuleret point gennem sæsonen. Indhold tilføjes her.")
 
 
 # Load CSV with match results
