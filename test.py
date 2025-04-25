@@ -439,6 +439,15 @@ with tab5:
     st.subheader("Udvikling i point (akkumuleret)")
 
     cumulative_df = []
+
+    # Tilføj en startværdi: Runde 0 med 0 point for alle valgte hold
+    start_df = pd.DataFrame({
+        "Team": selected_teams,
+        "Round": [0]*len(selected_teams),
+        "Pts": [0]*len(selected_teams)
+    })
+    cumulative_df.append(start_df)
+
     rounds_sorted = sorted(df["Round"].astype(int).unique())
     for round_num in rounds_sorted:
         runde_kampe = df[df["Round"].astype(int) == round_num].copy()
@@ -466,13 +475,27 @@ with tab5:
     cumulative_df.sort_values(by=["Team", "Round"], inplace=True)
     cumulative_df["Total"] = cumulative_df.groupby("Team")["Pts"].cumsum()
 
-    chart = alt.Chart(cumulative_df).mark_line(point=True).encode(
-        x=alt.X("Round:O", title="Runde"),
-        y=alt.Y("Total:Q", title="Akkumulerede point"),
-        color="Team:N",
-        tooltip=["Team", "Round", "Total"]
-    ).properties(height=500)
+    latest_round_df = cumulative_df.sort_values("Round").drop_duplicates("Team", keep="last")
+latest_round_df["Logo"] = latest_round_df["Team"].map(logo_map)
 
-    st.altair_chart(chart, use_container_width=True)
+logo_points = alt.Chart(latest_round_df).mark_image(
+    width=25,
+    height=25
+).encode(
+    x=alt.X("Round:O"),
+    y=alt.Y("Total:Q"),
+    url="Logo:N"
+)
+
+line_chart = alt.Chart(cumulative_df).mark_line(point=False).encode(
+    x=alt.X("Round:O", title="Runde"),
+    y=alt.Y("Total:Q", title="Akkumulerede point"),
+    color="Team:N",
+    tooltip=["Team", "Round", "Total"]
+)
+
+chart = (line_chart + logo_points).properties(height=500)
+
+st.altair_chart(chart, use_container_width=True)
 
 
