@@ -494,7 +494,9 @@ line_chart = alt.Chart(cumulative_df).mark_line(point=False).encode(
     tooltip=["Team", "Round", "Total"]
 )
 
-chart = (line_chart + logo_points).properties(
+chart = alt.layer(line_chart, logo_points).resolve_scale(
+    color='independent'
+).properties(
     height=600,
     width=1000,
     padding={"right": 150, "top": 20, "left": 60, "bottom": 80}
