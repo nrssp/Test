@@ -99,22 +99,6 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📉 Akkumuleret liga"
 ])
 
-with tab1:
-    st.write("Her vises ligatabellen")
-
-with tab2:
-    st.write("Her vises kampprogram og resultater")
-
-with tab3:
-    st.write("Her vises udvikling i placering over tid")
-
-with tab4:
-    st.write("Her vises intern tabel mellem valgte hold")
-
-with tab5:
-    st.subheader("Akkumuleret pointudvikling")
-    st.write("Her kan du visualisere hvordan holdene har akkumuleret point gennem sæsonen. Indhold tilføjes her.")
-
 
 # Load CSV with match results
 csv_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_kampresultater.csv"
