@@ -499,10 +499,21 @@ chart = alt.layer(
     logo_points
 ).resolve_scale(
     color='shared'
+).configure_view(
+    stroke=None
+).configure_legend(
+    orient='bottom',
+    title='Hold',
+    titleFontSize=14,
+    labelFontSize=12,
+    direction='horizontal'
+).configure_axis(
+    labelFontSize=12,
+    titleFontSize=14
 ).properties(
     height=600,
     width=1000,
-    padding={"right": 150, "top": 20, "left": 60, "bottom": 80}
+    padding={"right": 80, "top": 20, "left": 60, "bottom": 100}
 )
 
 st.altair_chart(chart, use_container_width=True)
