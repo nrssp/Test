@@ -46,6 +46,9 @@ st.markdown("""
     section[data-testid="stSidebar"] > div > div:nth-child(6) > div > label,
     section[data-testid="stSidebar"] > div > div:nth-child(8) > div > label,
     section[data-testid="stSidebar"] > div > div:nth-child(10) > div > label {
+        font-size: 2rem !important;
+        font-weight: bold !important;
+        font-family: 'FCKSerifBold', serif !important;
         text-decoration: underline !important;
     }
 
