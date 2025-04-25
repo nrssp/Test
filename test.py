@@ -112,13 +112,7 @@ st.markdown("""
     <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
 """, unsafe_allow_html=True)
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📊 Ligatabel",
-    "📅 Kampe",
-    "📈 Udvikling",
-    "🏆 Intern tabel",
-    "📉 Akkumuleret liga"
-])
+
 
 
 # Custom CSS for FCK style
