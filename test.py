@@ -88,18 +88,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Eksempel på fanestruktur inkl. Akkumuleret liga
-st.title("F.C. København – Superliga Tabel")
-
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📊 Ligatabel",
-    "📅 Kampe",
-    "📈 Udvikling",
-    "🏆 Intern tabel",
-    "📉 Akkumuleret liga"
-])
-
-
 # Load CSV with match results
 csv_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_kampresultater.csv"
 
@@ -123,6 +111,14 @@ st.markdown("""
     </div>
     <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
 """, unsafe_allow_html=True)
+
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "📊 Ligatabel",
+    "📅 Kampe",
+    "📈 Udvikling",
+    "🏆 Intern tabel",
+    "📉 Akkumuleret liga"
+])
 
 # Custom CSS for FCK style
 table_style = """
