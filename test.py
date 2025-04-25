@@ -492,15 +492,6 @@ line_chart = alt.Chart(cumulative_df).mark_line(point=False).encode(
     y=alt.Y("Total:Q", title="Akkumulerede point"),
     color=alt.Color("Team:N", legend=alt.Legend(title="Hold")),
     tooltip=["Team", "Round", "Total"]
-),
-    y=alt.Y("Total:Q", title="Akkumulerede point"),
-    color=alt.Color("Team:N", legend=alt.Legend(title="Hold")),
-    tooltip=["Team", "Round", "Total"]
-).encode(
-    x=alt.X("Round:O", title="Runde"),
-    y=alt.Y("Total:Q", title="Akkumulerede point"),
-    color="Team:N",
-    tooltip=["Team", "Round", "Total"]
 )
 
 chart = (line_chart + logo_points).properties(height=500)
