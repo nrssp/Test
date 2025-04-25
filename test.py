@@ -388,7 +388,7 @@ with tab3:
     position_df = []
     rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
     for round_num in sorted(rounds_to_plot):
-        runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
+        runde_kampe = df[df["Round"].astype(int) == round_num].copy()
         home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
         home_r.columns = ["Team", "Opponent", "GF", "GA"]
         home_r["Result"] = home_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
