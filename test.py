@@ -450,3 +450,6 @@ with tab4:
     intern_table_html = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(intern_table_html, unsafe_allow_html=True)
 
+with tab5:
+    st.subheader("Akkumuleret liga")
+
