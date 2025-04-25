@@ -29,38 +29,24 @@ st.markdown("""
 
     section[data-testid="stSidebar"] * {
         font-family: 'FCKSerifBold', serif !important;
+        font-size: 0.95rem !important;
+        text-decoration: none !important;
     }
 
-    /* Kun overskrifter i sidebaren skal have underline */
-    section[data-testid="stSidebar"] h1,
-    section[data-testid="stSidebar"] h2,
-    section[data-testid="stSidebar"] h3,
-    section[data-testid="stSidebar"] h4 {
-        font-size: 1.1rem !important;
-        font-weight: bold !important;
-        font-family: 'FCKSerifBold', serif !important;
-        text-decoration: underline !important;
-    }
-
-    /* Filtrenes labels skal være fede men uden underline */
     section[data-testid="stSidebar"] label,
-    section[data-testid="stSidebar"] .stSlider label,
-    section[data-testid="stSidebar"] .stMultiSelect label,
-    section[data-testid="stSidebar"] .stSelectbox label,
-    section[data-testid="stSidebar"] .stTextInput label,
-    section[data-testid="stSidebar"] .stNumberInput label,
-    section[data-testid="stSidebar"] .stCheckbox label {
-        font-size: 1.1rem !important;
+    section[data-testid="stSidebar"] .stMultiSelect > label,
+    section[data-testid="stSidebar"] div[role="slider"] > label,
+    section[data-testid="stSidebar"] .stSelectbox > label {
+        font-size: 2rem !important;
+        font-weight: bold !important;
         font-family: 'FCKSerifBold', serif !important;
         text-decoration: none !important;
-        font-weight: bold !important;
     }
 
-    section[data-testid="stSidebar"] .stSlider div[data-testid="stSliderLabel"] {
-        font-size: 1.1rem !important;
-        font-family: 'FCKSerifBold', serif !important;
-        text-decoration: none !important;
-        font-weight: bold !important;
+    section[data-testid="stSidebar"] > div > div:nth-child(6) > div > label,
+    section[data-testid="stSidebar"] > div > div:nth-child(8) > div > label,
+    section[data-testid="stSidebar"] > div > div:nth-child(10) > div > label {
+        text-decoration: underline !important;
     }
 
     h1 {
@@ -112,16 +98,28 @@ st.markdown("""
     <hr style='margin-top: 10px; margin-bottom: 30px; border: 1px solid #011a8b;'>
 """, unsafe_allow_html=True)
 
-# Tabs
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📊 Ligatabel",
-    "📅 Kampe",
-    "📈 Udvikling",
-    "🏆 Intern tabel",
-    "📉 Akkumuleret liga"
-])
-
 # Custom CSS for FCK style
+table_style = """
+    <style>
+    .centered-header th {
+        text-align: center !important;
+        background-color: #011a8b !important;
+        color: white !important;
+    }
+    .kampoversigt th {
+        text-align: center !important;
+        background-color: #011a8b !important;
+        color: white !important;
+    }
+    .kampoversigt td {
+        text-align: center !important;
+    }
+    table tr:hover td {
+        background-color: #f1f1f1;
+    }
+    </style>
+"""
+st.markdown(table_style, unsafe_allow_html=True)
 
 # Sidebar: Season selection
 # Reset filters button
@@ -344,6 +342,9 @@ table["Team"] = table.apply(
     axis=1
 )
 
+# Tabs: League table, Matches, Trends
+tab1, tab2, tab3, tab4 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel"])
+
 with tab1:
     all_optional_columns = [col for col in table.columns if col not in ["Nr.", "Team", "Pts"]]
     all_optional_columns = list(dict.fromkeys(all_optional_columns + ["Form"]))
@@ -388,7 +389,7 @@ with tab3:
     position_df = []
     rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
     for round_num in sorted(rounds_to_plot):
-        runde_kampe = df[df["Round"].astype(int) == round_num].copy()
+        runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
         home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
         home_r.columns = ["Team", "Opponent", "GF", "GA"]
         home_r["Result"] = home_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
@@ -417,7 +418,7 @@ with tab3:
     chart = alt.Chart(position_df).mark_line(point=True).encode(
         x=alt.X("Round:O", title="Runde"),
         y=alt.Y("Position:Q", sort="descending", scale=alt.Scale(domain=[1, 12], reverse=True), title="Placering"),
-        color=alt.Color("Team:N", legend=alt.Legend(title="Hold")),
+        color="Team:N",
         tooltip=["Team", "Round", "Position"]
     ).properties(height=500)
 
@@ -434,82 +435,3 @@ with tab4:
     )
     intern_table_html = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(intern_table_html, unsafe_allow_html=True)
-
-with tab5:
-    st.subheader("Udvikling i point (akkumuleret)")
-
-    cumulative_df = []
-
-    # Tilføj en startværdi: Runde 0 med 0 point for alle valgte hold
-    start_df = pd.DataFrame({
-        "Team": selected_teams,
-        "Round": [0]*len(selected_teams),
-        "Pts": [0]*len(selected_teams)
-    })
-    cumulative_df.append(start_df)
-
-    rounds_sorted = sorted(df["Round"].astype(int).unique())
-    for round_num in rounds_sorted:
-        runde_kampe = df[df["Round"].astype(int) == round_num].copy()
-
-        home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
-        home_r.columns = ["Team", "Opponent", "GF", "GA"]
-        home_r["Result"] = home_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
-
-        away_r = runde_kampe[["Away", "Home", "Away Goals", "Home Goals"]].copy()
-        away_r.columns = ["Team", "Opponent", "GF", "GA"]
-        away_r["Result"] = away_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
-
-        match_r = pd.concat([home_r, away_r])
-        match_r = match_r[match_r["Team"].isin(selected_teams)]
-
-        tbl = match_r.groupby("Team").agg(
-            W=("Result", lambda x: (x == "W").sum()),
-            D=("Result", lambda x: (x == "D").sum())
-        ).reset_index()
-        tbl["Pts"] = tbl["W"] * 3 + tbl["D"]
-        tbl["Round"] = round_num
-        cumulative_df.append(tbl[["Team", "Round", "Pts"]])
-
-    cumulative_df = pd.concat(cumulative_df)
-    cumulative_df.sort_values(by=["Team", "Round"], inplace=True)
-    cumulative_df["Total"] = cumulative_df.groupby("Team")["Pts"].cumsum()
-
-    latest_round_df = cumulative_df.sort_values(["Team", "Round"]).groupby("Team", as_index=False).last()
-latest_round_df["Logo"] = latest_round_df["Team"].map(logo_map)
-
-logo_points = alt.Chart(latest_round_df).mark_image(
-    width=25,
-    height=25
-).encode(
-    x=alt.X("Round:O"),
-    y=alt.Y("Total:Q"),
-    url="Logo:N"
-)
-
-line_chart = alt.Chart(cumulative_df).mark_line(point=False).encode(
-    x=alt.X("Round:O", title="Runde"),
-    y=alt.Y("Total:Q", title="Akkumulerede point"),
-    color=alt.Color("Team:N", legend=alt.Legend(title="Hold", orient="bottom")),
-    tooltip=["Team", "Round", "Total"]
-)
-
-chart = alt.layer(
-    line_chart,
-    logo_points
-).resolve_scale(
-    color='shared'
-).configure_view(
-    stroke=None
-).configure_axis(
-    labelFontSize=12,
-    titleFontSize=14
-).properties(
-    height=600,
-    width=1000,
-    padding={"right": 80, "top": 20, "left": 60, "bottom": 100}
-)
-
-st.altair_chart(chart, use_container_width=True)
-
-
