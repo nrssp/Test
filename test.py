@@ -447,19 +447,20 @@ with tab5:
         team_matches = all_matches[all_matches["Team"] == team].copy()
         team_matches = team_matches.dropna(subset=["Date", "Result"])
         team_matches = team_matches.sort_values("Date")
+        team_matches["Round"] = team_matches.index + 1  # midlertidig rundetæller
         team_matches["Point"] = team_matches["Result"].map({"W": 3, "D": 1, "L": 0})
         team_matches["Akk. Point"] = team_matches["Point"].cumsum()
         team_matches["Kamp"] = range(1, len(team_matches) + 1)
         team_matches["Team"] = team
-        pointudvikling.append(team_matches[["Kamp", "Akk. Point", "Team"]])
+        pointudvikling.append(team_matches[["Round", "Akk. Point", "Team"]].rename(columns={"Round": "Runde"}))
 
     if pointudvikling:
         point_data = pd.concat(pointudvikling, ignore_index=True)
         chart = alt.Chart(point_data).mark_line(point=True).encode(
-            x=alt.X("Kamp:O", title="Kamp #"),
+            x=alt.X("Runde:O", title="Runde"),
             y=alt.Y("Akk. Point:Q", title="Akkumulerede point"),
             color=alt.Color("Team:N"),
-            tooltip=["Team", "Kamp", "Akk. Point"]
+            tooltip=["Team", "Runde", "Akk. Point"]
         ).properties(height=500)
         st.altair_chart(chart, use_container_width=True)
     else:
