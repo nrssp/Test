@@ -103,7 +103,7 @@ selected_round_range = st.sidebar.slider(
     "",
     min_value=min_round,
     max_value=max_round,
-    value=st.session_state.get("selected_round_range", (min_round, max_round))
+    value=st.session_state.get("selected_round_range", (min_round, max_round)),
     key="selected_round_range"
 )
 
