@@ -343,7 +343,7 @@ table["Team"] = table.apply(
 )
 
 # Tabs: League table, Matches, Trends
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel", "📚 Akkumuleret ligatabel"])
 
 with tab1:
     all_optional_columns = [col for col in table.columns if col not in ["Nr.", "Team", "Pts"]]
@@ -435,3 +435,7 @@ with tab4:
     )
     intern_table_html = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(intern_table_html, unsafe_allow_html=True)
+
+with tab5:
+    st.subheader("Akkumuleret ligatabel")
+    st.info("Her kan du fremover se, hvordan tabellen så ud runde for runde for alle hold. (Funktion under udvikling)")
