@@ -120,6 +120,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📉 Akkumuleret liga"
 ])
 
+
 # Custom CSS for FCK style
 table_style = """
     <style>
@@ -457,3 +458,6 @@ with tab4:
     )
     intern_table_html = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(intern_table_html, unsafe_allow_html=True)
+
+with tab5:
+    st.subheader("Akkumuleret liga")
