@@ -176,13 +176,11 @@ selected_round_range = st.sidebar.slider(
 )
 
 all_rounds = sorted(df["Round"].astype(int).unique())
-selected_specific_rounds = st.sidebar.markdown("<h3 style='font-family: FCKSerifBold; text-decoration: underline; font-size: 1.6rem;'>Vælg runde/r</h3>", unsafe_allow_html=True)
+st.sidebar.markdown("<h3 style='font-family: FCKSerifBold; text-decoration: underline; font-size: 1.6rem;'>Vælg runde/r</h3>", unsafe_allow_html=True)
 selected_specific_rounds = st.sidebar.multiselect(
     "",
     options=all_rounds,
     default=st.session_state.get("selected_specific_rounds", []),
-    key="selected_specific_rounds"
-),
     key="selected_specific_rounds"
 )
 
