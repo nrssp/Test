@@ -74,80 +74,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Tilføj CSS øverst i din style-blok:
-st.markdown("""
-    <style>
-    .filter-header {
-        font-family: 'FCKSerifBold', serif;
-        font-size: 2rem;
-        font-weight: bold;
-        text-decoration: underline;
-        margin-top: 1.5rem;
-        margin-bottom: 0.5rem;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# Eksempel: Udskiftning af sidebar-header med custom understeget styling
-
-st.sidebar.markdown('<div class="filter-header">Vælg sæson</div>', unsafe_allow_html=True)
-selected_specific_seasons = st.sidebar.multiselect(
-    "",
-    options=all_seasons,
-    default=st.session_state.get("selected_specific_seasons", [all_seasons[0]]),
-    key="selected_specific_seasons"
-)
-
-st.sidebar.markdown('<div class="filter-header">Vælg rundeinterval</div>', unsafe_allow_html=True)
-selected_round_range = st.sidebar.slider(
-    "",
-    min_value=min_round,
-    max_value=max_round,
-    value=st.session_state.get("selected_round_range", (min_round, max_round)),
-    key="selected_round_range"
-)
-
-st.sidebar.markdown('<div class="filter-header">Vælg runde/r</div>', unsafe_allow_html=True)
-selected_specific_rounds = st.sidebar.multiselect(
-    "",
-    options=all_rounds,
-    default=st.session_state.get("selected_specific_rounds", []),
-    key="selected_specific_rounds"
-)
-
-st.sidebar.markdown('<div class="filter-header">Vis/Skjul grupper</div>', unsafe_allow_html=True)
-show_championship = st.sidebar.checkbox(
-    "Hold i mesterskabsspillet",
-    value=st.session_state.get("Vis Championship-hold", True),
-    key="Vis Championship-hold"
-)
-show_relegation = st.sidebar.checkbox(
-    "Hold i nedrykningsslutspillet",
-    value=st.session_state.get("Vis Relegation-hold", True),
-    key="Vis Relegation-hold"
-)
-
-st.sidebar.markdown('<div class="filter-header">Vis/Skjul hold i tabel</div>', unsafe_allow_html=True)
-select_all_changed = st.sidebar.checkbox(
-    "Vælg/fravælg alle",
-    value=st.session_state.get("select_all_toggle", True),
-    key="select_all_toggle"
-)
-
-# ... her kommer checkboxene for hvert hold ...
-
-st.sidebar.markdown('<div class="filter-header">Hjemme/Ude</div>', unsafe_allow_html=True)
-show_home = st.sidebar.checkbox(
-    "Hjemmekampe",
-    value=st.session_state.get("Hjemmekampe", True),
-    key="Hjemmekampe"
-)
-show_away = st.sidebar.checkbox(
-    "Udekampe",
-    value=st.session_state.get("Udekampe", True),
-    key="Udekampe"
-)
-
 # Load CSV with match results
 csv_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_kampresultater.csv"
 
@@ -258,7 +184,7 @@ selected_specific_rounds = st.sidebar.multiselect(
 championship_teams = df[df["League"] == "championship round"]["Home"].unique().tolist()
 relegation_teams = df[df["League"] == "relegation round"]["Home"].unique().tolist()
 
-st.sidebar.markdown('<div class="filter-header">Vis/Skjul grupper</div>', unsafe_allow_html=True)
+st.sidebar.header("Vis/Skjul grupper")
 show_championship = st.sidebar.checkbox(
     "Hold i mesterskabsspillet",
     value=st.session_state.get("Vis Championship-hold", True),
