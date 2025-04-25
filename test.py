@@ -31,25 +31,7 @@ st.markdown("""
         font-family: 'FCKSerifBold', serif !important;
     }
 
-    section[data-testid="stSidebar"] label,
-    section[data-testid="stSidebar"] .stSlider label,
-    section[data-testid="stSidebar"] .stMultiSelect label,
-    section[data-testid="stSidebar"] .stSelectbox label,
-    section[data-testid="stSidebar"] .stTextInput label,
-    section[data-testid="stSidebar"] .stNumberInput label {
-        font-size: 1.1rem !important;
-        font-family: 'FCKSerifBold', serif !important;
-        text-decoration: underline !important;
-        font-weight: bold !important;
-    }
-
-    section[data-testid="stSidebar"] .stSlider div[data-testid="stSliderLabel"] {
-        font-size: 1.1rem !important;
-        font-family: 'FCKSerifBold', serif !important;
-        text-decoration: underline !important;
-        font-weight: bold !important;
-    }
-
+    /* Kun overskrifter i sidebaren skal have underline */
     section[data-testid="stSidebar"] h1,
     section[data-testid="stSidebar"] h2,
     section[data-testid="stSidebar"] h3,
@@ -58,6 +40,27 @@ st.markdown("""
         font-weight: bold !important;
         font-family: 'FCKSerifBold', serif !important;
         text-decoration: underline !important;
+    }
+
+    /* Filtrenes labels skal ikke have underline */
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] .stSlider label,
+    section[data-testid="stSidebar"] .stMultiSelect label,
+    section[data-testid="stSidebar"] .stSelectbox label,
+    section[data-testid="stSidebar"] .stTextInput label,
+    section[data-testid="stSidebar"] .stNumberInput label,
+    section[data-testid="stSidebar"] .stCheckbox label {
+        font-size: 1.1rem !important;
+        font-family: 'FCKSerifBold', serif !important;
+        text-decoration: none !important;
+        font-weight: normal !important;
+    }
+
+    section[data-testid="stSidebar"] .stSlider div[data-testid="stSliderLabel"] {
+        font-size: 1.1rem !important;
+        font-family: 'FCKSerifBold', serif !important;
+        text-decoration: none !important;
+        font-weight: normal !important;
     }
 
     h1 {
@@ -86,7 +89,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # (resten af din kode forbliver uændret og fortsætter herfra som i tidligere eksempel)
-# Nu er alle overskrifter i sidebaren ensartede, og der er ikke længere ekstra afstand mellem checkbox og label
+# Nu er det kun overskrifterne i sidebaren, der har underline — ikke filtrene
+
 
 
 # Load CSV with match results
