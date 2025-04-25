@@ -273,6 +273,9 @@ if show_home:
 if show_away:
     all_matches = pd.concat([all_matches, away_df], ignore_index=True)
 
+# Ensure Date is datetime
+all_matches["Date"] = pd.to_datetime(all_matches["Date"], errors='coerce')
+
 # Filter matches for selected teams
 # Apply round filter to df before generating tables
 if selected_specific_rounds:
@@ -441,7 +444,9 @@ with tab5:
 
     pointudvikling = []
     for team in selected_teams:
-        team_matches = all_matches[all_matches["Team"] == team].sort_values("Date")
+        team_matches = all_matches[all_matches["Team"] == team].copy()
+        team_matches = team_matches.dropna(subset=["Date", "Result"])
+        team_matches = team_matches.sort_values("Date")
         team_matches["Point"] = team_matches["Result"].map({"W": 3, "D": 1, "L": 0})
         team_matches["Akk. Point"] = team_matches["Point"].cumsum()
         team_matches["Kamp"] = range(1, len(team_matches) + 1)
@@ -459,3 +464,4 @@ with tab5:
         st.altair_chart(chart, use_container_width=True)
     else:
         st.warning("Ingen kampe tilgængelige for de valgte hold og filtre.")
+      
