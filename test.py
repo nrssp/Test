@@ -42,7 +42,7 @@ st.markdown("""
         text-decoration: underline !important;
     }
 
-    /* Filtrenes labels skal ikke have underline */
+    /* Filtrenes labels skal være fede men uden underline */
     section[data-testid="stSidebar"] label,
     section[data-testid="stSidebar"] .stSlider label,
     section[data-testid="stSidebar"] .stMultiSelect label,
@@ -53,14 +53,14 @@ st.markdown("""
         font-size: 1.1rem !important;
         font-family: 'FCKSerifBold', serif !important;
         text-decoration: none !important;
-        font-weight: normal !important;
+        font-weight: bold !important;
     }
 
     section[data-testid="stSidebar"] .stSlider div[data-testid="stSliderLabel"] {
         font-size: 1.1rem !important;
         font-family: 'FCKSerifBold', serif !important;
         text-decoration: none !important;
-        font-weight: normal !important;
+        font-weight: bold !important;
     }
 
     h1 {
@@ -89,7 +89,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # (resten af din kode forbliver uændret og fortsætter herfra som i tidligere eksempel)
-# Nu er det kun overskrifterne i sidebaren, der har underline — ikke filtrene
+# Nu er filteroverskrifterne fede og understregede, og filtrenes labels er blot fede uden underline
+
 
 
 
