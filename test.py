@@ -597,6 +597,17 @@ with tab5:
     accumulated_df = pd.concat(accumulated_points, ignore_index=True)
     accumulated_df = accumulated_df[accumulated_df["Team"].isin(selected_teams)]
 
+    # Tilføj et tomt datapunkt til at udvide visningen (efter sidste runde)
+    last_round = max(rounds_to_plot)
+    extra_row = pd.DataFrame({
+        "Team": ["Dummy Team"],  # Dummy værdi, ikke vises på X-aksen
+        "Round": [last_round + 1],  # Ekstra runde, der kun bruges til visning
+        "Pts": [0]  # Dummy placering, ikke relevant
+    })
+
+    # Tilføj den ekstra række til accumulated_df
+    accumulated_df = pd.concat([accumulated_df, extra_row], ignore_index=True)
+
     # Plotly graf
     fig = go.Figure()
 
@@ -614,15 +625,12 @@ with tab5:
             hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Point: %{{y}}<extra></extra>"
         ))
 
-        # Logo på sidste punkt
+        # Logo på sidste datapunkt
         if not team_data.empty:
             final_round = team_data["Round"].max()
             final_pts = team_data[team_data["Round"] == final_round]["Pts"].values[0]
             logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn) + ".png"
             logo_url = logo_base_url + logo_filename
-
-            # Juster billedepositionen før den sidste datapunkt
-            adjusted_final_round = final_round - 0.5  # Justeret X-positionen før den sidste datapunkt
 
             try:
                 response = requests.get(logo_url)
@@ -631,10 +639,11 @@ with tab5:
                 img.save(buffer, format="PNG")
                 encoded_image = base64.b64encode(buffer.getvalue()).decode()
 
+                # Placer billede på sidste datapunkt (rundens sidste)
                 fig.add_layout_image(
                     dict(
                         source="data:image/png;base64," + encoded_image,
-                        x=adjusted_final_round,  # Justeret billedeposition
+                        x=final_round,  # Sidste datapunkt
                         y=final_pts,
                         xref="x",
                         yref="y",
@@ -648,6 +657,7 @@ with tab5:
             except:
                 pass
 
+    # Juster marginen for at undgå beskæring
     fig.update_layout(
         xaxis_title="Runde",
         yaxis_title="Akkumulerede point",
@@ -660,12 +670,12 @@ with tab5:
             xanchor="center",
             font=dict(size=12)
         ),
-        margin=dict(l=40, r=100, t=80, b=80),  # Øget margin til højre
+        margin=dict(l=40, r=150, t=80, b=80),  # Øget margin til højre (r) for at give plads til billederne
         height=600,
         xaxis=dict(
             tickmode='linear',
             dtick=1,
-            range=[min(rounds_to_plot), max(rounds_to_plot)]  # Dynamisk justering af X-aksen
+            range=[min(rounds_to_plot), max(rounds_to_plot) + 1]  # Dynamisk justering af X-aksen (med ekstra datapunkt)
         ),
         yaxis=dict(
             tickmode='linear',
