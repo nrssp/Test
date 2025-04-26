@@ -24,6 +24,18 @@ st.markdown("""
     html, body, [class*="css"] {
         font-family: 'FCKTextSemiBold', sans-serif;
     }
+    section[data-testid="stSidebar"] * {
+        font-family: 'FCKTextSemiBold', sans-serif !important;
+    }
+    div[data-testid="stSlider"] * {
+        font-family: 'FCKTextSemiBold', sans-serif !important;
+    }
+    div[data-testid="stCheckbox"] * {
+        font-family: 'FCKTextSemiBold', sans-serif !important;
+    }
+    div[data-testid="stButton"] * {
+        font-family: 'FCKTextSemiBold', sans-serif !important;
+    }
 
     /* Baggrundsfarve */
     body {
