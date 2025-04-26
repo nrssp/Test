@@ -486,9 +486,9 @@ with tab5:
         def find_logo(team_visningsnavn):
             if team_visningsnavn in logo_map:
                 return logo_map[team_visningsnavn]
-            raw_key = next((k for k, v in display_name_map.items() if v == team_visningsnavn), None)
-            if raw_key:
-                return logo_map.get(raw_key, "")
+            for raw, visning in display_name_map.items():
+                if visning == team_visningsnavn:
+                    return logo_map.get(raw, "")
             return ""
         sidste_point["Logo"] = sidste_point["Team"].map(find_logo)
 
@@ -502,7 +502,9 @@ with tab5:
         )
 
         final_chart = (chart + logo_chart).configure_legend(
-            orient='bottom',
+            orient='none',
+            legendX=0,
+            legendY=-60,
             direction='horizontal',
             labelFontSize=11,
             titleFontSize=13,
