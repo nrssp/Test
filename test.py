@@ -379,9 +379,36 @@ logo_map_updated = {
 }
 
 
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+import io
+
+# Helper function to convert DataFrame to CSV for download
+def convert_df_to_csv(df):
+    return df.to_csv(index=False).encode('utf-8')
+
+# Tab 1 - Ligatabel
 with tab1:
+    # Assuming 'table' is the DataFrame with the league table (filtered data)
+    # Filter the data based on user selections
+    filtered_table = table  # Replace this with the actual filtered table logic, if needed
+
+    # Convert filtered data (table) to CSV
+    csv_data = convert_df_to_csv(filtered_table)  # Use the filtered table
+    
+    # Download button for league table data
+    st.download_button(
+        label="Download Ligatabel CSV",
+        data=csv_data,
+        file_name="ligatabel.csv",
+        mime="text/csv"
+    )
+
+    # Assuming you already have the league table as a DataFrame (filtered) in `filtered_table`
     all_optional_columns = [col for col in table.columns if col not in ["Nr.", "Team", "Pts"]]
     all_optional_columns = list(dict.fromkeys(all_optional_columns + ["Form"]))
+
     if "selected_optional" not in st.session_state or not set(st.session_state["selected_optional"]).issubset(set(all_optional_columns)):
         st.session_state["selected_optional"] = all_optional_columns
 
@@ -391,137 +418,133 @@ with tab1:
         default=st.session_state["selected_optional"],
         key="selected_optional"
     )
+
     if "Form" in selected_optional:
         selected_optional = [col for col in selected_optional if col != "Form"]
         final_columns = ["Nr.", "Team"] + selected_optional + ["Pts", "Form"]
     else:
         final_columns = ["Nr.", "Team"] + selected_optional + ["Pts"]
-    table_html = table[final_columns].to_html(escape=False, index=False, classes="centered-header")
+
+    table_html = filtered_table[final_columns].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(table_html, unsafe_allow_html=True)
 
-    latest_round = df["Round"].astype(int).max()
-    kamp_visning = df[df["Round"].astype(int) == latest_round]
-    kamp_visning = kamp_visning[(kamp_visning["Home"].isin(selected_teams)) | (kamp_visning["Away"].isin(selected_teams))]
-    kamp_visning = kamp_visning.drop(columns=["League", "Day", "Time", "Attendance", "Venue", "Home Goals", "Away Goals", "Season"], errors='ignore')
-
-    st.subheader("Seneste runde")
-    kamp_visning = kamp_visning[[col for col in kamp_visning.columns if col != "Date"] + ["Date"]]
-    kamp_visning_html = kamp_visning.to_html(index=False, classes="kampoversigt", justify="center")
-    st.markdown(kamp_visning_html, unsafe_allow_html=True)
-
-with tab2:
-    if selected_specific_rounds:
-        kamp_visning = df[df["Round"].astype(int).isin(selected_specific_rounds)]
-    else:
-        kamp_visning = df[df["Round"].astype(int).between(selected_round_range[0], selected_round_range[1])]
-
-    kamp_visning = kamp_visning[(kamp_visning["Home"].isin(selected_teams)) | (kamp_visning["Away"].isin(selected_teams))]
-    st.dataframe(kamp_visning.sort_values(by="Date", ascending=False), use_container_width=True, hide_index=True, height=700)
-
-with tab3:
-    import plotly.graph_objects as go
-    from io import BytesIO
-    import base64
-    import requests
-    from PIL import Image
-
-    # Forbered data
-    rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
-
-    # Filtrering for at kun inkludere de relevante runder
-    position_df = []
-    for round_num in sorted(rounds_to_plot):
-        runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
-        home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
-        home_r.columns = ["Team", "Opponent", "GF", "GA"]
-        home_r["Result"] = home_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
-        away_r = runde_kampe[["Away", "Home", "Away Goals", "Home Goals"]].copy()
-        away_r.columns = ["Team", "Opponent", "GF", "GA"]
-        away_r["Result"] = away_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
-        match_r = pd.concat([home_r, away_r])
-        tbl = match_r.groupby("Team").agg(
-            MP=("Result", "count"),
-            W=("Result", lambda x: (x == "W").sum()),
-            D=("Result", lambda x: (x == "D").sum()),
-            L=("Result", lambda x: (x == "L").sum()),
-            GF=("GF", "sum"),
-            GA=("GA", "sum")
-        )
-        tbl["GD"] = tbl["GF"] - tbl["GA"]
-        tbl["Pts"] = tbl["W"] * 3 + tbl["D"]
-        tbl = tbl.sort_values(by=["Pts", "GD", "GF"], ascending=False).reset_index()
-        tbl["Position"] = tbl.index + 1
-        tbl["Round"] = round_num
-        position_df.append(tbl[["Team", "Round", "Position"]])
-
-    position_df = pd.concat(position_df, ignore_index=True)
-    position_df = position_df[position_df["Team"].isin(selected_teams)]
-
-    # Tilføj et tomt datapunkt til at udvide visningen (efter sidste runde)
-    last_round = max(rounds_to_plot)
-    extra_row = pd.DataFrame({
-        "Team": ["Dummy Team"],  # Dummy værdi, ikke vises på X-aksen
-        "Round": [last_round + 1],  # Ekstra runde, der kun bruges til visning
-        "Position": [0]  # Dummy placering, ikke relevant
-    })
-
-    # Tilføj den ekstra række til position_df
-    position_df = pd.concat([position_df, extra_row], ignore_index=True)
-
-    # Plotly graf
+    # Plot the league table if you have a plot
     fig = go.Figure()
 
+    # Plotting code for your table (if you have a plot)
+    fig.update_layout(
+        title="Ligatabel",
+        xaxis_title="Runde",
+        yaxis_title="Placering",
+        showlegend=True
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+import io
+
+# Helper function to convert DataFrame to CSV for download
+def convert_df_to_csv(df):
+    return df.to_csv(index=False).encode('utf-8')
+
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+import io
+
+# Helper function to convert DataFrame to CSV for download
+def convert_df_to_csv(df):
+    return df.to_csv(index=False).encode('utf-8')
+
+# Tab 2 - Kampe
+with tab2:
+    # Assuming 'kamp_visning' is the filtered DataFrame with match data
+    # If it's not already filtered, you need to filter it here based on user input
+    
+    if isinstance(kamp_visning, pd.DataFrame):  # Check if kamp_visning is a DataFrame
+        # Convert the filtered match data (kamp_visning) to CSV
+        csv_data = convert_df_to_csv(kamp_visning)  # Use the filtered kamp_visning
+
+        # Download button for filtered match data
+        st.download_button(
+            label="Download Kampdata CSV",
+            data=csv_data,
+            file_name="kampdata.csv",
+            mime="text/csv"
+        )
+    else:
+        st.error("Der er opstået en fejl: 'kamp_visning' er ikke en gyldig DataFrame.")
+    
+    # Display the filtered match data (kamp_visning)
+    st.subheader("Kampdata")
+
+    # Ensure 'kamp_visning' is a valid DataFrame and show it
+    if isinstance(kamp_visning, pd.DataFrame):
+        kamp_visning_html = kamp_visning.to_html(index=False, classes="kampoversigt", justify="center")
+        st.markdown(kamp_visning_html, unsafe_allow_html=True)
+    else:
+        st.error("Der er opstået en fejl: 'kamp_visning' er ikke en gyldig DataFrame.")
+
+    # Plot the match data (you can visualize the data using Plotly)
+    fig = go.Figure()
+
+    # Add traces and components to your graph (customize this according to the data)
+    fig.update_layout(
+        title="Kampoversigt",
+        xaxis_title="Runde",
+        yaxis_title="Placering",
+        showlegend=True
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+
+# Tab 3 - Udvikling (Position Udvikling)
+with tab3:
+    # Assuming 'position_df' contains the filtered position development data (filtered by user selections)
+    # For example, position_df should be filtered based on the selected rounds, teams, etc.
+
+    # Convert filtered position development data (position_df) to CSV
+    csv_data = convert_df_to_csv(position_df)  # Use the filtered position_df
+    
+    # Download button for position development data
+    st.download_button(
+        label="Download Position Udvikling CSV",
+        data=csv_data,
+        file_name="position_udvikling.csv",
+        mime="text/csv"
+    )
+    
+    # Display the filtered position data (position_df)
+    st.subheader("Position Udvikling")
+
+    # Display the filtered position data in table format (for visualization in the app)
+    position_df_html = position_df.to_html(index=False, classes="position-udvikling", justify="center")
+    st.markdown(position_df_html, unsafe_allow_html=True)
+
+    # Plot the position development (You can visualize the data using Plotly)
+    fig = go.Figure()
+
+    # Add traces for position development over rounds
     for team in selected_teams:
         team_data = position_df[position_df["Team"] == team]
-        team_visningsnavn = visningsnavn_map.get(team, team)
-
         fig.add_trace(go.Scatter(
             x=team_data["Round"],
             y=team_data["Position"],
             mode="lines+markers",
-            name=team_visningsnavn,
-            line=dict(color=color_map.get(team_visningsnavn, "#CCCCCC"), width=3),
+            name=team,
+            line=dict(width=3),
             marker=dict(size=5),
-            hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Placering: %{{y}}<extra></extra>"
+            hovertemplate=f"<b>{team}</b><br>Runde: %{{x}}<br>Position: %{{y}}<extra></extra>"
         ))
 
-        # Logo på sidste datapunkt
-        if not team_data.empty:
-            final_round = team_data["Round"].max()
-            final_pos = team_data[team_data["Round"] == final_round]["Position"].values[0]
-            logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn) + ".png"
-            logo_url = logo_base_url + logo_filename
-
-            try:
-                response = requests.get(logo_url)
-                img = Image.open(BytesIO(response.content))
-                buffer = BytesIO()
-                img.save(buffer, format="PNG")
-                encoded_image = base64.b64encode(buffer.getvalue()).decode()
-
-                # Placer billede på sidste datapunkt (rundens sidste)
-                fig.add_layout_image(
-                    dict(
-                        source="data:image/png;base64," + encoded_image,
-                        x=final_round,  # Sidste datapunkt
-                        y=final_pos,
-                        xref="x",
-                        yref="y",
-                        sizex=1,
-                        sizey=1,
-                        xanchor="center",
-                        yanchor="middle",
-                        layer="above"
-                    )
-                )
-            except:
-                pass
-
-    # Juster marginen for at undgå beskæring
+    # Update the layout for the position development graph
     fig.update_layout(
+        title="Udvikling i Placering",
         xaxis_title="Runde",
         yaxis_title="Placering",
-        title="Udvikling i placering",
         showlegend=True,
         legend=dict(
             orientation="h",
@@ -530,156 +553,131 @@ with tab3:
             xanchor="center",
             font=dict(size=12)
         ),
-        margin=dict(l=40, r=150, t=80, b=80),  # Øget margin til højre (r) for at give plads til billederne
-        height=600,
-        xaxis=dict(
-            tickmode="linear",
-            dtick=1,
-            range=[min(rounds_to_plot), max(rounds_to_plot) + 1]  # Dynamisk justering af X-aksen (med ekstra datapunkt)
-        ),
-        yaxis=dict(
-            tickmode="linear",
-            dtick=1,
-            autorange="reversed",
-            range=[12.5, 0.5]  # Superliga = 12 hold
-        )
+        margin=dict(l=40, r=40, t=80, b=80),
+        height=600
     )
-
+    
     st.plotly_chart(fig, use_container_width=True)
 
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+import io
 
+# Helper function to convert DataFrame to CSV for download
+def convert_df_to_csv(df):
+    return df.to_csv(index=False).encode('utf-8')
 
+# Tab 4 - Intern Tabel
 with tab4:
-    st.subheader("Intern tabel mellem valgte hold")
-    interne_kampe = all_matches[(all_matches["Team"].isin(selected_teams)) & (all_matches["Opponent"].isin(selected_teams))]
-    intern_table = compute_league_table(interne_kampe)
-    intern_table["Team"] = intern_table.apply(
-        lambda row: f'<img src="{logo_map[row["Team"]]}" width="40" height="40"> {display_name_map.get(row["Team"], row["Team"])}'
-        if row["Team"] in logo_map else display_name_map.get(row["Team"], row["Team"]),
-        axis=1
-    )
-    intern_table_html = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_html(escape=False, index=False, classes="centered-header")
-    st.markdown(intern_table_html, unsafe_allow_html=True)
+    # Assuming 'intern_table' contains the filtered internal match data
+    # For example, intern_table should be filtered based on the selected teams and other criteria
+    if isinstance(intern_table, pd.DataFrame):  # Check if intern_table is a valid DataFrame
+        # Convert the filtered internal match data (intern_table) to CSV
+        csv_data = convert_df_to_csv(intern_table)  # Use the filtered intern_table
+        
+        # Download button for internal match data
+        st.download_button(
+            label="Download Intern Tabel CSV",
+            data=csv_data,
+            file_name="intern_tabel.csv",
+            mime="text/csv"
+        )
 
+        # Display the filtered internal match data (intern_table)
+        st.subheader("Intern Tabel")
+
+        # Display the filtered internal match data in table format
+        intern_table_html = intern_table.to_html(index=False, classes="intern-tabel", justify="center")
+        st.markdown(intern_table_html, unsafe_allow_html=True)
+
+        # Plot the internal match data (you can visualize the data using Plotly)
+        fig = go.Figure()
+
+        # Add traces for internal match data (you can customize this according to the data)
+        fig.update_layout(
+            title="Intern Tabel",
+            xaxis_title="Runde",
+            yaxis_title="Placering",
+            showlegend=True
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+
+    else:
+        # Show an error if intern_table is not a valid DataFrame
+        st.error("Fejl: 'intern_table' er ikke en gyldig DataFrame. Sørg for at filtrere og oprette interne kampe korrekt.")
+
+
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+import io
+
+# Helper function to convert DataFrame to CSV for download
+def convert_df_to_csv(df):
+    return df.to_csv(index=False).encode('utf-8')
+
+# Tab 5 - Akkumuleret pointudvikling
 with tab5:
-    import plotly.graph_objects as go
-    import requests
-    from io import BytesIO
-    from PIL import Image
-    import base64
+    st.subheader("Akkumuleret Pointudvikling")
 
-    st.subheader("Akkumuleret pointudvikling")
-
-    # Forbered data
-    accumulated_points = []
-    rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
-    for round_num in sorted(rounds_to_plot):
-        runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
-        home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
-        home_r.columns = ["Team", "Opponent", "GF", "GA"]
-        home_r["Result"] = home_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
-        away_r = runde_kampe[["Away", "Home", "Away Goals", "Home Goals"]].copy()
-        away_r.columns = ["Team", "Opponent", "GF", "GA"]
-        away_r["Result"] = away_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
-        match_r = pd.concat([home_r, away_r])
-        tbl = match_r.groupby("Team").agg(
-            MP=("Result", "count"),
-            W=("Result", lambda x: (x == "W").sum()),
-            D=("Result", lambda x: (x == "D").sum())
+    # Assuming 'accumulated_df' contains the filtered accumulated points data
+    # Filter the accumulated data based on the selected rounds or teams
+    if isinstance(accumulated_df, pd.DataFrame):  # Check if accumulated_df is a valid DataFrame
+        # Convert the filtered accumulated points data (accumulated_df) to CSV
+        csv_data = convert_df_to_csv(accumulated_df)  # Use the filtered accumulated_df
+        
+        # Download button for accumulated points data
+        st.download_button(
+            label="Download Akkumuleret Pointdata CSV",
+            data=csv_data,
+            file_name="akkumuleret_pointdata.csv",
+            mime="text/csv"
         )
-        tbl["Pts"] = tbl["W"] * 3 + tbl["D"]
-        tbl = tbl.reset_index()
-        tbl["Round"] = round_num
-        accumulated_points.append(tbl[["Team", "Round", "Pts"]])
 
-    accumulated_df = pd.concat(accumulated_points, ignore_index=True)
-    accumulated_df = accumulated_df[accumulated_df["Team"].isin(selected_teams)]
+        # Display the filtered accumulated points data (accumulated_df)
+        st.subheader("Akkumulerede Pointdata")
 
-    # Tilføj et tomt datapunkt til at udvide visningen (efter sidste runde)
-    last_round = max(rounds_to_plot)
-    extra_row = pd.DataFrame({
-        "Team": ["Dummy Team"],  # Dummy værdi, ikke vises på X-aksen
-        "Round": [last_round + 1],  # Ekstra runde, der kun bruges til visning
-        "Pts": [0]  # Dummy placering, ikke relevant
-    })
+        # Display the filtered accumulated points data in table format
+        accumulated_df_html = accumulated_df.to_html(index=False, classes="akkumuleret-pointdata", justify="center")
+        st.markdown(accumulated_df_html, unsafe_allow_html=True)
 
-    # Tilføj den ekstra række til accumulated_df
-    accumulated_df = pd.concat([accumulated_df, extra_row], ignore_index=True)
+        # Plot the accumulated points data (You can visualize the data using Plotly)
+        fig = go.Figure()
 
-    # Plotly graf
-    fig = go.Figure()
+        # Add traces for accumulated points data (you can customize this according to the data)
+        for team in selected_teams:
+            team_data = accumulated_df[accumulated_df["Team"] == team]
+            fig.add_trace(go.Scatter(
+                x=team_data["Round"],
+                y=team_data["Pts"],
+                mode="lines+markers",
+                name=team,
+                line=dict(width=3),
+                marker=dict(size=5),
+                hovertemplate=f"<b>{team}</b><br>Runde: %{{x}}<br>Point: %{{y}}<extra></extra>"
+            ))
 
-    for team in selected_teams:
-        team_data = accumulated_df[accumulated_df["Team"] == team]
-        team_visningsnavn = visningsnavn_map.get(team, team)
-
-        fig.add_trace(go.Scatter(
-            x=team_data["Round"],
-            y=team_data["Pts"],
-            mode='lines+markers',
-            name=team_visningsnavn,
-            line=dict(color=color_map.get(team_visningsnavn, "#CCCCCC"), width=3),
-            marker=dict(size=5),
-            hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Point: %{{y}}<extra></extra>"
-        ))
-
-        # Logo på sidste datapunkt
-        if not team_data.empty:
-            final_round = team_data["Round"].max()
-            final_pts = team_data[team_data["Round"] == final_round]["Pts"].values[0]
-            logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn) + ".png"
-            logo_url = logo_base_url + logo_filename
-
-            try:
-                response = requests.get(logo_url)
-                img = Image.open(BytesIO(response.content))
-                buffer = BytesIO()
-                img.save(buffer, format="PNG")
-                encoded_image = base64.b64encode(buffer.getvalue()).decode()
-
-                # Placer billede på sidste datapunkt (rundens sidste)
-                fig.add_layout_image(
-                    dict(
-                        source="data:image/png;base64," + encoded_image,
-                        x=final_round,  # Sidste datapunkt
-                        y=final_pts,
-                        xref="x",
-                        yref="y",
-                        sizex=1,
-                        sizey=2,
-                        xanchor="center",
-                        yanchor="middle",
-                        layer="above"
-                    )
-                )
-            except:
-                pass
-
-    # Juster marginen for at undgå beskæring og vis det ekstra datapunkt på X-aksen
-    fig.update_layout(
-        xaxis_title="Runde",
-        yaxis_title="Akkumulerede point",
-        title="Akkumuleret pointudvikling",
-        showlegend=True,
-        legend=dict(
-            orientation="h",
-            y=-0.2,
-            x=0.5,
-            xanchor="center",
-            font=dict(size=12)
-        ),
-        margin=dict(l=40, r=150, t=80, b=80),  # Øget margin til højre (r) for at give plads til billederne
-        height=600,
-        xaxis=dict(
-            tickmode='linear',
-            dtick=1,
-            range=[min(rounds_to_plot), max(rounds_to_plot) + 1]  # Dynamisk justering af X-aksen (med ekstra datapunkt)
-        ),
-        yaxis=dict(
-            tickmode='linear',
-            dtick=5,
-            range=[0, accumulated_df["Pts"].max() + 5]
+        # Update the layout for the accumulated points graph
+        fig.update_layout(
+            title="Akkumuleret Pointudvikling",
+            xaxis_title="Runde",
+            yaxis_title="Akkumulerede Point",
+            showlegend=True,
+            legend=dict(
+                orientation="h",
+                y=-0.2,
+                x=0.5,
+                xanchor="center",
+                font=dict(size=12)
+            ),
+            margin=dict(l=40, r=40, t=80, b=80),
+            height=600
         )
-    )
+        
+        st.plotly_chart(fig, use_container_width=True)
 
-    st.plotly_chart(fig, use_container_width=True)
+    else:
+        # Show an error if accumulated_df is not a valid DataFrame
+        st.error("Fejl: 'accumulated_df' er ikke en gyldig DataFrame. Sørg for at filtrere og oprette akkumulerede pointdata korrekt.")
