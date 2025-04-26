@@ -425,8 +425,6 @@ with tab3:
     import requests
     from PIL import Image
 
-    st.subheader("Udvikling i placering")
-
     # Forbered data
     rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
 
@@ -569,8 +567,6 @@ with tab5:
     from io import BytesIO
     from PIL import Image
     import base64
-
-    st.subheader("Akkumuleret pointudvikling")
 
     # Forbered data
     accumulated_points = []
