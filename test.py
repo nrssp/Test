@@ -74,6 +74,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Tilføj FCK styling i starten af din app
 st.markdown("""
     <style>
     /* Baggrundsfarve */
@@ -100,7 +101,7 @@ st.markdown("""
         background-color: #0a2ad9;
         color: white;
     }
-    /* Checkbox styling grå */
+    /* Checkbox styling */
     div[data-testid="stCheckbox"] > label > div:first-child {
         background-color: white;
         border: 2px solid gray;
@@ -114,7 +115,15 @@ st.markdown("""
     div[data-testid="stSlider"] > div > div > div,
     div[data-testid="stSlider"] > div > div > div:nth-child(4),
     div[data-testid="stSlider"] > div > div > div[role="progressbar"] {
-        background: #bababa;
+        background: #011A8B;
+    }
+    /* Slider værdi-boks styling */
+    div[data-testid="stSlider"] > div > div > div:nth-child(5) {
+        background-color: #011A8B;
+        color: white;
+        font-weight: bold;
+        padding: 2px 8px;
+        border-radius: 8px;
     }
     </style>
 """, unsafe_allow_html=True)
