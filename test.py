@@ -683,4 +683,3 @@ with tab5:
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
