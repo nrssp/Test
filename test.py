@@ -443,7 +443,7 @@ with tab3:
     rounds_to_plot = sorted(df[(df["Round"].astype(int) >= selected_round_range[0]) & 
                                (df["Round"].astype(int) <= selected_round_range[1])]["Round"].astype(int).unique())
 
-    # Hvis ingen specifik filtrering på runde, så tilføj runde 0
+    # Hvis der ikke er filtreret på specifikke runder, tilføj runde 0
     if not selected_specific_rounds:
         start_rows = []
         for team in selected_teams:
@@ -451,6 +451,7 @@ with tab3:
         start_df = pd.DataFrame(start_rows)
         position_df.append(start_df)
 
+    # Filtrer runderne og generer data
     for round_num in rounds_to_plot:
         runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
 
