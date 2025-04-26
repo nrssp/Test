@@ -437,10 +437,11 @@ with tab4:
     st.markdown(intern_table_html, unsafe_allow_html=True)
 
 with tab5:
-    import matplotlib.pyplot as plt
-    import matplotlib.image as mpimg
+    import plotly.graph_objects as go
     import requests
     from io import BytesIO
+    from PIL import Image
+    import base64
 
     st.subheader("Akkumuleret pointudvikling")
 
@@ -467,6 +468,24 @@ with tab5:
 
     accumulated_df = pd.concat(accumulated_points, ignore_index=True)
 
+    accumulated_df = accumulated_df[accumulated_df["Team"].isin(selected_teams)]
+
+    # Farver på linjer
+    color_map = {
+        "FC København": "#011A8B",
+        "FC Midtjylland": "#000000",
+        "Brøndby IF": "#FFD700",
+        "FC Nordsjælland": "#FFA500",
+        "Randers FC": "#00BFFF",
+        "AGF": "#808080",
+        "Viborg FF": "#008000",
+        "Silkeborg IF": "#FFB6C1",
+        "SønderjyskE": "#40E0D0",
+        "Lyngby BK": "#800080",
+        "Vejle BK": "#FF0000",
+        "AAB": "#800000"
+    }
+
     logo_base_url = "https://raw.githubusercontent.com/nrssp/Test/main/Logoer/"
     logo_map_updated = {
         "FC København": "FC%20K%C3%B8benhavn",
@@ -483,62 +502,67 @@ with tab5:
         "FC Midtjylland": "FC%20Midtjylland"
     }
 
-   # Farver på linjer
-color_map = {
-    "FC København": "#011A8B",
-    "FC Midtjylland": "#000000",
-    "Brøndby IF": "#FFD700",
-    "FC Nordsjælland": "#FFA500",
-    "Randers FC": "#00BFFF",
-    "AGF": "#808080",
-    "Viborg FF": "#008000",
-    "Silkeborg IF": "#FFB6C1",
-    "SønderjyskE": "#40E0D0",
-    "Lyngby BK": "#800080",
-    "Vejle BK": "#FF0000",
-    "AAB": "#800000"
-}
+    fig = go.Figure()
 
-fig, ax = plt.subplots(figsize=(14, 7))
+    for team in selected_teams:
+        team_data = accumulated_df[accumulated_df["Team"] == team]
+        team_visningsnavn = visningsnavn_map.get(team, team)
 
-for team in selected_teams:
-    team_data = accumulated_df[accumulated_df["Team"] == team]
-    team_visningsnavn = visningsnavn_map.get(team, team)
-    ax.plot(
-        team_data["Round"], 
-        team_data["Pts"], 
-        '-', 
-        label=team, 
-        linewidth=2, 
-        color=color_map.get(team_visningsnavn, "#CCCCCC")
+        fig.add_trace(go.Scatter(
+            x=team_data["Round"],
+            y=team_data["Pts"],
+            mode='lines+markers',
+            name=team_visningsnavn,
+            line=dict(color=color_map.get(team_visningsnavn, "#CCCCCC"), width=3),
+            marker=dict(size=5),
+            hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Point: %{{y}}<extra></extra>"
+        ))
+
+        # Tilføj logo på sidste punkt
+        if not team_data.empty:
+            final_round = team_data["Round"].max()
+            final_pts = team_data[team_data["Round"] == final_round]["Pts"].values[0]
+            logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn) + ".png"
+            logo_url = logo_base_url + logo_filename
+
+            try:
+                response = requests.get(logo_url)
+                img = Image.open(BytesIO(response.content))
+                buffer = BytesIO()
+                img.save(buffer, format="PNG")
+                encoded_image = base64.b64encode(buffer.getvalue()).decode()
+
+                fig.add_layout_image(
+                    dict(
+                        source="data:image/png;base64," + encoded_image,
+                        x=final_round,
+                        y=final_pts,
+                        xref="x",
+                        yref="y",
+                        sizex=1,
+                        sizey=2,
+                        xanchor="center",
+                        yanchor="middle",
+                        layer="above"
+                    )
+                )
+            except:
+                pass
+
+    fig.update_layout(
+        xaxis_title="Runde",
+        yaxis_title="Akkumulerede point",
+        title="Akkumuleret pointudvikling",
+        showlegend=True,
+        legend=dict(
+            orientation="h",
+            y=-0.2,
+            x=0.5,
+            xanchor="center",
+            font=dict(size=12)
+        ),
+        margin=dict(l=40, r=40, t=80, b=80),
+        height=600
     )
 
-    if not team_data.empty:
-        final_round = team_data["Round"].max()
-        final_pts = team_data[team_data["Round"] == final_round]["Pts"].values[0]
-
-        logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn).replace(" ", "%20") + ".png"
-        logo_url = logo_base_url + logo_filename
-
-        try:
-            response = requests.get(logo_url)
-            img = mpimg.imread(BytesIO(response.content), format='png')
-            ax.imshow(img, extent=(final_round-0.3, final_round+0.3, final_pts-0.6, final_pts+0.6), aspect='auto', zorder=5)
-        except:
-            pass
-
-ax.set_xlabel("Runde")
-ax.set_ylabel("Akkumulerede point")
-ax.set_title("Pointudvikling pr. hold")
-ax.grid(True)
-ax.set_xlim(1, max(rounds_to_plot) + 2)
-ax.set_ylim(0, accumulated_df["Pts"].max() + 5)
-
-ax.legend(
-    loc='upper center',
-    bbox_to_anchor=(0.5, -0.15),
-    ncol=4,
-    frameon=False
-)
-
-st.pyplot(fig)
+    st.plotly_chart(fig, use_container_width=True)
