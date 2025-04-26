@@ -510,7 +510,7 @@ with tab5:
     ax.set_ylabel("Akkumulerede point")
     ax.set_title("Pointudvikling pr. hold")
     ax.grid(True)
-    ax.set_xlim(1, max(rounds_to_plot))
+    ax.set_xlim(1, max(rounds_to_plot) + 2)
     ax.set_ylim(0, accumulated_df["Pts"].max() + 5)
     ax.legend().remove()
 
