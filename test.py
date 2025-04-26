@@ -380,8 +380,12 @@ logo_map_updated = {
 
 
 with tab1:
+    import io
+
+    # Til/Fra vælg kolonner
     all_optional_columns = [col for col in table.columns if col not in ["Nr.", "Team", "Pts"]]
     all_optional_columns = list(dict.fromkeys(all_optional_columns + ["Form"]))
+
     if "selected_optional" not in st.session_state or not set(st.session_state["selected_optional"]).issubset(set(all_optional_columns)):
         st.session_state["selected_optional"] = all_optional_columns
 
@@ -391,14 +395,35 @@ with tab1:
         default=st.session_state["selected_optional"],
         key="selected_optional"
     )
+
     if "Form" in selected_optional:
         selected_optional = [col for col in selected_optional if col != "Form"]
         final_columns = ["Nr.", "Team"] + selected_optional + ["Pts", "Form"]
     else:
         final_columns = ["Nr.", "Team"] + selected_optional + ["Pts"]
+
+    # Vis tabel
     table_html = table[final_columns].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(table_html, unsafe_allow_html=True)
 
+    # Download som CSV
+    filtered_table = table[final_columns]
+
+    # Fjern HTML tags fra "Team" kolonnen, så CSV bliver ren
+    filtered_table_download = filtered_table.copy()
+    filtered_table_download["Team"] = filtered_table_download["Team"].str.replace(r'<.*?>', '', regex=True)
+
+    csv_buffer = io.StringIO()
+    filtered_table_download.to_csv(csv_buffer, index=False)
+
+    st.download_button(
+        label="👅 Download tabel som CSV",
+        data=csv_buffer.getvalue(),
+        file_name="superliga_tabel.csv",
+        mime="text/csv"
+    )
+
+    # Seneste runde visning
     latest_round = df["Round"].astype(int).max()
     kamp_visning = df[df["Round"].astype(int) == latest_round]
     kamp_visning = kamp_visning[(kamp_visning["Home"].isin(selected_teams)) | (kamp_visning["Away"].isin(selected_teams))]
@@ -408,6 +433,7 @@ with tab1:
     kamp_visning = kamp_visning[[col for col in kamp_visning.columns if col != "Date"] + ["Date"]]
     kamp_visning_html = kamp_visning.to_html(index=False, classes="kampoversigt", justify="center")
     st.markdown(kamp_visning_html, unsafe_allow_html=True)
+
 
 with tab2:
     if selected_specific_rounds:
