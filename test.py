@@ -346,7 +346,7 @@ table["Team"] = table.apply(
 )
 
 # Tabs: League table, Matches, Trends
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel", "📚 Akkumuleret ligatabel"])
 
 with tab1:
     all_optional_columns = [col for col in table.columns if col not in ["Nr.", "Team", "Pts"]]
@@ -438,3 +438,31 @@ with tab4:
     )
     intern_table_html = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(intern_table_html, unsafe_allow_html=True)
+
+with tab5:
+    st.subheader("Akkumuleret ligatabel")
+    pointudvikling = []
+    for team in selected_teams:
+        team_kampe = df[(df["Home"] == team) | (df["Away"] == team)].copy()
+        team_kampe = team_kampe.sort_values("Date")
+        team_kampe["Point"] = team_kampe.apply(
+            lambda row: 3 if (row["Home"] == team and row["Home Goals"] > row["Away Goals"]) or (row["Away"] == team and row["Away Goals"] > row["Home Goals"]) 
+            else 1 if row["Home Goals"] == row["Away Goals"] else 0,
+            axis=1
+        )
+        team_kampe["Akkumuleret Point"] = team_kampe["Point"].cumsum()
+        team_kampe["Runde"] = range(1, len(team_kampe) + 1)
+        team_kampe["Team"] = visningsnavn_map.get(team, team)
+        pointudvikling.append(team_kampe[["Runde", "Akkumuleret Point", "Team"]])
+
+    if pointudvikling:
+        point_data = pd.concat(pointudvikling, ignore_index=True)
+        chart = alt.Chart(point_data).mark_line(point=True).encode(
+            x=alt.X("Runde:O", title="Runde"),
+            y=alt.Y("Akkumuleret Point:Q", title="Akkumulerede point"),
+            color=alt.Color("Team:N"),
+            tooltip=["Team", "Runde", "Akkumuleret Point"]
+        ).properties(height=500)
+        st.altair_chart(chart, use_container_width=True)
+    else:
+        st.info("Ingen data tilgængelig for valgte hold og filtre.")
