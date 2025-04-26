@@ -273,9 +273,6 @@ if show_home:
 if show_away:
     all_matches = pd.concat([all_matches, away_df], ignore_index=True)
 
-# Ensure Date is datetime
-all_matches["Date"] = pd.to_datetime(all_matches["Date"], errors='coerce')
-
 # Filter matches for selected teams
 # Apply round filter to df before generating tables
 if selected_specific_rounds:
@@ -316,25 +313,16 @@ table = compute_league_table(all_matches)
 # Tilføj klublogoer og visningsnavne
 logo_map = {
     "FC Copenhagen": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8391/teamlogo.png",
-    "FC København": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8391/teamlogo.png",
     "Midtjylland": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8113/teamlogo.png",
-    "FC Midtjylland": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8113/teamlogo.png",
     "Brøndby": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8595/teamlogo.png",
-    "Brøndby IF": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8595/teamlogo.png",
     "Randers": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8410/teamlogo.png",
-    "Randers FC": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8410/teamlogo.png",
     "AGF": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8071/teamlogo.png",
     "Silkeborg": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8415/teamlogo.png",
-    "Silkeborg IF": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8415/teamlogo.png",
     "Nordsjælland": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/10202/teamlogo.png",
-    "FC Nordsjælland": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/10202/teamlogo.png",
     "Viborg": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/9939/teamlogo.png",
-    "Viborg FF": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/9939/teamlogo.png",
     "SønderjyskE": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8487/teamlogo.png",
     "Aalborg": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8470/teamlogo.png",
-    "AAB": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8470/teamlogo.png",
     "Lyngby": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/9907/teamlogo.png",
-    "Lyngby BK": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/9907/teamlogo.png",
     "Vejle BK": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8231/teamlogo.png"
 }
 display_name_map = {
@@ -355,7 +343,7 @@ table["Team"] = table.apply(
 )
 
 # Tabs: League table, Matches, Trends
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel", "📚 Akkumuleret ligatabel"])
+tab1, tab2, tab3, tab4 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel"])
 
 with tab1:
     all_optional_columns = [col for col in table.columns if col not in ["Nr.", "Team", "Pts"]]
@@ -432,13 +420,9 @@ with tab3:
         y=alt.Y("Position:Q", sort="descending", scale=alt.Scale(domain=[1, 12], reverse=True), title="Placering"),
         color="Team:N",
         tooltip=["Team", "Round", "Position"]
-    ).properties(height=900)
+    ).properties(height=500)
 
     st.altair_chart(chart, use_container_width=True)
-
-    
-
-        
 
 with tab4:
     st.subheader("Intern tabel mellem valgte hold")
@@ -451,70 +435,3 @@ with tab4:
     )
     intern_table_html = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(intern_table_html, unsafe_allow_html=True)
-
-with tab5:
-    st.subheader("Akkumuleret ligatabel")
-    pointudvikling = []
-    for team in selected_teams:
-        team_kampe = df[(df["Home"] == team) | (df["Away"] == team)].copy()
-        team_kampe = team_kampe.sort_values("Date")
-        team_kampe["Point"] = team_kampe.apply(
-            lambda row: 3 if (row["Home"] == team and row["Home Goals"] > row["Away Goals"]) or (row["Away"] == team and row["Away Goals"] > row["Home Goals"]) 
-            else 1 if row["Home Goals"] == row["Away Goals"] else 0,
-            axis=1
-        )
-        team_kampe["Akkumuleret Point"] = team_kampe["Point"].cumsum()
-        team_kampe["Runde"] = range(1, len(team_kampe) + 1)
-        team_kampe["Team"] = visningsnavn_map.get(team, team)
-        pointudvikling.append(team_kampe[["Runde", "Akkumuleret Point", "Team"]])
-
-    if pointudvikling:
-        point_data = pd.concat(pointudvikling, ignore_index=True)
-        # Tilføj startpunkt for runde 0 med 0 point
-        zero_rows = point_data.groupby("Team").first().reset_index()
-        zero_rows["Runde"] = 0
-        zero_rows["Akkumuleret Point"] = 0
-        point_data = pd.concat([zero_rows, point_data], ignore_index=True).sort_values(by=["Team", "Runde"])
-
-        chart = alt.Chart(point_data).mark_line(point=True).encode(
-            x=alt.X("Runde:O", title="Runde"),
-            y=alt.Y(
-            "Akkumuleret Point:Q",
-            title="Akkumulerede point",
-            scale=alt.Scale(domain=[0, 60]),
-            axis=alt.Axis(values=list(range(0, 61, 1)))
-        ),
-            color=alt.Color("Team:N"),
-            tooltip=["Team", "Runde", "Akkumuleret Point"]
-        ).properties(height=500)
-        sidste_point = point_data.groupby("Team").last().reset_index()
-        def find_logo(team_visningsnavn):
-            if team_visningsnavn in logo_map:
-                return logo_map[team_visningsnavn]
-            for raw, visning in display_name_map.items():
-                if visning == team_visningsnavn:
-                    return logo_map.get(raw, "")
-            return ""
-        sidste_point["Logo"] = sidste_point["Team"].map(find_logo)
-
-        logo_chart = alt.Chart(sidste_point).mark_image(
-            width=12,
-            height=12
-        ).encode(
-            x=alt.X("Runde:O"),
-            y=alt.Y("Akkumuleret Point:Q"),
-            url="Logo:N"
-        )
-
-        final_chart = (chart + logo_chart).configure_legend(
-            orient='none',
-            legendX=0,
-            legendY=-60,
-            direction='horizontal',
-            labelFontSize=11,
-            titleFontSize=13,
-            padding=10
-        )
-        st.altair_chart(final_chart, use_container_width=True)
-    else:
-        st.info("Ingen data tilgængelig for valgte hold og filtre.")
