@@ -74,6 +74,47 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+    <style>
+    /* Baggrundsfarve */
+    body {
+        background-color: #ffffff;
+    }
+    /* Sidebar farve */
+    section[data-testid="stSidebar"] {
+        background-color: #011A8B;
+    }
+    section[data-testid="stSidebar"] * {
+        color: white;
+    }
+    /* Knapper */
+    .stButton>button {
+        background-color: #011A8B;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5em 1em;
+        font-weight: bold;
+    }
+    .stButton>button:hover {
+        background-color: #0a2ad9;
+        color: white;
+    }
+    /* Checkbox styling */
+    input[type="checkbox"] {
+        accent-color: #011A8B;
+    }
+    /* Slider styling */
+    [role="slider"],
+    div[data-testid="stSlider"] > div > div > div,
+    div[data-testid="stSlider"] > div > div > div:nth-child(4),
+    div[data-testid="stSlider"] > div > div > div[role="progressbar"] {
+        background: #011A8B;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+
 # Load CSV with match results
 csv_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_kampresultater.csv"
 
