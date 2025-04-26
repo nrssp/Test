@@ -432,7 +432,7 @@ with tab3:
         y=alt.Y("Position:Q", sort="descending", scale=alt.Scale(domain=[1, 12], reverse=True), title="Placering"),
         color="Team:N",
         tooltip=["Team", "Round", "Position"]
-    ).properties(height=500)
+    ).properties(height=900)
 
     st.altair_chart(chart, use_container_width=True)
 
