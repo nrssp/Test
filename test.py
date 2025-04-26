@@ -487,6 +487,15 @@ with tab5:
 
             ax.plot(rounds, points, '-', color=color, label=display_name_map.get(team, team))
 
+        # Gem akse-limits før logoer
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+
+        for idx, team in enumerate(selected_teams):
+            team_data = points_df[points_df["Team"] == team]
+            rounds = team_data["Round"].values
+            points = team_data["Points"].values
+
             filename = team.replace(" ", "%20") + ".png"
             url = base_url + filename
             try:
@@ -499,6 +508,10 @@ with tab5:
                                        last_point+0.2, last_point+img_size+0.2), aspect='auto', zorder=5)
             except:
                 pass
+
+        # Genskab akse-limits
+        ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
 
         ax.set_xlabel('Runde')
         ax.set_ylabel('Akkumulerede point')
