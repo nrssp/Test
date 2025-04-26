@@ -481,8 +481,8 @@ with tab5:
             y=alt.Y(
             "Akkumuleret Point:Q",
             title="Akkumulerede point",
-            scale=alt.Scale(nice=False),
-            axis=alt.Axis(tickMinStep=1)
+            scale=alt.Scale(domain=[0, 60]),
+            axis=alt.Axis(values=list(range(0, 61, 1)))
         ),
             color=alt.Color("Team:N"),
             tooltip=["Team", "Runde", "Akkumuleret Point"]
