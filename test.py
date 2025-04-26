@@ -604,15 +604,13 @@ with tab5:
     from PIL import Image
     import base64
 
-    st.subheader("Akkumuleret pointudvikling")
-
     # Forbered rounds_to_plot korrekt
     if selected_specific_rounds:
         rounds_to_plot = sorted(selected_specific_rounds)
     else:
         rounds_to_plot = sorted(df[(df["Round"].astype(int) >= selected_round_range[0]) & (df["Round"].astype(int) <= selected_round_range[1])]["Round"].astype(int).unique())
 
-    # Forbered data
+    # Forbered data til akkumulering af point
     accumulated_points = []
     for round_num in rounds_to_plot:
         runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
@@ -642,6 +640,18 @@ with tab5:
         start_rows.append({"Team": team, "Round": 0, "Pts": 0})
     start_df = pd.DataFrame(start_rows)
     accumulated_df = pd.concat([start_df, accumulated_df], ignore_index=True)
+
+    # Download knap til CSV (akkumulerede points)
+    if not accumulated_df.empty:
+        csv = accumulated_df.to_csv(index=False)  # Omformater accumulated_df til CSV-format
+        st.download_button(
+            label="Download CSV",
+            data=csv,
+            file_name="akkumuleret_pointudvikling.csv",
+            mime="text/csv"
+        )
+    else:
+        st.error("Ingen data til rådighed for download.")
 
     # Farver til hold
     color_map = {
