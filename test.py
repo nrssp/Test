@@ -474,15 +474,14 @@ with tab5:
             tooltip=["Team", "Runde", "Akkumuleret Point"]
         ).properties(height=500)
         sidste_point = point_data.groupby("Team").last().reset_index()
-        sidste_point["Logo"] = sidste_point["Team"].map(
-            lambda x: logo_map.get(
-                next((k for k, v in display_name_map.items() if v == x), x)
-            )
-        )
+        def find_logo(team_visningsnavn):
+            raw_key = next((k for k, v in display_name_map.items() if v == team_visningsnavn), team_visningsnavn)
+            return logo_map.get(raw_key, "")
+        sidste_point["Logo"] = sidste_point["Team"].map(find_logo)
 
         logo_chart = alt.Chart(sidste_point).mark_image(
-            width=18,
-            height=18
+            width=14,
+            height=14
         ).encode(
             x=alt.X("Runde:O"),
             y=alt.Y("Akkumuleret Point:Q"),
@@ -490,8 +489,8 @@ with tab5:
         )
 
         final_chart = (chart + logo_chart).configure_legend(
-            orient='right',
-            direction='vertical',
+            orient='bottom-right',
+            direction='horizontal',
             labelFontSize=12,
             titleFontSize=14
         )
