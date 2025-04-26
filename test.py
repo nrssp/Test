@@ -484,8 +484,8 @@ with tab5:
         sidste_point["Logo"] = sidste_point["Team"].map(find_logo)
 
         logo_chart = alt.Chart(sidste_point).mark_image(
-            width=14,
-            height=14
+            width=12,
+            height=12
         ).encode(
             x=alt.X("Runde:O"),
             y=alt.Y("Akkumuleret Point:Q"),
@@ -493,10 +493,11 @@ with tab5:
         )
 
         final_chart = (chart + logo_chart).configure_legend(
-            orient='bottom-right',
+            orient='bottom',
             direction='horizontal',
-            labelFontSize=12,
-            titleFontSize=14
+            labelFontSize=11,
+            titleFontSize=13,
+            padding=10
         )
         st.altair_chart(final_chart, use_container_width=True)
     else:
