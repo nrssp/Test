@@ -343,7 +343,7 @@ table["Team"] = table.apply(
 )
 
 # Tabs: League table, Matches, Trends
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel"])
+tab1, tab2, tab3, tab4 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel", "Akkumuleret tabel"])
 
 with tab1:
     all_optional_columns = [col for col in table.columns if col not in ["Nr.", "Team", "Pts"]]
