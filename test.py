@@ -385,9 +385,18 @@ with tab2:
     st.dataframe(kamp_visning.sort_values(by="Date", ascending=False), use_container_width=True, hide_index=True, height=700)
 
 with tab3:
+    import plotly.graph_objects as go
+    from io import BytesIO
+    import base64
+    import requests
+    from PIL import Image
+
     st.subheader("Udvikling i placering")
+
+    # Forbered data
     position_df = []
     rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
+
     for round_num in sorted(rounds_to_plot):
         runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
         home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
@@ -415,14 +424,90 @@ with tab3:
     position_df = pd.concat(position_df, ignore_index=True)
     position_df = position_df[position_df["Team"].isin(selected_teams)]
 
-    chart = alt.Chart(position_df).mark_line(point=True).encode(
-        x=alt.X("Round:O", title="Runde"),
-        y=alt.Y("Position:Q", sort="descending", scale=alt.Scale(domain=[1, 12], reverse=True), title="Placering"),
-        color="Team:N",
-        tooltip=["Team", "Round", "Position"]
-    ).properties(height=500)
+    # Startpunkt: Runde 0, Position 1 for alle (så vi starter fra 0 på X-aksen)
+    start_rows = []
+    for team in selected_teams:
+        start_rows.append({"Team": team, "Round": 0, "Position": 1})
+    start_df = pd.DataFrame(start_rows)
+    position_df = pd.concat([start_df, position_df], ignore_index=True)
 
-    st.altair_chart(chart, use_container_width=True)
+    # Plotly graf
+    fig = go.Figure()
+
+    for team in selected_teams:
+        team_data = position_df[position_df["Team"] == team]
+        team_visningsnavn = visningsnavn_map.get(team, team)
+
+        fig.add_trace(go.Scatter(
+            x=team_data["Round"],
+            y=team_data["Position"],
+            mode="lines+markers",
+            name=team_visningsnavn,
+            line=dict(color=color_map.get(team_visningsnavn, "#CCCCCC"), width=3),
+            marker=dict(size=5),
+            hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Placering: %{{y}}<extra></extra>"
+        ))
+
+        # Logo på sidste datapunkt
+        if not team_data.empty:
+            final_round = team_data["Round"].max()
+            final_pos = team_data[team_data["Round"] == final_round]["Position"].values[0]
+            logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn) + ".png"
+            logo_url = logo_base_url + logo_filename
+
+            try:
+                response = requests.get(logo_url)
+                img = Image.open(BytesIO(response.content))
+                buffer = BytesIO()
+                img.save(buffer, format="PNG")
+                encoded_image = base64.b64encode(buffer.getvalue()).decode()
+
+                fig.add_layout_image(
+                    dict(
+                        source="data:image/png;base64," + encoded_image,
+                        x=final_round,
+                        y=final_pos,
+                        xref="x",
+                        yref="y",
+                        sizex=1,
+                        sizey=1,
+                        xanchor="center",
+                        yanchor="middle",
+                        layer="above"
+                    )
+                )
+            except:
+                pass
+
+    fig.update_layout(
+        xaxis_title="Runde",
+        yaxis_title="Placering",
+        title="Udvikling i placering",
+        showlegend=True,
+        legend=dict(
+            orientation="h",
+            y=-0.2,
+            x=0.5,
+            xanchor="center",
+            font=dict(size=12)
+        ),
+        margin=dict(l=40, r=40, t=80, b=80),
+        height=600,
+        xaxis=dict(
+            tickmode="linear",
+            dtick=1,
+            range=[0, max(rounds_to_plot) + 1]
+        ),
+        yaxis=dict(
+            tickmode="linear",
+            dtick=1,
+            autorange="reversed",
+            range=[12.5, 0.5]  # Superliga = 12 hold
+        )
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
 
 with tab4:
     st.subheader("Intern tabel mellem valgte hold")
