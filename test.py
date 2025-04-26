@@ -445,6 +445,7 @@ with tab5:
 
     st.subheader("Akkumuleret pointudvikling")
 
+    # Forbered data
     accumulated_points = []
     rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
     for round_num in sorted(rounds_to_plot):
@@ -467,10 +468,9 @@ with tab5:
         accumulated_points.append(tbl[["Team", "Round", "Pts"]])
 
     accumulated_df = pd.concat(accumulated_points, ignore_index=True)
-
     accumulated_df = accumulated_df[accumulated_df["Team"].isin(selected_teams)]
 
-    # Farver på linjer
+    # Farver til hold
     color_map = {
         "FC København": "#011A8B",
         "FC Midtjylland": "#000000",
@@ -518,7 +518,7 @@ with tab5:
             hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Point: %{{y}}<extra></extra>"
         ))
 
-        # Tilføj logo på sidste punkt
+        # Logo på sidste punkt
         if not team_data.empty:
             final_round = team_data["Round"].max()
             final_pts = team_data[team_data["Round"] == final_round]["Pts"].values[0]
@@ -562,7 +562,15 @@ with tab5:
             font=dict(size=12)
         ),
         margin=dict(l=40, r=40, t=80, b=80),
-        height=600
+        height=600,
+        xaxis=dict(
+            tickmode='linear',
+            dtick=1
+        ),
+        yaxis=dict(
+            tickmode='linear',
+            dtick=5
+        )
     )
 
     st.plotly_chart(fig, use_container_width=True)
