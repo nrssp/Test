@@ -110,12 +110,19 @@ st.markdown("""
     div[data-testid="stCheckbox"] > label > div:first-child svg {
         stroke: gray;
     }
-    /* Slider styling */
-    [role="slider"],
-    div[data-testid="stSlider"] > div > div > div,
+    /* Slider linje (baggrunds-stregen) */
+    div[data-testid="stSlider"] > div > div {
+        background: #d3d3d3; /* lys grå linje */
+        height: 6px;
+        border-radius: 5px;
+    }
+    /* Slider fremdrift og håndtag */
     div[data-testid="stSlider"] > div > div > div:nth-child(4),
     div[data-testid="stSlider"] > div > div > div[role="progressbar"] {
-        background: #011A8B;
+        background: #011A8B; /* FCK blå fremdrift */
+    }
+    [role="slider"] {
+        background: #011A8B; /* FCK blå håndtag */
     }
     /* Slider værdi-boks styling */
     div[data-testid="stSlider"] > div > div > div:nth-child(5) {
@@ -127,6 +134,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 # Load CSV with match results
 csv_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_kampresultater.csv"
