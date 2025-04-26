@@ -459,6 +459,14 @@ with tab3:
     position_df = pd.concat(position_df, ignore_index=True)
     position_df = position_df[position_df["Team"].isin(selected_teams)]
 
+    # Tilføj et tomt datapunkt til at udvide visningen (efter sidste runde)
+    last_round = max(rounds_to_plot)
+    position_df = position_df.append({
+        "Team": "Dummy Team",  # Dummy værdi, ikke vises på X-aksen
+        "Round": last_round + 1,  # Ekstra runde, der kun bruges til visning
+        "Position": 0  # Dummy placering, ikke relevant
+    }, ignore_index=True)
+
     # Plotly graf
     fig = go.Figure()
 
@@ -490,7 +498,7 @@ with tab3:
                 img.save(buffer, format="PNG")
                 encoded_image = base64.b64encode(buffer.getvalue()).decode()
 
-                # Juster billedepositionen lidt før den sidste datapunkt
+                # Placer billede på sidste datapunkt (rundens sidste)
                 fig.add_layout_image(
                     dict(
                         source="data:image/png;base64," + encoded_image,
@@ -498,7 +506,7 @@ with tab3:
                         y=final_pos,
                         xref="x",
                         yref="y",
-                        sizex=1,  # Reducer størrelse hvis nødvendigt
+                        sizex=1,
                         sizey=1,
                         xanchor="center",
                         yanchor="middle",
@@ -526,7 +534,7 @@ with tab3:
         xaxis=dict(
             tickmode="linear",
             dtick=1,
-            range=[min(rounds_to_plot), max(rounds_to_plot)]  # Dynamisk justering af X-aksen
+            range=[min(rounds_to_plot), max(rounds_to_plot) + 1]  # Dynamisk justering af X-aksen (med ekstra datapunkt)
         ),
         yaxis=dict(
             tickmode="linear",
@@ -537,6 +545,7 @@ with tab3:
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
 
 
 with tab4:
