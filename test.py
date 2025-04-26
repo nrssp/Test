@@ -206,8 +206,7 @@ visningsnavn_map = {
     "Nordsjælland": "FC Nordsjælland",
     "Viborg": "Viborg FF",
     "Aalborg": "AAB",
-    "Lyngby": "Lyngby BK",
-    "Vejle BK": "Vejle BK"
+    "Lyngby": "Lyngby BK"
 }
 
 teams = sorted(pd.unique(df[["Home", "Away"]].values.ravel()))
@@ -347,8 +346,7 @@ display_name_map = {
     "Nordsjælland": "FC Nordsjælland",
     "Viborg": "Viborg FF",
     "Aalborg": "AAB",
-    "Lyngby": "Lyngby BK",
-    "Vejle BK": "Vejle BK"
+    "Lyngby": "Lyngby BK"
 }
 table["Team"] = table.apply(
     lambda row: f'<img src="{logo_map[row["Team"]]}" width="40" height="40"> {display_name_map.get(row["Team"], row["Team"])}'
