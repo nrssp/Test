@@ -576,7 +576,6 @@ with tab3:
     st.plotly_chart(fig, use_container_width=True)
 
 
-
 with tab4:
     st.subheader("Intern tabel mellem valgte hold")
     interne_kampe = all_matches[(all_matches["Team"].isin(selected_teams)) & (all_matches["Opponent"].isin(selected_teams))]
