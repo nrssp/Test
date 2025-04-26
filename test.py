@@ -427,11 +427,15 @@ with tab3:
 
     st.subheader("Udvikling i placering")
 
+    # Forbered rounds_to_plot korrekt
+    if selected_specific_rounds:
+        rounds_to_plot = sorted(selected_specific_rounds)
+    else:
+        rounds_to_plot = sorted(df[(df["Round"].astype(int) >= selected_round_range[0]) & (df["Round"].astype(int) <= selected_round_range[1])]["Round"].astype(int).unique())
+
     # Forbered data
     position_df = []
-    rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
-
-    for round_num in sorted(rounds_to_plot):
+    for round_num in rounds_to_plot:
         runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
         home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
         home_r.columns = ["Team", "Opponent", "GF", "GA"]
@@ -458,14 +462,14 @@ with tab3:
     position_df = pd.concat(position_df, ignore_index=True)
     position_df = position_df[position_df["Team"].isin(selected_teams)]
 
-    # Tilføj Runde 0 (Startposition)
+    # Tilføj Runde 0 med start-position (alle starter på 1)
     start_rows = []
     for team in selected_teams:
         start_rows.append({"Team": team, "Round": 0, "Position": 1})
     start_df = pd.DataFrame(start_rows)
     position_df = pd.concat([start_df, position_df], ignore_index=True)
 
-    # Farver
+    # Farver til hold
     color_map = {
         "FC København": "#011A8B",
         "FC Midtjylland": "#000000",
@@ -481,26 +485,73 @@ with tab3:
         "AAB": "#800000"
     }
 
+    logo_base_url = "https://raw.githubusercontent.com/nrssp/Test/main/Logoer/"
+    logo_map_updated = {
+        "FC København": "FC%20K%C3%B8benhavn",
+        "Brøndby IF": "Br%C3%B8ndby%20IF",
+        "Randers FC": "Randers%20FC",
+        "Silkeborg IF": "Silkeborg%20IF",
+        "FC Nordsjælland": "FC%20Nordsj%C3%A6lland",
+        "Viborg FF": "Viborg%20FF",
+        "AAB": "AAB",
+        "Lyngby BK": "Lyngby%20BK",
+        "AGF": "AGF",
+        "SønderjyskE": "S%C3%B8nderjyskE",
+        "Vejle BK": "Vejle%20BK",
+        "FC Midtjylland": "FC%20Midtjylland"
+    }
+
     fig = go.Figure()
 
     for team in selected_teams:
-        team_visningsnavn = visningsnavn_map.get(team, team)
         team_data = position_df[position_df["Team"] == team]
+        team_visningsnavn = visningsnavn_map.get(team, team)
 
         fig.add_trace(go.Scatter(
             x=team_data["Round"],
             y=team_data["Position"],
-            mode='lines+markers',
+            mode="lines+markers",
             name=team_visningsnavn,
             line=dict(color=color_map.get(team_visningsnavn, "#CCCCCC"), width=3),
-            marker=dict(size=6),
+            marker=dict(size=5),
             hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Placering: %{{y}}<extra></extra>"
         ))
 
+        # Logo på sidste punkt
+        if not team_data.empty:
+            final_round = team_data["Round"].max()
+            final_pos = team_data[team_data["Round"] == final_round]["Position"].values[0]
+            logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn) + ".png"
+            logo_url = logo_base_url + logo_filename
+
+            try:
+                response = requests.get(logo_url)
+                img = Image.open(BytesIO(response.content))
+                buffer = BytesIO()
+                img.save(buffer, format="PNG")
+                encoded_image = base64.b64encode(buffer.getvalue()).decode()
+
+                fig.add_layout_image(
+                    dict(
+                        source="data:image/png;base64," + encoded_image,
+                        x=final_round,
+                        y=final_pos,
+                        xref="x",
+                        yref="y",
+                        sizex=1,
+                        sizey=1,
+                        xanchor="center",
+                        yanchor="middle",
+                        layer="above"
+                    )
+                )
+            except:
+                pass
+
     fig.update_layout(
-        title="Udvikling i placering",
         xaxis_title="Runde",
         yaxis_title="Placering",
+        title="Udvikling i placering",
         showlegend=True,
         legend=dict(
             orientation="h",
@@ -512,20 +563,19 @@ with tab3:
         margin=dict(l=40, r=40, t=80, b=80),
         height=600,
         xaxis=dict(
-            tickmode="linear",
+            tickmode='linear',
             dtick=1,
-            range=[0, max(position_df["Round"]) + 1]
+            range=[0, max(rounds_to_plot) + 1]
         ),
         yaxis=dict(
-            autorange="reversed",
-            tickmode="linear",
+            tickmode='linear',
             dtick=1,
-            range=[12.5, 0.5]
+            autorange="reversed",
+            range=[len(selected_teams) + 0.5, 0.5]
         )
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
 
 
 with tab4:
@@ -549,10 +599,15 @@ with tab5:
 
     st.subheader("Akkumuleret pointudvikling")
 
+    # Forbered rounds_to_plot korrekt
+    if selected_specific_rounds:
+        rounds_to_plot = sorted(selected_specific_rounds)
+    else:
+        rounds_to_plot = sorted(df[(df["Round"].astype(int) >= selected_round_range[0]) & (df["Round"].astype(int) <= selected_round_range[1])]["Round"].astype(int).unique())
+
     # Forbered data
     accumulated_points = []
-    rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
-    for round_num in sorted(rounds_to_plot):
+    for round_num in rounds_to_plot:
         runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
         home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
         home_r.columns = ["Team", "Opponent", "GF", "GA"]
