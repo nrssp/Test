@@ -483,9 +483,6 @@ with tab3:
             logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn) + ".png"
             logo_url = logo_base_url + logo_filename
 
-            # Placer billederne lidt før den sidste runde for at undgå beskæring
-            adjusted_final_round = final_round - 0.5  # Justeret X-positionen lidt før den sidste datapunkt
-
             try:
                 response = requests.get(logo_url)
                 img = Image.open(BytesIO(response.content))
@@ -493,14 +490,15 @@ with tab3:
                 img.save(buffer, format="PNG")
                 encoded_image = base64.b64encode(buffer.getvalue()).decode()
 
+                # Juster billedepositionen lidt før den sidste datapunkt
                 fig.add_layout_image(
                     dict(
                         source="data:image/png;base64," + encoded_image,
-                        x=adjusted_final_round,  # Justeret billedeposition
+                        x=final_round,  # Sidste datapunkt
                         y=final_pos,
                         xref="x",
                         yref="y",
-                        sizex=1,
+                        sizex=1,  # Reducer størrelse hvis nødvendigt
                         sizey=1,
                         xanchor="center",
                         yanchor="middle",
@@ -510,6 +508,7 @@ with tab3:
             except:
                 pass
 
+    # Juster marginen for at undgå beskæring
     fig.update_layout(
         xaxis_title="Runde",
         yaxis_title="Placering",
@@ -522,7 +521,7 @@ with tab3:
             xanchor="center",
             font=dict(size=12)
         ),
-        margin=dict(l=40, r=100, t=80, b=80),  # Øget margin til højre
+        margin=dict(l=40, r=150, t=80, b=80),  # Øget margin til højre (r) for at give plads til billederne
         height=600,
         xaxis=dict(
             tickmode="linear",
@@ -538,7 +537,6 @@ with tab3:
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
 
 
 with tab4:
