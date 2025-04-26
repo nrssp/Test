@@ -529,7 +529,7 @@ with tab3:
                 fig.add_layout_image(
                     dict(
                         source="data:image/png;base64," + encoded_image,
-                        x=final_round,
+                        x=final_round + 1,  # Læg ekstra plads til for at undgå overlapning
                         y=final_pos,
                         xref="x",
                         yref="y",
@@ -560,7 +560,7 @@ with tab3:
         xaxis=dict(
             tickmode='linear',
             dtick=1,
-            range=[min(rounds_to_plot), max(rounds_to_plot)]  # Dynamisk interval af runder, der er filtreret
+            range=[min(rounds_to_plot), max(rounds_to_plot) + 1]  # Ekstra plads til at undgå overlap
         ),
         yaxis=dict(
             tickmode='linear',
