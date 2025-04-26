@@ -458,7 +458,7 @@ with tab3:
     position_df = pd.concat(position_df, ignore_index=True)
     position_df = position_df[position_df["Team"].isin(selected_teams)]
 
-    # Startpunkt Runde 0
+    # Tilføj Runde 0 (Startposition)
     start_rows = []
     for team in selected_teams:
         start_rows.append({"Team": team, "Round": 0, "Position": 1})
@@ -483,50 +483,34 @@ with tab3:
 
     fig = go.Figure()
 
-    # Frames til animation
-    frames = []
-    for round_num in sorted(position_df["Round"].unique()):
-        frame_data = []
-        round_df = position_df[position_df["Round"] <= round_num]
-
-        for team in selected_teams:
-            team_visningsnavn = visningsnavn_map.get(team, team)
-            team_data = round_df[round_df["Team"] == team]
-
-            trace = go.Scatter(
-                x=team_data["Round"],
-                y=team_data["Position"],
-                mode="lines+markers",
-                line=dict(color=color_map.get(team_visningsnavn, "#CCCCCC"), width=3),
-                marker=dict(size=6),
-                hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Placering: %{{y}}<extra></extra>"
-            )
-            frame_data.append(trace)
-
-        frames.append(go.Frame(data=frame_data, name=str(round_num)))
-
-    fig.frames = frames
-
-    # Første billede (start) – nu med showlegend=True
     for team in selected_teams:
         team_visningsnavn = visningsnavn_map.get(team, team)
-        team_data = position_df[(position_df["Team"] == team) & (position_df["Round"] <= 0)]
+        team_data = position_df[position_df["Team"] == team]
 
         fig.add_trace(go.Scatter(
             x=team_data["Round"],
             y=team_data["Position"],
-            mode="lines+markers",
+            mode='lines+markers',
             name=team_visningsnavn,
             line=dict(color=color_map.get(team_visningsnavn, "#CCCCCC"), width=3),
             marker=dict(size=6),
-            hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Placering: %{{y}}<extra></extra>",
-            showlegend=True
+            hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Placering: %{{y}}<extra></extra>"
         ))
 
     fig.update_layout(
-        title="Udvikling i placering – med animation",
+        title="Udvikling i placering",
         xaxis_title="Runde",
         yaxis_title="Placering",
+        showlegend=True,
+        legend=dict(
+            orientation="h",
+            y=-0.2,
+            x=0.5,
+            xanchor="center",
+            font=dict(size=12)
+        ),
+        margin=dict(l=40, r=40, t=80, b=80),
+        height=600,
         xaxis=dict(
             tickmode="linear",
             dtick=1,
@@ -537,31 +521,11 @@ with tab3:
             tickmode="linear",
             dtick=1,
             range=[12.5, 0.5]
-        ),
-        height=600,
-        margin=dict(l=40, r=40, t=80, b=80),
-        updatemenus=[dict(
-            type="buttons",
-            showactive=False,
-            buttons=[
-                dict(label="Play",
-                     method="animate",
-                     args=[None, {"frame": {"duration": 500, "redraw": True},
-                                  "fromcurrent": True}]),
-                dict(label="Pause",
-                     method="animate",
-                     args=[[None], {"frame": {"duration": 0, "redraw": False},
-                                    "mode": "immediate",
-                                    "transition": {"duration": 0}}])
-            ],
-            x=0.5,
-            y=-0.2,
-            xanchor="center",
-            yanchor="top"
-        )]
+        )
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
 
 
 with tab4:
