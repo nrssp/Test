@@ -436,8 +436,14 @@ with tab4:
     intern_table_html = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(intern_table_html, unsafe_allow_html=True)
 
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import requests
+from io import BytesIO
+
 with tab5:
-    st.subheader("Akkumuleret pointudvikling")
+    st.subheader("Akkumuleret pointudvikling (med logoer)")
+
     points_progression = []
     rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
 
@@ -468,13 +474,36 @@ with tab5:
     points_df = pd.DataFrame(points_progression)
 
     if not points_df.empty:
-        chart = alt.Chart(points_df).mark_line(point=True).encode(
-            x=alt.X("Round:O", title="Runde"),
-            y=alt.Y("Points:Q", title="Akkumulerede point"),
-            color="Team:N",
-            tooltip=["Team", "Round", "Points"]
-        ).properties(height=500)
+        fig, ax = plt.subplots(figsize=(12, 8))
 
-        st.altair_chart(chart, use_container_width=True)
+        colors = plt.cm.get_cmap('tab20', len(selected_teams))
+
+        reverse_display_name_map = {v: k for k, v in display_name_map.items()}
+
+        for idx, team in enumerate(selected_teams):
+            team_data = points_df[points_df["Team"] == team]
+            rounds = team_data["Round"].values
+            points = team_data["Points"].values
+            color = colors(idx)
+
+            ax.plot(rounds, points, '-', color=color, label=display_name_map.get(team, team))
+
+            internal_team_name = reverse_display_name_map.get(team, team)
+
+            if internal_team_name in logo_map:
+                response = requests.get(logo_map[internal_team_name])
+                img = mpimg.imread(BytesIO(response.content), format='png')
+                last_round = rounds[-1]
+                last_point = points[-1]
+                img_size = 0.5
+                ax.imshow(img, extent=(last_round-img_size*0.5, last_round+img_size*0.5,
+                                       last_point-img_size*0.5, last_point+img_size*0.5), aspect='auto', zorder=5)
+
+        ax.set_xlabel('Runde')
+        ax.set_ylabel('Akkumulerede point')
+        ax.set_title('Akkumuleret pointudvikling')
+        ax.grid(True)
+        ax.legend()
+        st.pyplot(fig)
     else:
         st.info("Ingen data tilgængelig for de valgte filtre.")
