@@ -425,6 +425,8 @@ with tab3:
         tooltip=["Team", "Round", "Position"]
     ).properties(height=500)
 
+    st.altair_chart(chart, use_container_width=True)
+
     
 
         
