@@ -100,14 +100,14 @@ st.markdown("""
         background-color: #0a2ad9;
         color: white;
     }
-    /* Checkbox styling korrekt */
+    /* Checkbox styling grå */
     div[data-testid="stCheckbox"] > label > div:first-child {
         background-color: white;
-        border: 2px solid #011A8B;
+        border: 2px solid gray;
         border-radius: 4px;
     }
     div[data-testid="stCheckbox"] > label > div:first-child svg {
-        stroke: #011A8B;
+        stroke: gray;
     }
     /* Slider styling */
     [role="slider"],
@@ -118,7 +118,6 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-
 
 # Load CSV with match results
 csv_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_kampresultater.csv"
