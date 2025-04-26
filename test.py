@@ -12,15 +12,6 @@ st.set_page_config(
 
 st.markdown("""
     <style>
-    @font-face {
-        font-family: 'FCKSerifBold';
-        src: url('https://raw.githubusercontent.com/nrssp/Test/d62a85fd81fa5d438140f0d5af7e1b4bf44d2489/FCKSerif-Bold.ttf') format('truetype');
-    }
-
-    html, body, [class*="css"] {
-        font-family: 'FCKSerifBold', serif;
-    }
-
     /* Baggrundsfarve */
     body {
         background-color: #ffffff;
@@ -31,7 +22,6 @@ st.markdown("""
     }
     section[data-testid="stSidebar"] * {
         color: white;
-        font-family: 'FCKSerifBold', serif !important;
     }
     /* Knapper */
     .stButton>button {
@@ -40,7 +30,7 @@ st.markdown("""
         border: none;
         border-radius: 8px;
         padding: 0.5em 1em;
-        font-family: 'FCKSerifBold', serif !important;
+        font-weight: bold;
     }
     .stButton>button:hover {
         background-color: #0a2ad9;
@@ -55,26 +45,38 @@ st.markdown("""
     div[data-testid="stCheckbox"] > label > div:first-child svg {
         stroke: gray;
     }
-    div[data-testid="stCheckbox"] * {
-        font-family: 'FCKSerifBold', serif !important;
+
+    /* Slider grundlinje (baggrunds track) */
+    div[data-testid="stSlider"] > div > div {
+        background: #5D78FF; /* Lysere blå */
+        height: 6px;
+        border-radius: 3px;
     }
-    /* Slider styling */
-    [role="slider"],
-    div[data-testid="stSlider"] > div > div > div,
+
+    /* Slider fremdrift/progress */
     div[data-testid="stSlider"] > div > div > div:nth-child(4),
     div[data-testid="stSlider"] > div > div > div[role="progressbar"] {
-        background: #011A8B;
+        background: #011A8B; /* Mørkeblå */
+        height: 6px;
+        border-radius: 3px;
     }
-    div[data-testid="stSlider"] * {
-        font-family: 'FCKSerifBold', serif !important;
+
+    /* Slider håndtag */
+    [role="slider"] {
+        background: white;
+        border: 3px solid #011A8B;
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
     }
-    /* Slider værdi-boks styling */
+
+    /* Slider værdi-bokse */
     div[data-testid="stSlider"] > div > div > div:nth-child(5) {
         background-color: #011A8B;
         color: white;
-        padding: 2px 8px;
+        font-weight: bold;
+        padding: 4px 8px;
         border-radius: 8px;
-        font-family: 'FCKSerifBold', serif !important;
     }
     </style>
 """, unsafe_allow_html=True)
