@@ -655,7 +655,7 @@ with tab5:
             except:
                 pass
 
-    # Juster marginen for at undgå beskæring og fjern ekstra runde på X-aksen
+    # Juster marginen for at undgå beskæring og vis det ekstra datapunkt på X-aksen
     fig.update_layout(
         xaxis_title="Runde",
         yaxis_title="Akkumulerede point",
@@ -673,7 +673,7 @@ with tab5:
         xaxis=dict(
             tickmode='linear',
             dtick=1,
-            range=[min(rounds_to_plot), max(rounds_to_plot)]  # Dynamisk justering af X-aksen uden den ekstra runde
+            range=[min(rounds_to_plot), max(rounds_to_plot) + 1]  # Dynamisk justering af X-aksen (med ekstra datapunkt)
         ),
         yaxis=dict(
             tickmode='linear',
