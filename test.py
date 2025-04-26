@@ -434,44 +434,22 @@ with tab3:
     import base64
     import requests
     from PIL import Image
-    import io
     import pandas as pd
 
-    # Opret download knap til CSV
-    csv = position_df.to_csv(index=False)  # Omformater position_df til CSV-format
-    st.download_button(
-        label="Download CSV",
-        data=csv,
-        file_name="placering_udvikling.csv",
-        mime="text/csv"
-    )
-
-    st.subheader("Udvikling i placering")
-
-    # Forbered rounds_to_plot korrekt baseret på den valgte periode (alle runder)
+    # Forbered data til udvikling i placering
+    position_df = []
     rounds_to_plot = sorted(df[(df["Round"].astype(int) >= selected_round_range[0]) & 
                                (df["Round"].astype(int) <= selected_round_range[1])]["Round"].astype(int).unique())
 
-    # Forbered data
-    position_df = []
     for round_num in rounds_to_plot:
         runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
-        
-        # Hjemme- og udekampe
         home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
         home_r.columns = ["Team", "Opponent", "GF", "GA"]
         home_r["Result"] = home_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
-        
         away_r = runde_kampe[["Away", "Home", "Away Goals", "Home Goals"]].copy()
         away_r.columns = ["Team", "Opponent", "GF", "GA"]
         away_r["Result"] = away_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
-        
         match_r = pd.concat([home_r, away_r])
-        
-        # Filter kun rækker, hvor der er scoret mål (GF > 0 og GA > 0)
-        match_r = match_r[(match_r["GF"] > 0) & (match_r["GA"] > 0)]
-        
-        # Gruppér og beregn
         tbl = match_r.groupby("Team").agg(
             MP=("Result", "count"),
             W=("Result", lambda x: (x == "W").sum()),
@@ -487,7 +465,6 @@ with tab3:
         tbl["Round"] = round_num
         position_df.append(tbl[["Team", "Round", "Position"]])
 
-    # Saml data
     position_df = pd.concat(position_df, ignore_index=True)
     position_df = position_df[position_df["Team"].isin(selected_teams)]
 
@@ -498,7 +475,19 @@ with tab3:
     start_df = pd.DataFrame(start_rows)
     position_df = pd.concat([start_df, position_df], ignore_index=True)
 
-    # Farver til hold
+    # Tilføj CSV-download-knap
+    if not position_df.empty:
+        csv = position_df.to_csv(index=False)  # Omformater position_df til CSV-format
+        st.download_button(
+            label="Download CSV",
+            data=csv,
+            file_name="placering_udvikling.csv",
+            mime="text/csv"
+        )
+    else:
+        st.error("Ingen data til rådighed for download.")
+
+    # Forbered plot (udvikling i placering)
     color_map = {
         "FC København": "#011A8B",
         "FC Midtjylland": "#000000",
