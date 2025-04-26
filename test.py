@@ -206,7 +206,8 @@ visningsnavn_map = {
     "Nordsjælland": "FC Nordsjælland",
     "Viborg": "Viborg FF",
     "Aalborg": "AAB",
-    "Lyngby": "Lyngby BK"
+    "Lyngby": "Lyngby BK",
+    "Vejle BK": "Vejle BK"
 }
 
 teams = sorted(pd.unique(df[["Home", "Away"]].values.ravel()))
