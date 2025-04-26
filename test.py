@@ -461,11 +461,14 @@ with tab3:
 
     # Tilføj et tomt datapunkt til at udvide visningen (efter sidste runde)
     last_round = max(rounds_to_plot)
-    position_df = position_df.append({
-        "Team": "Dummy Team",  # Dummy værdi, ikke vises på X-aksen
-        "Round": last_round + 1,  # Ekstra runde, der kun bruges til visning
-        "Position": 0  # Dummy placering, ikke relevant
-    }, ignore_index=True)
+    extra_row = pd.DataFrame({
+        "Team": ["Dummy Team"],  # Dummy værdi, ikke vises på X-aksen
+        "Round": [last_round + 1],  # Ekstra runde, der kun bruges til visning
+        "Position": [0]  # Dummy placering, ikke relevant
+    })
+
+    # Tilføj den ekstra række til position_df
+    position_df = pd.concat([position_df, extra_row], ignore_index=True)
 
     # Plotly graf
     fig = go.Figure()
