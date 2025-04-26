@@ -399,15 +399,6 @@ with tab1:
     table_html = table[final_columns].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(table_html, unsafe_allow_html=True)
 
-    # Download knap til CSV (Ligatabel)
-    csv = table[final_columns].to_csv(index=False)  # Omformater table til CSV-format
-    st.download_button(
-        label="Download Ligatabel CSV",
-        data=csv,
-        file_name="ligatabel.csv",
-        mime="text/csv"
-    )
-
     latest_round = df["Round"].astype(int).max()
     kamp_visning = df[df["Round"].astype(int) == latest_round]
     kamp_visning = kamp_visning[(kamp_visning["Home"].isin(selected_teams)) | (kamp_visning["Away"].isin(selected_teams))]
@@ -417,7 +408,6 @@ with tab1:
     kamp_visning = kamp_visning[[col for col in kamp_visning.columns if col != "Date"] + ["Date"]]
     kamp_visning_html = kamp_visning.to_html(index=False, classes="kampoversigt", justify="center")
     st.markdown(kamp_visning_html, unsafe_allow_html=True)
-
 
 with tab2:
     if selected_specific_rounds:
@@ -434,33 +424,22 @@ with tab3:
     import base64
     import requests
     from PIL import Image
-    import pandas as pd
 
-    # Forbered data til udvikling i placering
+    st.subheader("Udvikling i placering")
+
+    # Forbered data
     position_df = []
-    
-    # Sørg for at vi får alle de relevante runder
-    rounds_to_plot = sorted(df[(df["Round"].astype(int) >= selected_round_range[0]) & 
-                               (df["Round"].astype(int) <= selected_round_range[1])]["Round"].astype(int).unique())
+    rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
 
-    # Filtrer data for at sikre at runde 0 ikke tilføjes
-    rounds_to_plot = [round_num for round_num in rounds_to_plot if round_num != 0]
-
-    for round_num in rounds_to_plot:
+    for round_num in sorted(rounds_to_plot):
         runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
-
-        # Hjemme- og udekampe
         home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
         home_r.columns = ["Team", "Opponent", "GF", "GA"]
         home_r["Result"] = home_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
-        
         away_r = runde_kampe[["Away", "Home", "Away Goals", "Home Goals"]].copy()
         away_r.columns = ["Team", "Opponent", "GF", "GA"]
         away_r["Result"] = away_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
-        
         match_r = pd.concat([home_r, away_r])
-
-        # Gruppér og beregn positioner
         tbl = match_r.groupby("Team").agg(
             MP=("Result", "count"),
             W=("Result", lambda x: (x == "W").sum()),
@@ -476,26 +455,17 @@ with tab3:
         tbl["Round"] = round_num
         position_df.append(tbl[["Team", "Round", "Position"]])
 
-    # Kombiner position_df til en samlet dataframe
     position_df = pd.concat(position_df, ignore_index=True)
     position_df = position_df[position_df["Team"].isin(selected_teams)]
 
-    # Visualiseringen i grafen
-    color_map = {
-        "FC København": "#011A8B",
-        "FC Midtjylland": "#000000",
-        "Brøndby IF": "#FFD700",
-        "FC Nordsjælland": "#FFA500",
-        "Randers FC": "#00BFFF",
-        "AGF": "#808080",
-        "Viborg FF": "#008000",
-        "Silkeborg IF": "#FFB6C1",
-        "SønderjyskE": "#40E0D0",
-        "Lyngby BK": "#800080",
-        "Vejle BK": "#FF0000",
-        "AAB": "#800000"
-    }
+    # Startpunkt: Runde 0, Position 1 for alle (så vi starter fra 0 på X-aksen)
+    start_rows = []
+    for team in selected_teams:
+        start_rows.append({"Team": team, "Round": 0, "Position": 1})
+    start_df = pd.DataFrame(start_rows)
+    position_df = pd.concat([start_df, position_df], ignore_index=True)
 
+    # Plotly graf
     fig = go.Figure()
 
     for team in selected_teams:
@@ -512,7 +482,7 @@ with tab3:
             hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Placering: %{{y}}<extra></extra>"
         ))
 
-        # Logo på sidste punkt (den sidste runde)
+        # Logo på sidste datapunkt
         if not team_data.empty:
             final_round = team_data["Round"].max()
             final_pos = team_data[team_data["Round"] == final_round]["Position"].values[0]
@@ -529,7 +499,7 @@ with tab3:
                 fig.add_layout_image(
                     dict(
                         source="data:image/png;base64," + encoded_image,
-                        x=final_round,  # Logoet placeres på den sidste runde
+                        x=final_round,
                         y=final_pos,
                         xref="x",
                         yref="y",
@@ -543,7 +513,6 @@ with tab3:
             except:
                 pass
 
-    # Opdater X-aksen for at sikre ekstra plads efter den sidste runde, men uden værdi for det ekstra punkt
     fig.update_layout(
         xaxis_title="Runde",
         yaxis_title="Placering",
@@ -559,17 +528,15 @@ with tab3:
         margin=dict(l=40, r=40, t=80, b=80),
         height=600,
         xaxis=dict(
-            tickmode='linear',
+            tickmode="linear",
             dtick=1,
-            range=[min(rounds_to_plot), max(rounds_to_plot) + 1],  # Forlæng range til at inkludere det tomme punkt
-            tickvals=rounds_to_plot + [max(rounds_to_plot) + 1],  # Placer et ekstra punkt uden værdi
-            showticklabels=True
+            range=[0, max(rounds_to_plot) + 1]
         ),
         yaxis=dict(
-            tickmode='linear',
+            tickmode="linear",
             dtick=1,
             autorange="reversed",
-            range=[len(selected_teams) + 0.5, 0.5]
+            range=[12.5, 0.5]  # Superliga = 12 hold
         )
     )
 
@@ -588,16 +555,6 @@ with tab4:
     intern_table_html = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(intern_table_html, unsafe_allow_html=True)
 
-    # Download knap til CSV (Intern tabel)
-    csv = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_csv(index=False)  # Omformater intern_table til CSV-format
-    st.download_button(
-        label="Download Intern Tabel CSV",
-        data=csv,
-        file_name="intern_tabel.csv",
-        mime="text/csv"
-    )
-
-
 with tab5:
     import plotly.graph_objects as go
     import requests
@@ -605,15 +562,12 @@ with tab5:
     from PIL import Image
     import base64
 
-    # Forbered rounds_to_plot korrekt
-    if selected_specific_rounds:
-        rounds_to_plot = sorted(selected_specific_rounds)
-    else:
-        rounds_to_plot = sorted(df[(df["Round"].astype(int) >= selected_round_range[0]) & (df["Round"].astype(int) <= selected_round_range[1])]["Round"].astype(int).unique())
+    st.subheader("Akkumuleret pointudvikling")
 
-    # Forbered data til akkumulering af point
+    # Forbered data
     accumulated_points = []
-    for round_num in rounds_to_plot:
+    rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
+    for round_num in sorted(rounds_to_plot):
         runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
         home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
         home_r.columns = ["Team", "Opponent", "GF", "GA"]
@@ -641,18 +595,6 @@ with tab5:
         start_rows.append({"Team": team, "Round": 0, "Pts": 0})
     start_df = pd.DataFrame(start_rows)
     accumulated_df = pd.concat([start_df, accumulated_df], ignore_index=True)
-
-    # Download knap til CSV (akkumulerede points)
-    if not accumulated_df.empty:
-        csv = accumulated_df.to_csv(index=False)  # Omformater accumulated_df til CSV-format
-        st.download_button(
-            label="Download CSV",
-            data=csv,
-            file_name="akkumuleret_pointudvikling.csv",
-            mime="text/csv"
-        )
-    else:
-        st.error("Ingen data til rådighed for download.")
 
     # Farver til hold
     color_map = {
