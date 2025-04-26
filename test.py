@@ -451,10 +451,11 @@ with tab3:
     import requests
     from PIL import Image
 
+    st.subheader("Udvikling i placering")
+
     # Forbered data
     rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
 
-    # Filtrering for at kun inkludere de relevante runder
     position_df = []
     for round_num in sorted(rounds_to_plot):
         runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
@@ -483,95 +484,36 @@ with tab3:
     position_df = pd.concat(position_df, ignore_index=True)
     position_df = position_df[position_df["Team"].isin(selected_teams)]
 
-    # Tilføj et tomt datapunkt til at udvide visningen (efter sidste runde)
-    last_round = max(rounds_to_plot)
-    extra_row = pd.DataFrame({
-        "Team": ["Dummy Team"],  # Dummy værdi, ikke vises på X-aksen
-        "Round": [last_round + 1],  # Ekstra runde, der kun bruges til visning
-        "Position": [0]  # Dummy placering, ikke relevant
-    })
-
-    # Tilføj den ekstra række til position_df
-    position_df = pd.concat([position_df, extra_row], ignore_index=True)
-
-    # Plotly graf
     fig = go.Figure()
-
     for team in selected_teams:
         team_data = position_df[position_df["Team"] == team]
         team_visningsnavn = visningsnavn_map.get(team, team)
-
         fig.add_trace(go.Scatter(
             x=team_data["Round"],
             y=team_data["Position"],
             mode="lines+markers",
-            name=team_visningsnavn,
-            line=dict(color=color_map.get(team_visningsnavn, "#CCCCCC"), width=3),
-            marker=dict(size=5),
-            hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Placering: %{{y}}<extra></extra>"
+            name=team_visningsnavn
         ))
 
-        # Logo på sidste datapunkt
-        if not team_data.empty:
-            final_round = team_data["Round"].max()
-            final_pos = team_data[team_data["Round"] == final_round]["Position"].values[0]
-            logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn) + ".png"
-            logo_url = logo_base_url + logo_filename
-
-            try:
-                response = requests.get(logo_url)
-                img = Image.open(BytesIO(response.content))
-                buffer = BytesIO()
-                img.save(buffer, format="PNG")
-                encoded_image = base64.b64encode(buffer.getvalue()).decode()
-
-                # Placer billede på sidste datapunkt (rundens sidste)
-                fig.add_layout_image(
-                    dict(
-                        source="data:image/png;base64," + encoded_image,
-                        x=final_round,  # Sidste datapunkt
-                        y=final_pos,
-                        xref="x",
-                        yref="y",
-                        sizex=1,
-                        sizey=1,
-                        xanchor="center",
-                        yanchor="middle",
-                        layer="above"
-                    )
-                )
-            except:
-                pass
-
-    # Juster marginen for at undgå beskæring
     fig.update_layout(
         xaxis_title="Runde",
         yaxis_title="Placering",
-        title="Udvikling i placering",
-        showlegend=True,
-        legend=dict(
-            orientation="h",
-            y=-0.2,
-            x=0.5,
-            xanchor="center",
-            font=dict(size=12)
-        ),
-        margin=dict(l=40, r=150, t=80, b=80),  # Øget margin til højre (r) for at give plads til billederne
-        height=600,
-        xaxis=dict(
-            tickmode="linear",
-            dtick=1,
-            range=[min(rounds_to_plot), max(rounds_to_plot) + 1]  # Dynamisk justering af X-aksen (med ekstra datapunkt)
-        ),
-        yaxis=dict(
-            tickmode="linear",
-            dtick=1,
-            autorange="reversed",
-            range=[12.5, 0.5]  # Superliga = 12 hold
-        )
+        yaxis=dict(autorange="reversed"),
+        height=600
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+    # Download data fra udviklingen
+    csv_buffer_pos = io.StringIO()
+    position_df.to_csv(csv_buffer_pos, index=False)
+
+    st.download_button(
+        label="Download udviklingsdata som CSV",
+        data=csv_buffer_pos.getvalue(),
+        file_name="placering_udvikling.csv",
+        mime="text/csv"
+    )
 
 
 
