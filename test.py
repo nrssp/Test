@@ -437,11 +437,13 @@ with tab4:
     st.markdown(intern_table_html, unsafe_allow_html=True)
 
 with tab5:
-    import altair as alt
+    import matplotlib.pyplot as plt
+    import matplotlib.image as mpimg
+    import requests
+    from io import BytesIO
 
     st.subheader("Akkumuleret pointudvikling")
 
-    # Forbered data: Akkumulerede point for hvert hold for hver runde
     accumulated_points = []
     rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
     for round_num in sorted(rounds_to_plot):
@@ -465,18 +467,49 @@ with tab5:
 
     accumulated_df = pd.concat(accumulated_points, ignore_index=True)
 
-    # Kun valgte hold
-    accumulated_df = accumulated_df[accumulated_df["Team"].isin(selected_teams)]
+    logo_base_url = "https://raw.githubusercontent.com/nrssp/Test/main/Logoer/"
+    logo_map_updated = {
+        "FC København": "FC%20K%C3%B8benhavn",
+        "Brøndby IF": "Br%C3%B8ndby%20IF",
+        "Randers FC": "Randers%20FC",
+        "Silkeborg IF": "Silkeborg%20IF",
+        "FC Nordsjælland": "FC%20Nordsj%C3%A6lland",
+        "Viborg FF": "Viborg%20FF",
+        "AAB": "AAB",
+        "Lyngby BK": "Lyngby%20BK",
+        "AGF": "AGF",
+        "SønderjyskE": "S%C3%B8nderjyskE",
+        "Vejle BK": "Vejle%20BK",
+        "FC Midtjylland": "FC%20Midtjylland"
+    }
 
-    # Lav grafen i Altair
-    chart = alt.Chart(accumulated_df).mark_line(point=True).encode(
-        x=alt.X("Round:O", title="Runde"),
-        y=alt.Y("Pts:Q", title="Akkumulerede point"),
-        color=alt.Color("Team:N", legend=None),
-        tooltip=["Team", "Round", "Pts"]
-    ).properties(
-        width="container",  # Brug hele browserens bredde
-        height=600
-    )
+    fig, ax = plt.subplots(figsize=(14, 7))  # MINDRE FIGUR
 
-    st.altair_chart(chart, use_container_width=True)
+    for team in selected_teams:
+        team_data = accumulated_df[accumulated_df["Team"] == team]
+        ax.plot(team_data["Round"], team_data["Pts"], '-', label=team, linewidth=2)  # Pænere tyndere linjer
+
+        if not team_data.empty:
+            final_round = team_data["Round"].max()
+            final_pts = team_data[team_data["Round"] == final_round]["Pts"].values[0]
+
+            team_visningsnavn = visningsnavn_map.get(team, team)
+            logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn).replace(" ", "%20") + ".png"
+            logo_url = logo_base_url + logo_filename
+
+            try:
+                response = requests.get(logo_url)
+                img = mpimg.imread(BytesIO(response.content), format='png')
+                ax.imshow(img, extent=(final_round-0.3, final_round+0.3, final_pts-0.6, final_pts+0.6), aspect='auto', zorder=5)
+            except:
+                pass
+
+    ax.set_xlabel("Runde")
+    ax.set_ylabel("Akkumulerede point")
+    ax.set_title("Pointudvikling pr. hold")
+    ax.grid(True)
+    ax.set_xlim(1, max(rounds_to_plot) + 2)
+    ax.set_ylim(0, accumulated_df["Pts"].max() + 5)
+    ax.legend().remove()
+
+    st.pyplot(fig)
