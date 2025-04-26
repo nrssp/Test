@@ -343,7 +343,7 @@ table["Team"] = table.apply(
 )
 
 # Tabs: League table, Matches, Trends
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel", "🧮 Akkumuleret liga"])
 
 with tab1:
     all_optional_columns = [col for col in table.columns if col not in ["Nr.", "Team", "Pts"]]
@@ -435,3 +435,46 @@ with tab4:
     )
     intern_table_html = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(intern_table_html, unsafe_allow_html=True)
+
+with tab5:
+    st.subheader("Akkumuleret pointudvikling")
+    points_progression = []
+    rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
+
+    for team in selected_teams:
+        team_points = 0
+        team_progress = []
+        for round_num in sorted(rounds_to_plot):
+            runde_kampe = df[df["Round"].astype(int) == round_num]
+            home_matches = runde_kampe[runde_kampe["Home"] == team]
+            away_matches = runde_kampe[runde_kampe["Away"] == team]
+
+            for _, row in home_matches.iterrows():
+                if row["Home Goals"] > row["Away Goals"]:
+                    team_points += 3
+                elif row["Home Goals"] == row["Away Goals"]:
+                    team_points += 1
+
+            for _, row in away_matches.iterrows():
+                if row["Away Goals"] > row["Home Goals"]:
+                    team_points += 3
+                elif row["Away Goals"] == row["Home Goals"]:
+                    team_points += 1
+
+            team_progress.append({"Team": team, "Round": round_num, "Points": team_points})
+
+        points_progression.extend(team_progress)
+
+    points_df = pd.DataFrame(points_progression)
+
+    if not points_df.empty:
+        chart = alt.Chart(points_df).mark_line(point=True).encode(
+            x=alt.X("Round:O", title="Runde"),
+            y=alt.Y("Points:Q", title="Akkumulerede point"),
+            color="Team:N",
+            tooltip=["Team", "Round", "Points"]
+        ).properties(height=500)
+
+        st.altair_chart(chart, use_container_width=True)
+    else:
+        st.info("Ingen data tilgængelig for de valgte filtre.")
