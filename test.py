@@ -46,13 +46,6 @@ st.markdown("""
         stroke: gray;
     }
 
-    /* Slider grundlinje (baggrunds track) */
-    div[data-testid="stSlider"] > div > div {
-        background: #5D78FF; /* Lysere blå */
-        height: 6px;
-        border-radius: 3px;
-    }
-
     /* Slider fremdrift/progress */
     div[data-testid="stSlider"] > div > div > div:nth-child(4),
     div[data-testid="stSlider"] > div > div > div[role="progressbar"] {
