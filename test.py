@@ -494,9 +494,9 @@ with tab5:
                 img = mpimg.imread(BytesIO(response.content), format='png')
                 last_round = rounds[-1]
                 last_point = points[-1]
-                img_size = 0.5
+                img_size = 0.2
                 ax.imshow(img, extent=(last_round-img_size*0.5, last_round+img_size*0.5,
-                                       last_point-img_size*0.5, last_point+img_size*0.5), aspect='auto', zorder=5)
+                                       last_point+0.2, last_point+img_size+0.2), aspect='auto', zorder=5)
             except:
                 pass
 
