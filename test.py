@@ -415,35 +415,14 @@ with tab3:
     position_df = pd.concat(position_df, ignore_index=True)
     position_df = position_df[position_df["Team"].isin(selected_teams)]
 
-    import urllib.parse
-    base_url = "https://raw.githubusercontent.com/nrssp/Test/main/Logoer/"
-    position_df["logo_url"] = position_df["Team"].apply(lambda x: base_url + urllib.parse.quote(x) + ".png")
-
-    lines = alt.Chart(position_df).mark_line(point=True).encode(
+    chart = alt.Chart(position_df).mark_line(point=True).encode(
         x=alt.X("Round:O", title="Runde"),
         y=alt.Y("Position:Q", sort="descending", scale=alt.Scale(domain=[1, 12], reverse=True), title="Placering"),
-        color=alt.Color("Team:N", title="Hold"),
+        color="Team:N",
         tooltip=["Team", "Round", "Position"]
-    )
+    ).properties(height=500)
 
-    last_round = position_df.groupby('Team')["Round"].max().reset_index()
-    position_last = pd.merge(position_df, last_round, on=["Team", "Round"])
-
-    logos = alt.Chart(position_last).mark_image(
-        width=40,
-        height=40
-    ).encode(
-        x=alt.X("Round:O"),
-        y=alt.Y("Position:Q", sort="descending"),
-        url="logo_url:N"
-    )
-
-    final_chart = (lines + logos).properties(
-        width=850,
-        height=500
-    )
-
-    st.altair_chart(final_chart, use_container_width=True)
+    st.altair_chart(chart, use_container_width=True)
 
 with tab4:
     st.subheader("Intern tabel mellem valgte hold")
