@@ -316,16 +316,25 @@ table = compute_league_table(all_matches)
 # Tilføj klublogoer og visningsnavne
 logo_map = {
     "FC Copenhagen": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8391/teamlogo.png",
+    "FC København": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8391/teamlogo.png",
     "Midtjylland": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8113/teamlogo.png",
+    "FC Midtjylland": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8113/teamlogo.png",
     "Brøndby": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8595/teamlogo.png",
+    "Brøndby IF": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8595/teamlogo.png",
     "Randers": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8410/teamlogo.png",
+    "Randers FC": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8410/teamlogo.png",
     "AGF": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8071/teamlogo.png",
     "Silkeborg": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8415/teamlogo.png",
+    "Silkeborg IF": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8415/teamlogo.png",
     "Nordsjælland": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/10202/teamlogo.png",
+    "FC Nordsjælland": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/10202/teamlogo.png",
     "Viborg": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/9939/teamlogo.png",
+    "Viborg FF": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/9939/teamlogo.png",
     "SønderjyskE": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8487/teamlogo.png",
     "Aalborg": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8470/teamlogo.png",
+    "AAB": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8470/teamlogo.png",
     "Lyngby": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/9907/teamlogo.png",
+    "Lyngby BK": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/9907/teamlogo.png",
     "Vejle BK": "https://dxugi372p6nmc.cloudfront.net/spdk/current/64x64/8231/teamlogo.png"
 }
 display_name_map = {
