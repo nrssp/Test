@@ -483,6 +483,9 @@ with tab3:
             logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn) + ".png"
             logo_url = logo_base_url + logo_filename
 
+            # Placer billederne lidt før den sidste runde for at undgå beskæring
+            adjusted_final_round = final_round - 0.5  # Justeret X-positionen lidt før den sidste datapunkt
+
             try:
                 response = requests.get(logo_url)
                 img = Image.open(BytesIO(response.content))
@@ -493,7 +496,7 @@ with tab3:
                 fig.add_layout_image(
                     dict(
                         source="data:image/png;base64," + encoded_image,
-                        x=final_round,
+                        x=adjusted_final_round,  # Justeret billedeposition
                         y=final_pos,
                         xref="x",
                         yref="y",
@@ -519,7 +522,7 @@ with tab3:
             xanchor="center",
             font=dict(size=12)
         ),
-        margin=dict(l=40, r=40, t=80, b=80),
+        margin=dict(l=40, r=100, t=80, b=80),  # Øget margin til højre
         height=600,
         xaxis=dict(
             tickmode="linear",
@@ -535,6 +538,7 @@ with tab3:
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
 
 
 with tab4:
@@ -607,6 +611,9 @@ with tab5:
             logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn) + ".png"
             logo_url = logo_base_url + logo_filename
 
+            # Juster billedepositionen før den sidste datapunkt
+            adjusted_final_round = final_round - 0.5  # Justeret X-positionen før den sidste datapunkt
+
             try:
                 response = requests.get(logo_url)
                 img = Image.open(BytesIO(response.content))
@@ -617,7 +624,7 @@ with tab5:
                 fig.add_layout_image(
                     dict(
                         source="data:image/png;base64," + encoded_image,
-                        x=final_round,
+                        x=adjusted_final_round,  # Justeret billedeposition
                         y=final_pts,
                         xref="x",
                         yref="y",
@@ -643,7 +650,7 @@ with tab5:
             xanchor="center",
             font=dict(size=12)
         ),
-        margin=dict(l=40, r=40, t=80, b=80),
+        margin=dict(l=40, r=100, t=80, b=80),  # Øget margin til højre
         height=600,
         xaxis=dict(
             tickmode='linear',
