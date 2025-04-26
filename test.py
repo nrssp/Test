@@ -399,6 +399,15 @@ with tab1:
     table_html = table[final_columns].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(table_html, unsafe_allow_html=True)
 
+    # Download knap til CSV (Ligatabel)
+    csv = table[final_columns].to_csv(index=False)  # Omformater table til CSV-format
+    st.download_button(
+        label="Download Ligatabel CSV",
+        data=csv,
+        file_name="ligatabel.csv",
+        mime="text/csv"
+    )
+
     latest_round = df["Round"].astype(int).max()
     kamp_visning = df[df["Round"].astype(int) == latest_round]
     kamp_visning = kamp_visning[(kamp_visning["Home"].isin(selected_teams)) | (kamp_visning["Away"].isin(selected_teams))]
@@ -408,6 +417,7 @@ with tab1:
     kamp_visning = kamp_visning[[col for col in kamp_visning.columns if col != "Date"] + ["Date"]]
     kamp_visning_html = kamp_visning.to_html(index=False, classes="kampoversigt", justify="center")
     st.markdown(kamp_visning_html, unsafe_allow_html=True)
+
 
 with tab2:
     if selected_specific_rounds:
@@ -596,6 +606,16 @@ with tab4:
     )
     intern_table_html = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(intern_table_html, unsafe_allow_html=True)
+
+    # Download knap til CSV (Intern tabel)
+    csv = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_csv(index=False)  # Omformater intern_table til CSV-format
+    st.download_button(
+        label="Download Intern Tabel CSV",
+        data=csv,
+        file_name="intern_tabel.csv",
+        mime="text/csv"
+    )
+
 
 with tab5:
     import plotly.graph_objects as go
