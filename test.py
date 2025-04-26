@@ -346,7 +346,7 @@ table["Team"] = table.apply(
 )
 
 # Tabs: League table, Matches, Trends
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel", "📚 Akkumuleret ligatabel"])
+tab1, tab2, tab3, tab4 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel"])
 
 with tab1:
     all_optional_columns = [col for col in table.columns if col not in ["Nr.", "Team", "Pts"]]
@@ -438,31 +438,3 @@ with tab4:
     )
     intern_table_html = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(intern_table_html, unsafe_allow_html=True)
-
-with tab5:
-    st.subheader("Akkumuleret ligatabel")
-
-    pointudvikling = []
-    for team in selected_teams:
-        team_matches = all_matches[all_matches["Team"] == team].copy()
-        team_matches = team_matches.dropna(subset=["Date", "Result"])
-        team_matches = team_matches.sort_values("Date")
-        team_matches["Round"] = team_matches.index + 1  # midlertidig rundetæller
-        team_matches["Point"] = team_matches["Result"].map({"W": 3, "D": 1, "L": 0})
-        team_matches["Akk. Point"] = team_matches["Point"].cumsum()
-        team_matches["Kamp"] = range(1, len(team_matches) + 1)
-        team_matches["Team"] = team
-        pointudvikling.append(team_matches[["Round", "Akk. Point", "Team"]].rename(columns={"Round": "Runde"}))
-
-    if pointudvikling:
-        point_data = pd.concat(pointudvikling, ignore_index=True)
-        chart = alt.Chart(point_data).mark_line(point=True).encode(
-            x=alt.X("Runde:O", title="Runde"),
-            y=alt.Y("Akk. Point:Q", title="Akkumulerede point"),
-            color=alt.Color("Team:N"),
-            tooltip=["Team", "Runde", "Akk. Point"]
-        ).properties(height=500)
-        st.altair_chart(chart, use_container_width=True)
-    else:
-        st.warning("Ingen kampe tilgængelige for de valgte hold og filtre.")
-      
