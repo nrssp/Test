@@ -425,10 +425,7 @@ with tab3:
         tooltip=["Team", "Round", "Position"]
     ).properties(height=500)
 
-    st.altair_chart(chart, use_container_width=True)
-
-        # Tilføj logoer ved sidste datapunkt
-        sidste_point = point_data.groupby("Team").last().reset_index()
+    sidste_point = point_data.groupby("Team").last().reset_index()
         sidste_point["Logo"] = sidste_point["Team"].map(lambda x: logo_map.get(x, ""))
         logo_chart = alt.Chart(sidste_point).mark_image(
             width=30,
@@ -438,8 +435,9 @@ with tab3:
             y=alt.Y("Akkumuleret Point:Q"),
             url="Logo:N"
         )
-
         st.altair_chart((chart + logo_chart), use_container_width=True)
+
+        
 
 with tab4:
     st.subheader("Intern tabel mellem valgte hold")
