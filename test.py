@@ -458,19 +458,62 @@ with tab3:
     position_df = pd.concat(position_df, ignore_index=True)
     position_df = position_df[position_df["Team"].isin(selected_teams)]
 
-    # Startpunkt: Runde 0, Position 1 for alle (så vi starter fra 0 på X-aksen)
+    # Startpunkt Runde 0
     start_rows = []
     for team in selected_teams:
         start_rows.append({"Team": team, "Round": 0, "Position": 1})
     start_df = pd.DataFrame(start_rows)
     position_df = pd.concat([start_df, position_df], ignore_index=True)
 
-    # Plotly graf
+    # Farver
+    color_map = {
+        "FC København": "#011A8B",
+        "FC Midtjylland": "#000000",
+        "Brøndby IF": "#FFD700",
+        "FC Nordsjælland": "#FFA500",
+        "Randers FC": "#00BFFF",
+        "AGF": "#808080",
+        "Viborg FF": "#008000",
+        "Silkeborg IF": "#FFB6C1",
+        "SønderjyskE": "#40E0D0",
+        "Lyngby BK": "#800080",
+        "Vejle BK": "#FF0000",
+        "AAB": "#800000"
+    }
+
     fig = go.Figure()
 
+    # Laver frames til animation
+    frames = []
+    for round_num in sorted(position_df["Round"].unique()):
+        frame_data = []
+        round_df = position_df[position_df["Round"] <= round_num]
+
+        for team in selected_teams:
+            team_visningsnavn = visningsnavn_map.get(team, team)
+            team_data = round_df[round_df["Team"] == team]
+
+            trace = go.Scatter(
+                x=team_data["Round"],
+                y=team_data["Position"],
+                mode="lines+markers",
+                name=team_visningsnavn,
+                line=dict(color=color_map.get(team_visningsnavn, "#CCCCCC"), width=3),
+                marker=dict(size=6),
+                hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Placering: %{{y}}<extra></extra>",
+                showlegend=(round_num == 0)  # Kun vis legend én gang
+            )
+            frame_data.append(trace)
+
+        frames.append(go.Frame(data=frame_data, name=str(round_num)))
+
+    # Tilføjer frames
+    fig.frames = frames
+
+    # Start-visning (før animation starter)
     for team in selected_teams:
-        team_data = position_df[position_df["Team"] == team]
         team_visningsnavn = visningsnavn_map.get(team, team)
+        team_data = position_df[(position_df["Team"] == team) & (position_df["Round"] <= 0)]
 
         fig.add_trace(go.Scatter(
             x=team_data["Round"],
@@ -478,69 +521,50 @@ with tab3:
             mode="lines+markers",
             name=team_visningsnavn,
             line=dict(color=color_map.get(team_visningsnavn, "#CCCCCC"), width=3),
-            marker=dict(size=5),
+            marker=dict(size=6),
             hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Placering: %{{y}}<extra></extra>"
         ))
 
-        # Logo på sidste datapunkt
-        if not team_data.empty:
-            final_round = team_data["Round"].max()
-            final_pos = team_data[team_data["Round"] == final_round]["Position"].values[0]
-            logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn) + ".png"
-            logo_url = logo_base_url + logo_filename
-
-            try:
-                response = requests.get(logo_url)
-                img = Image.open(BytesIO(response.content))
-                buffer = BytesIO()
-                img.save(buffer, format="PNG")
-                encoded_image = base64.b64encode(buffer.getvalue()).decode()
-
-                fig.add_layout_image(
-                    dict(
-                        source="data:image/png;base64," + encoded_image,
-                        x=final_round,
-                        y=final_pos,
-                        xref="x",
-                        yref="y",
-                        sizex=1,
-                        sizey=1,
-                        xanchor="center",
-                        yanchor="middle",
-                        layer="above"
-                    )
-                )
-            except:
-                pass
-
     fig.update_layout(
+        title="Udvikling i placering – med animation",
         xaxis_title="Runde",
         yaxis_title="Placering",
-        title="Udvikling i placering",
-        showlegend=True,
-        legend=dict(
-            orientation="h",
-            y=-0.2,
-            x=0.5,
-            xanchor="center",
-            font=dict(size=12)
-        ),
-        margin=dict(l=40, r=40, t=80, b=80),
-        height=600,
         xaxis=dict(
             tickmode="linear",
             dtick=1,
-            range=[0, max(rounds_to_plot) + 1]
+            range=[0, max(position_df["Round"]) + 1]
         ),
         yaxis=dict(
+            autorange="reversed",
             tickmode="linear",
             dtick=1,
-            autorange="reversed",
             range=[12.5, 0.5]  # Superliga = 12 hold
-        )
+        ),
+        height=600,
+        margin=dict(l=40, r=40, t=80, b=80),
+        updatemenus=[dict(
+            type="buttons",
+            showactive=False,
+            buttons=[
+                dict(label="Play",
+                     method="animate",
+                     args=[None, {"frame": {"duration": 500, "redraw": True},
+                                  "fromcurrent": True}]),
+                dict(label="Pause",
+                     method="animate",
+                     args=[[None], {"frame": {"duration": 0, "redraw": False},
+                                    "mode": "immediate",
+                                    "transition": {"duration": 0}}])
+            ],
+            x=0.5,
+            y=-0.2,
+            xanchor="center",
+            yanchor="top"
+        )]
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
 
 
 with tab4:
