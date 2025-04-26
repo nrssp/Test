@@ -477,8 +477,7 @@ with tab5:
         fig, ax = plt.subplots(figsize=(12, 8))
 
         colors = plt.cm.get_cmap('tab20', len(selected_teams))
-
-        reverse_display_name_map = {v: k for k, v in display_name_map.items()}
+        base_url = "https://raw.githubusercontent.com/nrssp/Test/main/Logoer/"
 
         for idx, team in enumerate(selected_teams):
             team_data = points_df[points_df["Team"] == team]
@@ -488,16 +487,18 @@ with tab5:
 
             ax.plot(rounds, points, '-', color=color, label=display_name_map.get(team, team))
 
-            internal_team_name = reverse_display_name_map.get(team, team)
-
-            if internal_team_name in logo_map:
-                response = requests.get(logo_map[internal_team_name])
+            filename = team.replace(" ", "%20") + ".png"
+            url = base_url + filename
+            try:
+                response = requests.get(url)
                 img = mpimg.imread(BytesIO(response.content), format='png')
                 last_round = rounds[-1]
                 last_point = points[-1]
                 img_size = 0.5
                 ax.imshow(img, extent=(last_round-img_size*0.5, last_round+img_size*0.5,
                                        last_point-img_size*0.5, last_point+img_size*0.5), aspect='auto', zorder=5)
+            except:
+                pass
 
         ax.set_xlabel('Runde')
         ax.set_ylabel('Akkumulerede point')
