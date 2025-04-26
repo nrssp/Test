@@ -457,6 +457,12 @@ with tab5:
 
     if pointudvikling:
         point_data = pd.concat(pointudvikling, ignore_index=True)
+        # Tilføj startpunkt for runde 0 med 0 point
+        zero_rows = point_data.groupby("Team").first().reset_index()
+        zero_rows["Runde"] = 0
+        zero_rows["Akkumuleret Point"] = 0
+        point_data = pd.concat([zero_rows, point_data], ignore_index=True).sort_values(by=["Team", "Runde"])
+
         chart = alt.Chart(point_data).mark_line(point=True).encode(
             x=alt.X("Runde:O", title="Runde"),
             y=alt.Y("Akkumuleret Point:Q", title="Akkumulerede point"),
