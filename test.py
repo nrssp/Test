@@ -555,7 +555,7 @@ with tab3:
     position_df.to_csv(csv_buffer_pos, index=False)
 
     st.download_button(
-        label="👅 Download udviklingsdata som CSV",
+        label="Download udviklingsdata som CSV",
         data=csv_buffer_pos.getvalue(),
         file_name="placering_udvikling.csv",
         mime="text/csv"
@@ -565,15 +565,33 @@ with tab3:
 
 with tab4:
     st.subheader("Intern tabel mellem valgte hold")
+
     interne_kampe = all_matches[(all_matches["Team"].isin(selected_teams)) & (all_matches["Opponent"].isin(selected_teams))]
     intern_table = compute_league_table(interne_kampe)
+
     intern_table["Team"] = intern_table.apply(
         lambda row: f'<img src="{logo_map[row["Team"]]}" width="40" height="40"> {display_name_map.get(row["Team"], row["Team"])}'
         if row["Team"] in logo_map else display_name_map.get(row["Team"], row["Team"]),
         axis=1
     )
+
     intern_table_html = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(intern_table_html, unsafe_allow_html=True)
+
+    # Download intern tabel som CSV
+    import io
+    intern_table_download = intern_table.copy()
+    intern_table_download["Team"] = intern_table_download["Team"].str.replace(r'<.*?>', '', regex=True)
+
+    csv_buffer_intern = io.StringIO()
+    intern_table_download.to_csv(csv_buffer_intern, index=False)
+
+    st.download_button(
+        label="Download intern tabel som CSV",
+        data=csv_buffer_intern.getvalue(),
+        file_name="intern_tabel.csv",
+        mime="text/csv"
+    )
 
 with tab5:
     import plotly.graph_objects as go
@@ -587,6 +605,7 @@ with tab5:
     # Forbered data
     accumulated_points = []
     rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
+
     for round_num in sorted(rounds_to_plot):
         runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
         home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
@@ -609,20 +628,16 @@ with tab5:
     accumulated_df = pd.concat(accumulated_points, ignore_index=True)
     accumulated_df = accumulated_df[accumulated_df["Team"].isin(selected_teams)]
 
-    # Tilføj et tomt datapunkt til at udvide visningen (efter sidste runde)
+    # Tilføj ekstra dummy datapunkt
     last_round = max(rounds_to_plot)
     extra_row = pd.DataFrame({
-        "Team": ["Dummy Team"],  # Dummy værdi, ikke vises på X-aksen
-        "Round": [last_round + 1],  # Ekstra runde, der kun bruges til visning
-        "Pts": [0]  # Dummy placering, ikke relevant
+        "Team": ["Dummy Team"],
+        "Round": [last_round + 1],
+        "Pts": [0]
     })
-
-    # Tilføj den ekstra række til accumulated_df
     accumulated_df = pd.concat([accumulated_df, extra_row], ignore_index=True)
 
-    # Plotly graf
     fig = go.Figure()
-
     for team in selected_teams:
         team_data = accumulated_df[accumulated_df["Team"] == team]
         team_visningsnavn = visningsnavn_map.get(team, team)
@@ -630,11 +645,10 @@ with tab5:
         fig.add_trace(go.Scatter(
             x=team_data["Round"],
             y=team_data["Pts"],
-            mode='lines+markers',
+            mode="lines+markers",
             name=team_visningsnavn,
             line=dict(color=color_map.get(team_visningsnavn, "#CCCCCC"), width=3),
-            marker=dict(size=5),
-            hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Point: %{{y}}<extra></extra>"
+            marker=dict(size=5)
         ))
 
         # Logo på sidste datapunkt
@@ -651,11 +665,10 @@ with tab5:
                 img.save(buffer, format="PNG")
                 encoded_image = base64.b64encode(buffer.getvalue()).decode()
 
-                # Placer billede på sidste datapunkt (rundens sidste)
                 fig.add_layout_image(
                     dict(
                         source="data:image/png;base64," + encoded_image,
-                        x=final_round,  # Sidste datapunkt
+                        x=final_round,
                         y=final_pts,
                         xref="x",
                         yref="y",
@@ -669,31 +682,25 @@ with tab5:
             except:
                 pass
 
-    # Juster marginen for at undgå beskæring og vis det ekstra datapunkt på X-aksen
     fig.update_layout(
         xaxis_title="Runde",
         yaxis_title="Akkumulerede point",
-        title="Akkumuleret pointudvikling",
         showlegend=True,
-        legend=dict(
-            orientation="h",
-            y=-0.2,
-            x=0.5,
-            xanchor="center",
-            font=dict(size=12)
-        ),
-        margin=dict(l=40, r=150, t=80, b=80),  # Øget margin til højre (r) for at give plads til billederne
         height=600,
-        xaxis=dict(
-            tickmode='linear',
-            dtick=1,
-            range=[min(rounds_to_plot), max(rounds_to_plot) + 1]  # Dynamisk justering af X-aksen (med ekstra datapunkt)
-        ),
-        yaxis=dict(
-            tickmode='linear',
-            dtick=5,
-            range=[0, accumulated_df["Pts"].max() + 5]
-        )
+        yaxis=dict(tickmode="linear", dtick=5, range=[0, accumulated_df["Pts"].max() + 5]),
+        xaxis=dict(tickmode="linear", dtick=1, range=[min(rounds_to_plot), max(rounds_to_plot) + 1]),
+        margin=dict(l=40, r=150, t=80, b=80)
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+    # Download akkumuleret data
+    csv_buffer_acc = io.StringIO()
+    accumulated_df.to_csv(csv_buffer_acc, index=False)
+
+    st.download_button(
+        label="Download akkumuleret pointudvikling som CSV",
+        data=csv_buffer_acc.getvalue(),
+        file_name="akkumuleret_pointudvikling.csv",
+        mime="text/csv"
+    )
