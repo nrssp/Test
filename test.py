@@ -481,14 +481,20 @@ with tab5:
         )
 
         logo_chart = alt.Chart(sidste_point).mark_image(
-            width=30,
-            height=30
+            width=18,
+            height=18
         ).encode(
             x=alt.X("Runde:O"),
             y=alt.Y("Akkumuleret Point:Q"),
             url="Logo:N"
         )
 
-        st.altair_chart((chart + logo_chart), use_container_width=True)
+        final_chart = (chart + logo_chart).configure_legend(
+            orient='right',
+            direction='vertical',
+            labelFontSize=12,
+            titleFontSize=14
+        )
+        st.altair_chart(final_chart, use_container_width=True)
     else:
         st.info("Ingen data tilgængelig for valgte hold og filtre.")
