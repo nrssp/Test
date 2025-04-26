@@ -543,7 +543,7 @@ with tab3:
             except:
                 pass
 
-    # Opdater X-aksen for at sikre ekstra plads efter den sidste runde
+    # Opdater X-aksen for at sikre ekstra plads efter den sidste runde, men uden værdi for det ekstra punkt
     fig.update_layout(
         xaxis_title="Runde",
         yaxis_title="Placering",
@@ -561,7 +561,9 @@ with tab3:
         xaxis=dict(
             tickmode='linear',
             dtick=1,
-            range=[min(rounds_to_plot), max(rounds_to_plot) + 1]  # Tilføj ekstra plads til at få et blankt punkt efter logoerne
+            range=[min(rounds_to_plot), max(rounds_to_plot) + 1],  # Forlæng range til at inkludere det tomme punkt
+            tickvals=rounds_to_plot + [max(rounds_to_plot) + 1],  # Placer et ekstra punkt uden værdi
+            showticklabels=True
         ),
         yaxis=dict(
             tickmode='linear',
