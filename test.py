@@ -444,6 +444,8 @@ with tab3:
                                (df["Round"].astype(int) <= selected_round_range[1])]["Round"].astype(int).unique())
 
     # Filtrer data for at sikre at runde 0 ikke tilføjes
+    rounds_to_plot = [round_num for round_num in rounds_to_plot if round_num != 0]
+
     for round_num in rounds_to_plot:
         runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
 
@@ -558,7 +560,7 @@ with tab3:
         xaxis=dict(
             tickmode='linear',
             dtick=1,
-            range=[0, max(rounds_to_plot) + 1]
+            range=[1, max(rounds_to_plot) + 1]  # Sørger for, at runde 0 ikke vises
         ),
         yaxis=dict(
             tickmode='linear',
