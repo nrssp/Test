@@ -483,7 +483,7 @@ with tab3:
 
     fig = go.Figure()
 
-    # Laver frames til animation
+    # Frames til animation
     frames = []
     for round_num in sorted(position_df["Round"].unique()):
         frame_data = []
@@ -497,20 +497,17 @@ with tab3:
                 x=team_data["Round"],
                 y=team_data["Position"],
                 mode="lines+markers",
-                name=team_visningsnavn,
                 line=dict(color=color_map.get(team_visningsnavn, "#CCCCCC"), width=3),
                 marker=dict(size=6),
-                hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Placering: %{{y}}<extra></extra>",
-                showlegend=(round_num == 0)  # Kun vis legend én gang
+                hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Placering: %{{y}}<extra></extra>"
             )
             frame_data.append(trace)
 
         frames.append(go.Frame(data=frame_data, name=str(round_num)))
 
-    # Tilføjer frames
     fig.frames = frames
 
-    # Start-visning (før animation starter)
+    # Første billede (start) – nu med showlegend=True
     for team in selected_teams:
         team_visningsnavn = visningsnavn_map.get(team, team)
         team_data = position_df[(position_df["Team"] == team) & (position_df["Round"] <= 0)]
@@ -522,7 +519,8 @@ with tab3:
             name=team_visningsnavn,
             line=dict(color=color_map.get(team_visningsnavn, "#CCCCCC"), width=3),
             marker=dict(size=6),
-            hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Placering: %{{y}}<extra></extra>"
+            hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Placering: %{{y}}<extra></extra>",
+            showlegend=True
         ))
 
     fig.update_layout(
@@ -538,7 +536,7 @@ with tab3:
             autorange="reversed",
             tickmode="linear",
             dtick=1,
-            range=[12.5, 0.5]  # Superliga = 12 hold
+            range=[12.5, 0.5]
         ),
         height=600,
         margin=dict(l=40, r=40, t=80, b=80),
@@ -564,7 +562,6 @@ with tab3:
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
 
 
 with tab4:
