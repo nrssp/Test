@@ -512,7 +512,7 @@ with tab3:
             hovertemplate=f"<b>{team_visningsnavn}</b><br>Runde: %{{x}}<br>Placering: %{{y}}<extra></extra>"
         ))
 
-        # Logo på sidste punkt
+        # Logo på sidste punkt (den sidste runde)
         if not team_data.empty:
             final_round = team_data["Round"].max()
             final_pos = team_data[team_data["Round"] == final_round]["Position"].values[0]
@@ -529,7 +529,7 @@ with tab3:
                 fig.add_layout_image(
                     dict(
                         source="data:image/png;base64," + encoded_image,
-                        x=final_round + 1,  # Læg ekstra plads til for at undgå overlapning
+                        x=final_round,  # Logoet placeres på den sidste runde
                         y=final_pos,
                         xref="x",
                         yref="y",
@@ -543,6 +543,7 @@ with tab3:
             except:
                 pass
 
+    # Opdater X-aksen for at sikre ekstra plads efter den sidste runde
     fig.update_layout(
         xaxis_title="Runde",
         yaxis_title="Placering",
@@ -560,7 +561,7 @@ with tab3:
         xaxis=dict(
             tickmode='linear',
             dtick=1,
-            range=[min(rounds_to_plot), max(rounds_to_plot) + 1]  # Ekstra plads til at undgå overlap
+            range=[min(rounds_to_plot), max(rounds_to_plot) + 1]  # Tilføj ekstra plads til at få et blankt punkt efter logoerne
         ),
         yaxis=dict(
             tickmode='linear',
@@ -571,6 +572,7 @@ with tab3:
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
 
 
 with tab4:
