@@ -474,7 +474,11 @@ with tab5:
             tooltip=["Team", "Runde", "Akkumuleret Point"]
         ).properties(height=500)
         sidste_point = point_data.groupby("Team").last().reset_index()
-        sidste_point["Logo"] = sidste_point["Team"].map(lambda x: logo_map.get(x, ""))
+        sidste_point["Logo"] = sidste_point["Team"].map(
+            lambda x: logo_map.get(
+                next((k for k, v in display_name_map.items() if v == x), x)
+            )
+        )
 
         logo_chart = alt.Chart(sidste_point).mark_image(
             width=30,
