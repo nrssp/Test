@@ -345,6 +345,40 @@ table["Team"] = table.apply(
 # Tabs: League table, Matches, Trends
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel", "🧮 Akkumuleret liga"])
 
+# Farver til hold (bruges i både udvikling og akkumuleret point)
+color_map = {
+    "FC København": "#011A8B",
+    "FC Midtjylland": "#000000",
+    "Brøndby IF": "#FFD700",
+    "FC Nordsjælland": "#FFA500",
+    "Randers FC": "#00BFFF",
+    "AGF": "#808080",
+    "Viborg FF": "#008000",
+    "Silkeborg IF": "#FFB6C1",
+    "SønderjyskE": "#40E0D0",
+    "Lyngby BK": "#800080",
+    "Vejle BK": "#FF0000",
+    "AAB": "#800000"
+}
+
+# Logo links (bruges i både udvikling og akkumuleret point)
+logo_base_url = "https://raw.githubusercontent.com/nrssp/Test/main/Logoer/"
+logo_map_updated = {
+    "FC København": "FC%20K%C3%B8benhavn",
+    "Brøndby IF": "Br%C3%B8ndby%20IF",
+    "Randers FC": "Randers%20FC",
+    "Silkeborg IF": "Silkeborg%20IF",
+    "FC Nordsjælland": "FC%20Nordsj%C3%A6lland",
+    "Viborg FF": "Viborg%20FF",
+    "AAB": "AAB",
+    "Lyngby BK": "Lyngby%20BK",
+    "AGF": "AGF",
+    "SønderjyskE": "S%C3%B8nderjyskE",
+    "Vejle BK": "Vejle%20BK",
+    "FC Midtjylland": "FC%20Midtjylland"
+}
+
+
 with tab1:
     all_optional_columns = [col for col in table.columns if col not in ["Nr.", "Team", "Pts"]]
     all_optional_columns = list(dict.fromkeys(all_optional_columns + ["Form"]))
