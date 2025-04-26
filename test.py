@@ -438,18 +438,34 @@ with tab3:
 
     # Forbered data til udvikling i placering
     position_df = []
+    
+    # Sørg for at vi får alle de relevante runder
     rounds_to_plot = sorted(df[(df["Round"].astype(int) >= selected_round_range[0]) & 
                                (df["Round"].astype(int) <= selected_round_range[1])]["Round"].astype(int).unique())
 
+    # Hvis ingen specifik filtrering på runde, så tilføj runde 0
+    if not selected_specific_rounds:
+        start_rows = []
+        for team in selected_teams:
+            start_rows.append({"Team": team, "Round": 0, "Position": 1})
+        start_df = pd.DataFrame(start_rows)
+        position_df.append(start_df)
+
     for round_num in rounds_to_plot:
         runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
+
+        # Hjemme- og udekampe
         home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
         home_r.columns = ["Team", "Opponent", "GF", "GA"]
         home_r["Result"] = home_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
+        
         away_r = runde_kampe[["Away", "Home", "Away Goals", "Home Goals"]].copy()
         away_r.columns = ["Team", "Opponent", "GF", "GA"]
         away_r["Result"] = away_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
+        
         match_r = pd.concat([home_r, away_r])
+
+        # Gruppér og beregn positioner
         tbl = match_r.groupby("Team").agg(
             MP=("Result", "count"),
             W=("Result", lambda x: (x == "W").sum()),
@@ -465,29 +481,11 @@ with tab3:
         tbl["Round"] = round_num
         position_df.append(tbl[["Team", "Round", "Position"]])
 
+    # Kombiner position_df til en samlet dataframe
     position_df = pd.concat(position_df, ignore_index=True)
     position_df = position_df[position_df["Team"].isin(selected_teams)]
 
-    # Tilføj Runde 0 med start-position (alle starter på 1)
-    start_rows = []
-    for team in selected_teams:
-        start_rows.append({"Team": team, "Round": 0, "Position": 1})
-    start_df = pd.DataFrame(start_rows)
-    position_df = pd.concat([start_df, position_df], ignore_index=True)
-
-    # Tilføj CSV-download-knap
-    if not position_df.empty:
-        csv = position_df.to_csv(index=False)  # Omformater position_df til CSV-format
-        st.download_button(
-            label="Download CSV",
-            data=csv,
-            file_name="placering_udvikling.csv",
-            mime="text/csv"
-        )
-    else:
-        st.error("Ingen data til rådighed for download.")
-
-    # Forbered plot (udvikling i placering)
+    # Visualiseringen i grafen
     color_map = {
         "FC København": "#011A8B",
         "FC Midtjylland": "#000000",
@@ -501,22 +499,6 @@ with tab3:
         "Lyngby BK": "#800080",
         "Vejle BK": "#FF0000",
         "AAB": "#800000"
-    }
-
-    logo_base_url = "https://raw.githubusercontent.com/nrssp/Test/main/Logoer/"
-    logo_map_updated = {
-        "FC København": "FC%20K%C3%B8benhavn",
-        "Brøndby IF": "Br%C3%B8ndby%20IF",
-        "Randers FC": "Randers%20FC",
-        "Silkeborg IF": "Silkeborg%20IF",
-        "FC Nordsjælland": "FC%20Nordsj%C3%A6lland",
-        "Viborg FF": "Viborg%20FF",
-        "AAB": "AAB",
-        "Lyngby BK": "Lyngby%20BK",
-        "AGF": "AGF",
-        "SønderjyskE": "S%C3%B8nderjyskE",
-        "Vejle BK": "Vejle%20BK",
-        "FC Midtjylland": "FC%20Midtjylland"
     }
 
     fig = go.Figure()
@@ -594,6 +576,7 @@ with tab3:
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
 
 with tab4:
     st.subheader("Intern tabel mellem valgte hold")
