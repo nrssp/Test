@@ -587,7 +587,7 @@ with tab4:
     intern_table_download.to_csv(csv_buffer_intern, index=False)
 
     st.download_button(
-        label="Download intern tabel som CSV",
+        label="Download CSV",
         data=csv_buffer_intern.getvalue(),
         file_name="intern_tabel.csv",
         mime="text/csv"
@@ -699,7 +699,7 @@ with tab5:
     accumulated_df.to_csv(csv_buffer_acc, index=False)
 
     st.download_button(
-        label="Download akkumuleret pointudvikling som CSV",
+        label="Download CSV",
         data=csv_buffer_acc.getvalue(),
         file_name="akkumuleret_pointudvikling.csv",
         mime="text/csv"
