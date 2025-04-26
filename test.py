@@ -470,6 +470,13 @@ with tab5:
     accumulated_df = pd.concat(accumulated_points, ignore_index=True)
     accumulated_df = accumulated_df[accumulated_df["Team"].isin(selected_teams)]
 
+    # Tilføj Runde 0 med 0 point
+    start_rows = []
+    for team in selected_teams:
+        start_rows.append({"Team": team, "Round": 0, "Pts": 0})
+    start_df = pd.DataFrame(start_rows)
+    accumulated_df = pd.concat([start_df, accumulated_df], ignore_index=True)
+
     # Farver til hold
     color_map = {
         "FC København": "#011A8B",
