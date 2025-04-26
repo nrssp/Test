@@ -417,7 +417,7 @@ with tab1:
     filtered_table_download.to_csv(csv_buffer, index=False)
 
     st.download_button(
-        label="Download tabel som CSV",
+        label="Download CSV",
         data=csv_buffer.getvalue(),
         file_name="superliga_tabel.csv",
         mime="text/csv"
@@ -555,7 +555,7 @@ with tab3:
     position_df.to_csv(csv_buffer_pos, index=False)
 
     st.download_button(
-        label="Download udviklingsdata som CSV",
+        label="Download CSV",
         data=csv_buffer_pos.getvalue(),
         file_name="placering_udvikling.csv",
         mime="text/csv"
