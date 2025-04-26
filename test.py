@@ -484,21 +484,67 @@ with tab3:
     position_df = pd.concat(position_df, ignore_index=True)
     position_df = position_df[position_df["Team"].isin(selected_teams)]
 
+    # Tilføj ekstra dummy datapunkt til sidst
+    last_round = max(rounds_to_plot)
+    extra_row = pd.DataFrame({
+        "Team": ["Dummy Team"],
+        "Round": [last_round + 1],
+        "Position": [0]
+    })
+    position_df = pd.concat([position_df, extra_row], ignore_index=True)
+
     fig = go.Figure()
     for team in selected_teams:
         team_data = position_df[position_df["Team"] == team]
         team_visningsnavn = visningsnavn_map.get(team, team)
+
         fig.add_trace(go.Scatter(
             x=team_data["Round"],
             y=team_data["Position"],
             mode="lines+markers",
-            name=team_visningsnavn
+            name=team_visningsnavn,
+            line=dict(color=color_map.get(team_visningsnavn, "#CCCCCC"), width=3),
+            marker=dict(size=5)
         ))
+
+        # Logo på sidste datapunkt
+        if not team_data.empty:
+            final_round = team_data["Round"].max()
+            final_pos = team_data[team_data["Round"] == final_round]["Position"].values[0]
+            logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn) + ".png"
+            logo_url = logo_base_url + logo_filename
+
+            try:
+                response = requests.get(logo_url)
+                img = Image.open(BytesIO(response.content))
+                buffer = BytesIO()
+                img.save(buffer, format="PNG")
+                encoded_image = base64.b64encode(buffer.getvalue()).decode()
+
+                fig.add_layout_image(
+                    dict(
+                        source="data:image/png;base64," + encoded_image,
+                        x=final_round,
+                        y=final_pos,
+                        xref="x",
+                        yref="y",
+                        sizex=1,
+                        sizey=1,
+                        xanchor="center",
+                        yanchor="middle",
+                        layer="above"
+                    )
+                )
+            except:
+                pass
 
     fig.update_layout(
         xaxis_title="Runde",
         yaxis_title="Placering",
-        yaxis=dict(autorange="reversed"),
+        showlegend=True,
+        yaxis=dict(autorange="reversed", tickmode="linear", dtick=1, range=[12.5, 0.5]),
+        xaxis=dict(tickmode="linear", dtick=1, range=[min(rounds_to_plot), max(rounds_to_plot) + 1]),
+        margin=dict(l=40, r=150, t=80, b=80),
         height=600
     )
 
@@ -509,7 +555,7 @@ with tab3:
     position_df.to_csv(csv_buffer_pos, index=False)
 
     st.download_button(
-        label="Download udviklingsdata som CSV",
+        label="👅 Download udviklingsdata som CSV",
         data=csv_buffer_pos.getvalue(),
         file_name="placering_udvikling.csv",
         mime="text/csv"
