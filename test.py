@@ -10,9 +10,21 @@ st.set_page_config(
     layout="wide"
 )
 
-# Tilføj FCK styling i starten af din app
 st.markdown("""
     <style>
+    @font-face {
+        font-family: 'FCKSerifBold';
+        src: url('https://raw.githubusercontent.com/nrssp/Test/d62a85fd81fa5d438140f0d5af7e1b4bf44d2489/FCKSerif-Bold.ttf') format('truetype');
+    }
+    @font-face {
+        font-family: 'FCKTextSemiBold';
+        src: url('https://raw.githubusercontent.com/nrssp/Test/fc9ee1c1f14f9038c3b0c4c3b8dee274a7f74adf/FCKText-SemiBold.ttf') format('truetype');
+    }
+
+    html, body, [class*="css"] {
+        font-family: 'FCKTextSemiBold', sans-serif;
+    }
+
     /* Baggrundsfarve */
     body {
         background-color: #ffffff;
@@ -33,7 +45,7 @@ st.markdown("""
         padding: 0.5em 1em;
     }
     .stButton>button:hover {
-        background-color: #0a2ad9;
+        background-color: #0a2adf;
         color: white;
     }
     /* Checkbox styling */
@@ -47,18 +59,18 @@ st.markdown("""
     }
     /* Slider grundlinje */
     div[data-testid="stSlider"] > div > div {
-        background: #d3d3d3; /* Lys grå baggrundsstreg */
+        background: #d3d3d3;
         height: 6px;
         border-radius: 3px;
     }
-    /* Slider fremdrift (progress) */
+    /* Slider fremdrift */
     div[data-testid="stSlider"] > div > div > div:nth-child(4),
     div[data-testid="stSlider"] > div > div > div[role="progressbar"] {
-        background: #011A8B; /* FCK blå fremdrift */
+        background: #011A8B;
         height: 6px;
         border-radius: 3px;
     }
-    /* Slider håndtag (prikken) */
+    /* Slider håndtag */
     [role="slider"] {
         background: white;
         border: 3px solid #011A8B;
@@ -75,6 +87,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 # Load CSV with match results
 csv_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_kampresultater.csv"
