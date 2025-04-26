@@ -16,25 +16,9 @@ st.markdown("""
         font-family: 'FCKSerifBold';
         src: url('https://raw.githubusercontent.com/nrssp/Test/d62a85fd81fa5d438140f0d5af7e1b4bf44d2489/FCKSerif-Bold.ttf') format('truetype');
     }
-    @font-face {
-        font-family: 'FCKTextSemiBold';
-        src: url('https://raw.githubusercontent.com/nrssp/Test/fc9ee1c1f14f9038c3b0c4c3b8dee274a7f74adf/FCKText-SemiBold.ttf') format('truetype');
-    }
 
     html, body, [class*="css"] {
-        font-family: 'FCKTextSemiBold', sans-serif;
-    }
-    section[data-testid="stSidebar"] * {
-        font-family: 'FCKTextSemiBold', sans-serif !important;
-    }
-    div[data-testid="stSlider"] * {
-        font-family: 'FCKTextSemiBold', sans-serif !important;
-    }
-    div[data-testid="stCheckbox"] * {
-        font-family: 'FCKTextSemiBold', sans-serif !important;
-    }
-    div[data-testid="stButton"] * {
-        font-family: 'FCKTextSemiBold', sans-serif !important;
+        font-family: 'FCKSerifBold', serif;
     }
 
     /* Baggrundsfarve */
@@ -47,6 +31,7 @@ st.markdown("""
     }
     section[data-testid="stSidebar"] * {
         color: white;
+        font-family: 'FCKSerifBold', serif !important;
     }
     /* Knapper */
     .stButton>button {
@@ -55,9 +40,10 @@ st.markdown("""
         border: none;
         border-radius: 8px;
         padding: 0.5em 1em;
+        font-family: 'FCKSerifBold', serif !important;
     }
     .stButton>button:hover {
-        background-color: #0a2adf;
+        background-color: #0a2ad9;
         color: white;
     }
     /* Checkbox styling */
@@ -69,36 +55,30 @@ st.markdown("""
     div[data-testid="stCheckbox"] > label > div:first-child svg {
         stroke: gray;
     }
-    /* Slider grundlinje */
-    div[data-testid="stSlider"] > div > div {
-        background: #d3d3d3;
-        height: 6px;
-        border-radius: 3px;
+    div[data-testid="stCheckbox"] * {
+        font-family: 'FCKSerifBold', serif !important;
     }
-    /* Slider fremdrift */
+    /* Slider styling */
+    [role="slider"],
+    div[data-testid="stSlider"] > div > div > div,
     div[data-testid="stSlider"] > div > div > div:nth-child(4),
     div[data-testid="stSlider"] > div > div > div[role="progressbar"] {
         background: #011A8B;
-        height: 6px;
-        border-radius: 3px;
     }
-    /* Slider håndtag */
-    [role="slider"] {
-        background: white;
-        border: 3px solid #011A8B;
-        height: 20px;
-        width: 20px;
-        border-radius: 50%;
+    div[data-testid="stSlider"] * {
+        font-family: 'FCKSerifBold', serif !important;
     }
-    /* Slider værdi (talboks) */
+    /* Slider værdi-boks styling */
     div[data-testid="stSlider"] > div > div > div:nth-child(5) {
         background-color: #011A8B;
         color: white;
-        padding: 4px 8px;
+        padding: 2px 8px;
         border-radius: 8px;
+        font-family: 'FCKSerifBold', serif !important;
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 # Load CSV with match results
