@@ -565,11 +565,13 @@ with tab5:
         height=600,
         xaxis=dict(
             tickmode='linear',
-            dtick=1
+            dtick=1,
+            range=[0, max(rounds_to_plot) + 1]
         ),
         yaxis=dict(
             tickmode='linear',
-            dtick=5
+            dtick=5,
+            range=[0, accumulated_df["Pts"].max() + 5]
         )
     )
 
