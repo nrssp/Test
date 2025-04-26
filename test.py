@@ -417,7 +417,7 @@ with tab1:
     filtered_table_download.to_csv(csv_buffer, index=False)
 
     st.download_button(
-        label="👅 Download tabel som CSV",
+        label="Download tabel som CSV",
         data=csv_buffer.getvalue(),
         file_name="superliga_tabel.csv",
         mime="text/csv"
