@@ -475,8 +475,12 @@ with tab5:
         ).properties(height=500)
         sidste_point = point_data.groupby("Team").last().reset_index()
         def find_logo(team_visningsnavn):
-            raw_key = next((k for k, v in display_name_map.items() if v == team_visningsnavn), team_visningsnavn)
-            return logo_map.get(raw_key, logo_map.get(team_visningsnavn, ""))
+            if team_visningsnavn in logo_map:
+                return logo_map[team_visningsnavn]
+            raw_key = next((k for k, v in display_name_map.items() if v == team_visningsnavn), None)
+            if raw_key:
+                return logo_map.get(raw_key, "")
+            return ""
         sidste_point["Logo"] = sidste_point["Team"].map(find_logo)
 
         logo_chart = alt.Chart(sidste_point).mark_image(
