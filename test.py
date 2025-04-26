@@ -437,13 +437,11 @@ with tab4:
     st.markdown(intern_table_html, unsafe_allow_html=True)
 
 with tab5:
-
     import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-import requests
-from io import BytesIO
+    import matplotlib.image as mpimg
+    import requests
+    from io import BytesIO
 
-with tab5:
     st.subheader("Akkumuleret pointudvikling")
 
     # Forbered data: Akkumulerede point for hvert hold for hver runde
@@ -494,11 +492,9 @@ with tab5:
         ax.plot(team_data["Round"], team_data["Pts"], '-', label=team)
 
         if not team_data.empty:
-            # Slutpunkt
             final_round = team_data["Round"].max()
             final_pts = team_data[team_data["Round"] == final_round]["Pts"].values[0]
 
-            # Logo URL
             team_visningsnavn = visningsnavn_map.get(team, team)
             logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn).replace(" ", "%20") + ".png"
             logo_url = logo_base_url + logo_filename
@@ -506,15 +502,16 @@ with tab5:
             try:
                 response = requests.get(logo_url)
                 img = mpimg.imread(BytesIO(response.content), format='png')
-                ax.imshow(img, extent=(final_round-0.3, final_round+0.3, final_pts-0.7, final_pts+0.7), aspect='auto', zorder=5)
+                ax.imshow(img, extent=(final_round-0.5, final_round+0.5, final_pts-1, final_pts+1), aspect='auto', zorder=5)
             except:
-                pass  # Hvis logo ikke findes, spring videre
+                pass
 
     ax.set_xlabel("Runde")
     ax.set_ylabel("Akkumulerede point")
     ax.set_title("Pointudvikling pr. hold")
     ax.grid(True)
-    ax.set_xlim(min(rounds_to_plot)-0.5, max(rounds_to_plot)+0.5)
-    ax.legend().remove()  # Vi fjerner legenden, da logoer er slutpunkt
+    ax.set_xlim(1, max(rounds_to_plot))
+    ax.set_ylim(0, accumulated_df["Pts"].max() + 5)
+    ax.legend().remove()
 
     st.pyplot(fig)
