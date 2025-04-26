@@ -507,4 +507,4 @@ with tab5:
         ax.legend()
         st.pyplot(fig)
     else:
-    st.info("Ingen data tilgængelig for de valgte filtre.")
+        st.info("Ingen data tilgængelig for de valgte filtre.")
