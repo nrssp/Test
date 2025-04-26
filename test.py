@@ -111,7 +111,7 @@ st.markdown("""
     }
     /* Slider styling */
     [role="slider"],
-    div[data-testid="stSlider"] > div > div > div:nth-child(4),
+    div[data-testid="stSlider"] > div > div > div,
     div[data-testid="stSlider"] > div > div > div[role="progressbar"] {
         background: #bababa;
     }
