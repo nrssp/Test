@@ -504,12 +504,18 @@ with tab5:
             except:
                 pass
 
-    ax.set_xlabel("Runde")
-    ax.set_ylabel("Akkumulerede point")
-    ax.set_title("Pointudvikling pr. hold")
-    ax.grid(True)
-    ax.set_xlim(1, max(rounds_to_plot) + 2)
-    ax.set_ylim(0, accumulated_df["Pts"].max() + 5)
-    ax.legend().remove()
+ax.set_xlabel("Runde")
+ax.set_ylabel("Akkumulerede point")
+ax.set_title("Pointudvikling pr. hold")
+ax.grid(True)
+ax.set_xlim(1, max(rounds_to_plot) + 2)
+ax.set_ylim(0, accumulated_df["Pts"].max() + 5)
 
-    st.pyplot(fig)
+ax.legend(
+    loc='upper center',
+    bbox_to_anchor=(0.5, -0.15),
+    ncol=4,
+    frameon=False
+)
+
+st.pyplot(fig)
