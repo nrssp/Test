@@ -597,6 +597,17 @@ with tab5:
     accumulated_df = pd.concat(accumulated_points, ignore_index=True)
     accumulated_df = accumulated_df[accumulated_df["Team"].isin(selected_teams)]
 
+    # Tilføj et tomt datapunkt til at udvide visningen (efter sidste runde)
+    last_round = max(rounds_to_plot)
+    extra_row = pd.DataFrame({
+        "Team": ["Dummy Team"],  # Dummy værdi, ikke vises på X-aksen
+        "Round": [last_round + 1],  # Ekstra runde, der kun bruges til visning
+        "Pts": [0]  # Dummy placering, ikke relevant
+    })
+
+    # Tilføj den ekstra række til accumulated_df
+    accumulated_df = pd.concat([accumulated_df, extra_row], ignore_index=True)
+
     # Plotly graf
     fig = go.Figure()
 
@@ -664,7 +675,7 @@ with tab5:
         xaxis=dict(
             tickmode='linear',
             dtick=1,
-            range=[min(rounds_to_plot), max(rounds_to_plot)]  # Dynamisk justering af X-aksen uden ekstra datapunkt
+            range=[min(rounds_to_plot), max(rounds_to_plot) + 1]  # Dynamisk justering af X-aksen (med ekstra datapunkt)
         ),
         yaxis=dict(
             tickmode='linear',
