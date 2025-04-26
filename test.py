@@ -427,11 +427,9 @@ with tab3:
 
     st.subheader("Udvikling i placering")
 
-    # Forbered rounds_to_plot korrekt
-    if selected_specific_rounds:
-        rounds_to_plot = sorted(selected_specific_rounds)
-    else:
-        rounds_to_plot = sorted(df[(df["Round"].astype(int) >= selected_round_range[0]) & (df["Round"].astype(int) <= selected_round_range[1])]["Round"].astype(int).unique())
+    # Forbered rounds_to_plot korrekt baseret på den valgte periode (alle runder)
+    rounds_to_plot = sorted(df[(df["Round"].astype(int) >= selected_round_range[0]) & 
+                               (df["Round"].astype(int) <= selected_round_range[1])]["Round"].astype(int).unique())
 
     # Forbered data
     position_df = []
@@ -576,7 +574,6 @@ with tab3:
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
 
 with tab4:
     st.subheader("Intern tabel mellem valgte hold")
