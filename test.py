@@ -427,6 +427,20 @@ with tab3:
 
     st.altair_chart(chart, use_container_width=True)
 
+        # Tilføj logoer ved sidste datapunkt
+        sidste_point = point_data.groupby("Team").last().reset_index()
+        sidste_point["Logo"] = sidste_point["Team"].map(lambda x: logo_map.get(x, ""))
+        logo_chart = alt.Chart(sidste_point).mark_image(
+            width=30,
+            height=30
+        ).encode(
+            x=alt.X("Runde:O"),
+            y=alt.Y("Akkumuleret Point:Q"),
+            url="Logo:N"
+        )
+
+        st.altair_chart((chart + logo_chart), use_container_width=True)
+
 with tab4:
     st.subheader("Intern tabel mellem valgte hold")
     interne_kampe = all_matches[(all_matches["Team"].isin(selected_teams)) & (all_matches["Opponent"].isin(selected_teams))]
