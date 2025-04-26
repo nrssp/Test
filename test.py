@@ -100,9 +100,14 @@ st.markdown("""
         background-color: #0a2ad9;
         color: white;
     }
-    /* Checkbox styling */
-    input[type="checkbox"] {
-        accent-color: #011A8B;
+    /* Checkbox styling korrekt */
+    div[data-testid="stCheckbox"] > label > div:first-child {
+        background-color: white;
+        border: 2px solid #011A8B;
+        border-radius: 4px;
+    }
+    div[data-testid="stCheckbox"] > label > div:first-child svg {
+        stroke: #011A8B;
     }
     /* Slider styling */
     [role="slider"],
