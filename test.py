@@ -483,26 +483,49 @@ with tab5:
         "FC Midtjylland": "FC%20Midtjylland"
     }
 
-    fig, ax = plt.subplots(figsize=(14, 7))  # MINDRE FIGUR
+   # Farver på linjer
+color_map = {
+    "FC København": "#011A8B",
+    "FC Midtjylland": "#000000",
+    "Brøndby IF": "#FFD700",
+    "FC Nordsjælland": "#FFA500",
+    "Randers FC": "#00BFFF",
+    "AGF": "#808080",
+    "Viborg FF": "#008000",
+    "Silkeborg IF": "#FFB6C1",
+    "SønderjyskE": "#40E0D0",
+    "Lyngby BK": "#800080",
+    "Vejle BK": "#FF0000",
+    "AAB": "#800000"
+}
 
-    for team in selected_teams:
-        team_data = accumulated_df[accumulated_df["Team"] == team]
-        ax.plot(team_data["Round"], team_data["Pts"], '-', label=team, linewidth=2)  # Pænere tyndere linjer
+fig, ax = plt.subplots(figsize=(14, 7))
 
-        if not team_data.empty:
-            final_round = team_data["Round"].max()
-            final_pts = team_data[team_data["Round"] == final_round]["Pts"].values[0]
+for team in selected_teams:
+    team_data = accumulated_df[accumulated_df["Team"] == team]
+    team_visningsnavn = visningsnavn_map.get(team, team)
+    ax.plot(
+        team_data["Round"], 
+        team_data["Pts"], 
+        '-', 
+        label=team, 
+        linewidth=2, 
+        color=color_map.get(team_visningsnavn, "#CCCCCC")
+    )
 
-            team_visningsnavn = visningsnavn_map.get(team, team)
-            logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn).replace(" ", "%20") + ".png"
-            logo_url = logo_base_url + logo_filename
+    if not team_data.empty:
+        final_round = team_data["Round"].max()
+        final_pts = team_data[team_data["Round"] == final_round]["Pts"].values[0]
 
-            try:
-                response = requests.get(logo_url)
-                img = mpimg.imread(BytesIO(response.content), format='png')
-                ax.imshow(img, extent=(final_round-0.3, final_round+0.3, final_pts-0.6, final_pts+0.6), aspect='auto', zorder=5)
-            except:
-                pass
+        logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn).replace(" ", "%20") + ".png"
+        logo_url = logo_base_url + logo_filename
+
+        try:
+            response = requests.get(logo_url)
+            img = mpimg.imread(BytesIO(response.content), format='png')
+            ax.imshow(img, extent=(final_round-0.3, final_round+0.3, final_pts-0.6, final_pts+0.6), aspect='auto', zorder=5)
+        except:
+            pass
 
 ax.set_xlabel("Runde")
 ax.set_ylabel("Akkumulerede point")
