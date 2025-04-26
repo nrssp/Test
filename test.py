@@ -560,7 +560,7 @@ with tab3:
         xaxis=dict(
             tickmode='linear',
             dtick=1,
-            range=[1, max(rounds_to_plot) + 1]  # Sørger for, at runde 0 ikke vises
+            range=[min(rounds_to_plot), max(rounds_to_plot)]  # Dynamisk interval af runder, der er filtreret
         ),
         yaxis=dict(
             tickmode='linear',
