@@ -478,7 +478,12 @@ with tab5:
 
         chart = alt.Chart(point_data).mark_line(point=True).encode(
             x=alt.X("Runde:O", title="Runde"),
-            y=alt.Y("Akkumuleret Point:Q", title="Akkumulerede point"),
+            y=alt.Y(
+            "Akkumuleret Point:Q",
+            title="Akkumulerede point",
+            scale=alt.Scale(nice=False),
+            axis=alt.Axis(tickMinStep=1)
+        ),
             color=alt.Color("Team:N"),
             tooltip=["Team", "Runde", "Akkumuleret Point"]
         ).properties(height=500)
