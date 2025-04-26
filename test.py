@@ -436,3 +436,85 @@ with tab4:
     intern_table_html = intern_table[["Nr.", "Team", "MP", "W", "D", "L", "GF", "GA", "GD", "Pts"]].to_html(escape=False, index=False, classes="centered-header")
     st.markdown(intern_table_html, unsafe_allow_html=True)
 
+with tab5:
+
+    import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import requests
+from io import BytesIO
+
+with tab5:
+    st.subheader("Akkumuleret pointudvikling")
+
+    # Forbered data: Akkumulerede point for hvert hold for hver runde
+    accumulated_points = []
+    rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
+    for round_num in sorted(rounds_to_plot):
+        runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
+        home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
+        home_r.columns = ["Team", "Opponent", "GF", "GA"]
+        home_r["Result"] = home_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
+        away_r = runde_kampe[["Away", "Home", "Away Goals", "Home Goals"]].copy()
+        away_r.columns = ["Team", "Opponent", "GF", "GA"]
+        away_r["Result"] = away_r.apply(lambda x: "W" if x["GF"] > x["GA"] else "L" if x["GF"] < x["GA"] else "D", axis=1)
+        match_r = pd.concat([home_r, away_r])
+        tbl = match_r.groupby("Team").agg(
+            MP=("Result", "count"),
+            W=("Result", lambda x: (x == "W").sum()),
+            D=("Result", lambda x: (x == "D").sum())
+        )
+        tbl["Pts"] = tbl["W"] * 3 + tbl["D"]
+        tbl = tbl.reset_index()
+        tbl["Round"] = round_num
+        accumulated_points.append(tbl[["Team", "Round", "Pts"]])
+
+    accumulated_df = pd.concat(accumulated_points, ignore_index=True)
+
+    # Logo URLs
+    logo_base_url = "https://raw.githubusercontent.com/nrssp/Test/main/Logoer/"
+    logo_map_updated = {
+        "FC København": "FC%20K%C3%B8benhavn",
+        "Brøndby IF": "Br%C3%B8ndby%20IF",
+        "Randers FC": "Randers%20FC",
+        "Silkeborg IF": "Silkeborg%20IF",
+        "FC Nordsjælland": "FC%20Nordsj%C3%A6lland",
+        "Viborg FF": "Viborg%20FF",
+        "AAB": "AAB",
+        "Lyngby BK": "Lyngby%20BK",
+        "AGF": "AGF",
+        "SønderjyskE": "S%C3%B8nderjyskE",
+        "Vejle BK": "Vejle%20BK",
+        "FC Midtjylland": "FC%20Midtjylland"
+    }
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    for team in selected_teams:
+        team_data = accumulated_df[accumulated_df["Team"] == team]
+        ax.plot(team_data["Round"], team_data["Pts"], '-', label=team)
+
+        if not team_data.empty:
+            # Slutpunkt
+            final_round = team_data["Round"].max()
+            final_pts = team_data[team_data["Round"] == final_round]["Pts"].values[0]
+
+            # Logo URL
+            team_visningsnavn = visningsnavn_map.get(team, team)
+            logo_filename = logo_map_updated.get(team_visningsnavn, team_visningsnavn).replace(" ", "%20") + ".png"
+            logo_url = logo_base_url + logo_filename
+
+            try:
+                response = requests.get(logo_url)
+                img = mpimg.imread(BytesIO(response.content), format='png')
+                ax.imshow(img, extent=(final_round-0.3, final_round+0.3, final_pts-0.7, final_pts+0.7), aspect='auto', zorder=5)
+            except:
+                pass  # Hvis logo ikke findes, spring videre
+
+    ax.set_xlabel("Runde")
+    ax.set_ylabel("Akkumulerede point")
+    ax.set_title("Pointudvikling pr. hold")
+    ax.grid(True)
+    ax.set_xlim(min(rounds_to_plot)-0.5, max(rounds_to_plot)+0.5)
+    ax.legend().remove()  # Vi fjerner legenden, da logoer er slutpunkt
+
+    st.pyplot(fig)
