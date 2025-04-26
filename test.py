@@ -428,9 +428,10 @@ with tab3:
     st.subheader("Udvikling i placering")
 
     # Forbered data
-    position_df = []
     rounds_to_plot = selected_specific_rounds if selected_specific_rounds else list(range(selected_round_range[0], selected_round_range[1] + 1))
 
+    # Filtrering for at kun inkludere de relevante runder
+    position_df = []
     for round_num in sorted(rounds_to_plot):
         runde_kampe = df[df["Round"].astype(int) <= round_num].copy()
         home_r = runde_kampe[["Home", "Away", "Home Goals", "Away Goals"]].copy()
@@ -523,7 +524,7 @@ with tab3:
         xaxis=dict(
             tickmode="linear",
             dtick=1,
-            range=[0, max(rounds_to_plot) + 1]
+            range=[min(rounds_to_plot), max(rounds_to_plot)]  # Dynamisk justering af X-aksen
         ),
         yaxis=dict(
             tickmode="linear",
@@ -582,38 +583,7 @@ with tab5:
     accumulated_df = pd.concat(accumulated_points, ignore_index=True)
     accumulated_df = accumulated_df[accumulated_df["Team"].isin(selected_teams)]
 
-    # Farver til hold
-    color_map = {
-        "FC København": "#011A8B",
-        "FC Midtjylland": "#000000",
-        "Brøndby IF": "#FFD700",
-        "FC Nordsjælland": "#FFA500",
-        "Randers FC": "#00BFFF",
-        "AGF": "#808080",
-        "Viborg FF": "#008000",
-        "Silkeborg IF": "#FFB6C1",
-        "SønderjyskE": "#40E0D0",
-        "Lyngby BK": "#800080",
-        "Vejle BK": "#FF0000",
-        "AAB": "#800000"
-    }
-
-    logo_base_url = "https://raw.githubusercontent.com/nrssp/Test/main/Logoer/"
-    logo_map_updated = {
-        "FC København": "FC%20K%C3%B8benhavn",
-        "Brøndby IF": "Br%C3%B8ndby%20IF",
-        "Randers FC": "Randers%20FC",
-        "Silkeborg IF": "Silkeborg%20IF",
-        "FC Nordsjælland": "FC%20Nordsj%C3%A6lland",
-        "Viborg FF": "Viborg%20FF",
-        "AAB": "AAB",
-        "Lyngby BK": "Lyngby%20BK",
-        "AGF": "AGF",
-        "SønderjyskE": "S%C3%B8nderjyskE",
-        "Vejle BK": "Vejle%20BK",
-        "FC Midtjylland": "FC%20Midtjylland"
-    }
-
+    # Plotly graf
     fig = go.Figure()
 
     for team in selected_teams:
@@ -678,7 +648,7 @@ with tab5:
         xaxis=dict(
             tickmode='linear',
             dtick=1,
-            range=[0, max(rounds_to_plot) + 1]
+            range=[min(rounds_to_plot), max(rounds_to_plot)]  # Dynamisk justering af X-aksen
         ),
         yaxis=dict(
             tickmode='linear',
