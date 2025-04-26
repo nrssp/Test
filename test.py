@@ -10,7 +10,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# Custom font and CSS
 # Tilføj FCK styling i starten af din app
 st.markdown("""
     <style>
@@ -32,7 +31,6 @@ st.markdown("""
         border: none;
         border-radius: 8px;
         padding: 0.5em 1em;
-        font-weight: bold;
     }
     .stButton>button:hover {
         background-color: #0a2ad9;
@@ -72,14 +70,11 @@ st.markdown("""
     div[data-testid="stSlider"] > div > div > div:nth-child(5) {
         background-color: #011A8B;
         color: white;
-        font-weight: bold;
         padding: 4px 8px;
         border-radius: 8px;
     }
     </style>
 """, unsafe_allow_html=True)
-
-
 
 # Load CSV with match results
 csv_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_kampresultater.csv"
