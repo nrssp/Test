@@ -11,69 +11,6 @@ st.set_page_config(
 )
 
 # Custom font and CSS
-st.markdown("""
-    <style>
-    @font-face {
-        font-family: 'FCKSerifBold';
-        src: url('https://raw.githubusercontent.com/nrssp/Test/d62a85fd81fa5d438140f0d5af7e1b4bf44d2489/FCKSerif-Bold.ttf') format('truetype');
-    }
-
-    @font-face {
-        font-family: 'FCKTextSemiBold';
-        src: url('https://raw.githubusercontent.com/nrssp/Test/fc9ee1c1f14f9038c3b0c4c3b8dee274a7f74adf/FCKText-SemiBold.ttf') format('truetype');
-    }
-
-    html, body, [class*="css"] {
-        font-family: 'FCKTextSemiBold', sans-serif;
-    }
-
-    section[data-testid="stSidebar"] * {
-        font-family: 'FCKSerifBold', serif !important;
-        font-size: 0.95rem !important;
-        text-decoration: none !important;
-    }
-
-    section[data-testid="stSidebar"] label,
-    section[data-testid="stSidebar"] .stMultiSelect > label,
-    section[data-testid="stSidebar"] div[role="slider"] > label,
-    section[data-testid="stSidebar"] .stSelectbox > label {
-        font-size: 2rem !important;
-        font-weight: bold !important;
-        font-family: 'FCKSerifBold', serif !important;
-        text-decoration: none !important;
-    }
-
-    section[data-testid="stSidebar"] > div > div:nth-child(6) > div > label,
-    section[data-testid="stSidebar"] > div > div:nth-child(8) > div > label,
-    section[data-testid="stSidebar"] > div > div:nth-child(10) > div > label {
-        text-decoration: underline !important;
-    }
-
-    h1 {
-        font-family: 'FCKSerifBold', serif !important;
-        font-size: 3.5rem !important;
-        text-decoration: none;
-    }
-
-    .centered-header th {
-        text-align: center !important;
-        background-color: #011a8b !important;
-        color: white !important;
-    }
-    .kampoversigt th {
-        text-align: center !important;
-        background-color: #011a8b !important;
-        color: white !important;
-    }
-    .kampoversigt td {
-        text-align: center !important;
-    }
-    table tr:hover td {
-        background-color: #f1f1f1;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
 # Tilføj FCK styling i starten af din app
 st.markdown("""
     <style>
@@ -110,20 +47,20 @@ st.markdown("""
     div[data-testid="stCheckbox"] > label > div:first-child svg {
         stroke: gray;
     }
-    /* Slider baggrundslinje */
+    /* Slider grundlinje */
     div[data-testid="stSlider"] > div > div {
-        background: #d3d3d3; /* lys grå */
+        background: #d3d3d3; /* Lys grå baggrundsstreg */
         height: 6px;
         border-radius: 3px;
     }
-    /* Slider fremdriftslinje */
+    /* Slider fremdrift (progress) */
     div[data-testid="stSlider"] > div > div > div:nth-child(4),
     div[data-testid="stSlider"] > div > div > div[role="progressbar"] {
         background: #011A8B; /* FCK blå fremdrift */
         height: 6px;
         border-radius: 3px;
     }
-    /* Slider håndtag (prik) */
+    /* Slider håndtag (prikken) */
     [role="slider"] {
         background: white;
         border: 3px solid #011A8B;
@@ -131,7 +68,7 @@ st.markdown("""
         width: 20px;
         border-radius: 50%;
     }
-    /* Slider værdi-boks styling */
+    /* Slider værdi (talboks) */
     div[data-testid="stSlider"] > div > div > div:nth-child(5) {
         background-color: #011A8B;
         color: white;
@@ -141,6 +78,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 # Load CSV with match results
