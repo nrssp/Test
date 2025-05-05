@@ -7,8 +7,8 @@ regular season,1,Sun,2024-07-21,18:00,Viborg,3–3,Brøndby,7658.0,Energi Viborg
 regular season,1,Mon,2024-07-22,19:00,Lyngby,0–2,FC Copenhagen,9614.0,Lyngby Stadion,0,2,2024/25
 regular season,2,Fri,2024-07-26,19:00,SønderjyskE,1–1,Lyngby,5045.0,Sydbank Park,1,1,2024/25
 regular season,2,Sat,2024-07-27,16:00,Nordsjælland,2–2,Midtjylland,4566.0,Right to Dream Park,2,2,2024/25
-regular season,2,Sun,2024-07-28,16:00,Aalborg,2–1,Silkeborg,9439.0,Aalborg Portland Park,2,1,2024/25
 regular season,2,Sun,2024-07-28,18:00,FC Copenhagen,3–2,AGF,28283.0,Parken,3,2,2024/25
+regular season,2,Sun,2024-07-28,16:00,Aalborg,2–1,Silkeborg,9439.0,Aalborg Portland Park,2,1,2024/25
 regular season,2,Sun,2024-07-28,14:00,Randers,3–1,Viborg,5695.0,Cepheus Park Randers,3,1,2024/25
 regular season,2,Mon,2024-07-29,19:00,Brøndby,2–1,Vejle BK,22494.0,Brøndby Stadion,2,1,2024/25
 regular season,3,Fri,2024-08-02,19:00,AGF,4–0,SønderjyskE,11218.0,Ceres Park,4,0,2024/25
@@ -48,10 +48,10 @@ regular season,8,Sun,2024-09-15,16:00,Vejle BK,0–5,Viborg,15627.0,Vejle Stadio
 regular season,8,Sun,2024-09-15,18:00,Brøndby,2–0,SønderjyskE,5496.0,Brøndby Stadion,2,0,2024/25
 regular season,8,Mon,2024-09-16,19:00,Nordsjælland,1–1,Randers,3158.0,Right to Dream Park,1,1,2024/25
 regular season,9,Fri,2024-09-20,19:00,Viborg,3–2,Nordsjælland,6290.0,Energi Viborg Arena,3,2,2024/25
-regular season,9,Sun,2024-09-22,18:00,Silkeborg,3–3,Brøndby,7239.0,JYSK Park,3,3,2024/25
-regular season,9,Sun,2024-09-22,16:00,Lyngby,0–0,AGF,7115.0,Lyngby Stadion,0,0,2024/25
 regular season,9,Sun,2024-09-22,14:00,SønderjyskE,2–1,Vejle BK,5501.0,Sydbank Park,2,1,2024/25
 regular season,9,Sun,2024-09-22,14:00,Randers,2–2,Midtjylland,5808.0,Cepheus Park Randers,2,2,2024/25
+regular season,9,Sun,2024-09-22,16:00,Lyngby,0–0,AGF,7115.0,Lyngby Stadion,0,0,2024/25
+regular season,9,Sun,2024-09-22,18:00,Silkeborg,3–3,Brøndby,7239.0,JYSK Park,3,3,2024/25
 regular season,9,Mon,2024-09-23,19:00,FC Copenhagen,2–0,Aalborg,24699.0,Parken,2,0,2024/25
 regular season,10,Sat,2024-09-28,16:00,AGF,2–2,Randers,13280.0,Ceres Park,2,2,2024/25
 regular season,10,Sun,2024-09-29,14:00,Midtjylland,3–1,Viborg,11355.0,MCH Arena,3,1,2024/25
@@ -60,11 +60,11 @@ regular season,10,Sun,2024-09-29,16:00,Lyngby,2–2,Silkeborg,4347.0,Lyngby Stad
 regular season,10,Sun,2024-09-29,18:00,Vejle BK,1–2,FC Copenhagen,9063.0,Vejle Stadion,1,2,2024/25
 regular season,10,Mon,2024-09-30,19:00,Nordsjælland,4–1,Brøndby,9063.0,Right to Dream Park,4,1,2024/25
 regular season,11,Fri,2024-10-04,19:00,Vejle BK,2–2,Aalborg,6481.0,Vejle Stadion,2,2,2024/25
-regular season,11,Sun,2024-10-06,20:00,Silkeborg,2–2,FC Copenhagen,5468.0,JYSK Park,2,2,2024/25
 regular season,11,Sun,2024-10-06,18:00,Brøndby,2–0,Midtjylland,23274.0,Brøndby Stadion,2,0,2024/25
+regular season,11,Sun,2024-10-06,16:00,Viborg,1–1,AGF,8351.0,Energi Viborg Arena,1,1,2024/25
+regular season,11,Sun,2024-10-06,20:00,Silkeborg,2–2,FC Copenhagen,5468.0,JYSK Park,2,2,2024/25
 regular season,11,Sun,2024-10-06,14:00,Randers,1–1,Lyngby,6251.0,Cepheus Park Randers,1,1,2024/25
 regular season,11,Sun,2024-10-06,14:00,SønderjyskE,1–4,Nordsjælland,5548.0,Sydbank Park,1,4,2024/25
-regular season,11,Sun,2024-10-06,16:00,Viborg,1–1,AGF,8351.0,Energi Viborg Arena,1,1,2024/25
 regular season,12,Fri,2024-10-18,19:00,FC Copenhagen,3–1,Vejle BK,27799.0,Parken,3,1,2024/25
 regular season,12,Sun,2024-10-20,14:00,Aalborg,0–2,Randers,7965.0,Aalborg Portland Park,0,2,2024/25
 regular season,12,Sun,2024-10-20,14:00,Lyngby,0–0,Viborg,4425.0,Lyngby Stadion,0,0,2024/25
@@ -78,17 +78,17 @@ regular season,13,Sun,2024-10-27,12:15,Brøndby,0–0,FC Copenhagen,26075.0,Brø
 regular season,13,Sun,2024-10-27,14:00,Vejle BK,2–0,Lyngby,1000.0,Vejle Stadion,2,0,2024/25
 regular season,13,Mon,2024-10-28,19:00,Randers,4–0,Nordsjælland,4364.0,Cepheus Park Randers,4,0,2024/25
 regular season,14,Sat,2024-11-02,17:00,SønderjyskE,1–4,Randers,3375.0,Sydbank Park,1,4,2024/25
-regular season,14,Sun,2024-11-03,18:00,Aalborg,3–3,Vejle BK,6831.0,Aalborg Portland Park,3,3,2024/25
 regular season,14,Sun,2024-11-03,14:00,Midtjylland,1–5,Brøndby,11358.0,MCH Arena,1,5,2024/25
 regular season,14,Sun,2024-11-03,14:00,Nordsjælland,2–1,Viborg,3413.0,Right to Dream Park,2,1,2024/25
 regular season,14,Sun,2024-11-03,16:00,AGF,2–1,Lyngby,10838.0,Ceres Park,2,1,2024/25
+regular season,14,Sun,2024-11-03,18:00,Aalborg,3–3,Vejle BK,6831.0,Aalborg Portland Park,3,3,2024/25
 regular season,14,Mon,2024-11-04,19:00,FC Copenhagen,2–2,Silkeborg,20785.0,Parken,2,2,2024/25
 regular season,15,Fri,2024-11-08,19:00,Vejle BK,1–1,SønderjyskE,6206.0,Vejle Stadion,1,1,2024/25
-regular season,15,Sun,2024-11-10,14:00,Silkeborg,1–0,Randers,5127.0,JYSK Park,1,0,2024/25
-regular season,15,Sun,2024-11-10,14:00,Lyngby,2–2,Aalborg,4848.0,Lyngby Stadion,2,2,2024/25
-regular season,15,Sun,2024-11-10,16:00,Viborg,1–0,Midtjylland,8513.0,Energi Viborg Arena,1,0,2024/25
-regular season,15,Sun,2024-11-10,18:00,AGF,1–1,FC Copenhagen,15894.0,Ceres Park,1,1,2024/25
 regular season,15,Sun,2024-11-10,20:00,Brøndby,1–1,Nordsjælland,11575.0,Brøndby Stadion,1,1,2024/25
+regular season,15,Sun,2024-11-10,18:00,AGF,1–1,FC Copenhagen,15894.0,Ceres Park,1,1,2024/25
+regular season,15,Sun,2024-11-10,14:00,Lyngby,2–2,Aalborg,4848.0,Lyngby Stadion,2,2,2024/25
+regular season,15,Sun,2024-11-10,14:00,Silkeborg,1–0,Randers,5127.0,JYSK Park,1,0,2024/25
+regular season,15,Sun,2024-11-10,16:00,Viborg,1–0,Midtjylland,8513.0,Energi Viborg Arena,1,0,2024/25
 regular season,16,Fri,2024-11-22,19:00,Nordsjælland,1–0,AGF,4016.0,Right to Dream Park,1,0,2024/25
 regular season,16,Sun,2024-11-24,14:00,Randers,2–0,Vejle BK,4757.0,Cepheus Park Randers,2,0,2024/25
 regular season,16,Sun,2024-11-24,14:00,Aalborg,0–0,Viborg,7659.0,Aalborg Portland Park,0,0,2024/25
@@ -96,41 +96,41 @@ regular season,16,Sun,2024-11-24,16:00,SønderjyskE,2–2,Brøndby,8525.0,Sydban
 regular season,16,Sun,2024-11-24,18:00,FC Copenhagen,2–1,Lyngby,22783.0,Parken,2,1,2024/25
 regular season,16,Mon,2024-11-25,19:00,Midtjylland,1–0,Silkeborg,8703.0,MCH Arena,1,0,2024/25
 regular season,17,Fri,2024-11-29,19:00,Brøndby,1–0,Aalborg,12061.0,Brøndby Stadion,1,0,2024/25
-regular season,17,Sun,2024-12-01,14:00,Viborg,1–2,Randers,5681.0,Energi Viborg Arena,1,2,2024/25
-regular season,17,Sun,2024-12-01,14:00,Lyngby,0–2,SønderjyskE,3378.0,Lyngby Stadion,0,2,2024/25
-regular season,17,Sun,2024-12-01,16:00,Vejle BK,0–3,Midtjylland,6455.0,Vejle Stadion,0,3,2024/25
 regular season,17,Sun,2024-12-01,18:00,Silkeborg,1–1,AGF,6859.0,JYSK Park,1,1,2024/25
+regular season,17,Sun,2024-12-01,16:00,Vejle BK,0–3,Midtjylland,6455.0,Vejle Stadion,0,3,2024/25
+regular season,17,Sun,2024-12-01,14:00,Lyngby,0–2,SønderjyskE,3378.0,Lyngby Stadion,0,2,2024/25
+regular season,17,Sun,2024-12-01,14:00,Viborg,1–2,Randers,5681.0,Energi Viborg Arena,1,2,2024/25
 regular season,17,Mon,2024-12-02,19:00,FC Copenhagen,3–1,Nordsjælland,22996.0,Parken,3,1,2024/25
 regular season,18,Fri,2025-02-14,19:00,Brøndby,4–1,Viborg,,Brøndby Stadion,4,1,2024/25
-regular season,18,Sun,2025-02-16,14:00,Silkeborg,0–1,Vejle BK,4656.0,JYSK Park,0,1,2024/25
 regular season,18,Sun,2025-02-16,16:00,SønderjyskE,1–4,AGF,,Sydbank Park,1,4,2024/25
+regular season,18,Sun,2025-02-16,14:00,Silkeborg,0–1,Vejle BK,4656.0,JYSK Park,0,1,2024/25
 regular season,18,Sun,2025-02-16,18:00,Midtjylland,1–0,Lyngby,,MCH Arena,1,0,2024/25
 regular season,18,Mon,2025-02-17,19:00,Randers,1–2,FC Copenhagen,5765.0,Cepheus Park Randers,1,2,2024/25
 regular season,19,Fri,2025-02-21,19:00,Lyngby,0–0,Randers,,Lyngby Stadion,0,0,2024/25
+regular season,19,Sun,2025-02-23,18:00,FC Copenhagen,1–0,Midtjylland,31708.0,Parken,1,0,2024/25
+regular season,19,Sun,2025-02-23,16:00,Vejle BK,2–2,Brøndby,11060.0,Vejle Stadion,2,2,2024/25
 regular season,19,Sun,2025-02-23,14:00,Nordsjælland,3–2,SønderjyskE,,Right to Dream Park,3,2,2024/25
 regular season,19,Sun,2025-02-23,14:00,AGF,4–0,Aalborg,,Vejlby Stadion,4,0,2024/25
-regular season,19,Sun,2025-02-23,16:00,Vejle BK,2–2,Brøndby,11060.0,Vejle Stadion,2,2,2024/25
-regular season,19,Sun,2025-02-23,18:00,FC Copenhagen,1–0,Midtjylland,31708.0,Parken,1,0,2024/25
 regular season,19,Mon,2025-02-24,19:00,Viborg,1–4,Silkeborg,5208.0,Energi Viborg Arena,1,4,2024/25
 regular season,18,Wed,2025-02-26,19:30,Aalborg,1–2,Nordsjælland,7498.0,Aalborg Portland Park,1,2,2024/25
 regular season,20,Fri,2025-02-28,19:00,Randers,1–1,AGF,9695.0,Cepheus Park Randers,1,1,2024/25
-regular season,20,Sun,2025-03-02,18:00,Aalborg,0–0,FC Copenhagen,9146.0,Aalborg Portland Park,0,0,2024/25
-regular season,20,Sun,2025-03-02,16:00,Midtjylland,2–1,Nordsjælland,,MCH Arena,2,1,2024/25
 regular season,20,Sun,2025-03-02,14:00,SønderjyskE,1–3,Silkeborg,,Sydbank Park,1,3,2024/25
 regular season,20,Sun,2025-03-02,14:00,Viborg,3–1,Vejle BK,,Energi Viborg Arena,3,1,2024/25
+regular season,20,Sun,2025-03-02,16:00,Midtjylland,2–1,Nordsjælland,,MCH Arena,2,1,2024/25
+regular season,20,Sun,2025-03-02,18:00,Aalborg,0–0,FC Copenhagen,9146.0,Aalborg Portland Park,0,0,2024/25
 regular season,20,Mon,2025-03-03,19:00,Brøndby,1–1,Lyngby,,Brøndby Stadion,1,1,2024/25
 regular season,21,Fri,2025-03-07,19:00,Nordsjælland,3–1,Vejle BK,,Right to Dream Park,3,1,2024/25
+regular season,21,Sun,2025-03-09,18:00,FC Copenhagen,1–1,SønderjyskE,,Parken,1,1,2024/25
 regular season,21,Sun,2025-03-09,14:00,Silkeborg,0–1,Lyngby,5310.0,JYSK Park,0,1,2024/25
 regular season,21,Sun,2025-03-09,14:00,Aalborg,1–4,Midtjylland,8599.0,Aalborg Portland Park,1,4,2024/25
 regular season,21,Sun,2025-03-09,16:00,AGF,1–1,Viborg,,Vejlby Stadion,1,1,2024/25
-regular season,21,Sun,2025-03-09,18:00,FC Copenhagen,1–1,SønderjyskE,,Parken,1,1,2024/25
 regular season,21,Mon,2025-03-10,19:00,Randers,4–2,Brøndby,8624.0,Cepheus Park Randers,4,2,2024/25
 regular season,22,Sun,2025-03-16,17:00,SønderjyskE,0–3,Aalborg,,Sydbank Park,0,3,2024/25
 regular season,22,Sun,2025-03-16,17:00,Brøndby,2–2,Silkeborg,24056.0,Brøndby Stadion,2,2,2024/25
 regular season,22,Sun,2025-03-16,17:00,Midtjylland,4–2,Randers,,MCH Arena,4,2,2024/25
-regular season,22,Sun,2025-03-16,17:00,Viborg,3–2,FC Copenhagen,9566.0,Energi Viborg Arena,3,2,2024/25
-regular season,22,Sun,2025-03-16,17:00,Vejle BK,3–2,AGF,9655.0,Vejle Stadion,3,2,2024/25
 regular season,22,Sun,2025-03-16,17:00,Lyngby,1–0,Nordsjælland,6171.0,Lyngby Stadion,1,0,2024/25
+regular season,22,Sun,2025-03-16,17:00,Vejle BK,3–2,AGF,9655.0,Vejle Stadion,3,2,2024/25
+regular season,22,Sun,2025-03-16,17:00,Viborg,3–2,FC Copenhagen,9566.0,Energi Viborg Arena,3,2,2024/25
 relegation round,23,Fri,2025-03-28,19:00,Aalborg,0–4,Viborg,7036.0,Aalborg Portland Park,0,4,2024/25
 relegation round,23,Sun,2025-03-30,14:00,SønderjyskE,2–1,Silkeborg,,Sydbank Park,2,1,2024/25
 relegation round,23,Sun,2025-03-30,14:00,Lyngby,1–2,Vejle BK,,Lyngby Stadion,1,2,2024/25
@@ -168,6 +168,10 @@ championship round,28,Sun,2025-04-27,16:00,AGF,1–3,FC Copenhagen,8142.0,Vejlby
 championship round,28,Sun,2025-04-27,18:00,Midtjylland,5–0,Nordsjælland,,MCH Arena,5,0,2024/25
 relegation round,28,Mon,2025-04-28,19:00,Aalborg,0–1,Vejle BK,,Aalborg Portland Park,0,1,2024/25
 championship round,29,Fri,2025-05-02,19:00,Randers,3–2,Nordsjælland,,Cepheus Park Randers,3,2,2024/25
+relegation round,29,Sun,2025-05-04,14:00,Lyngby,0–0,Viborg,,Lyngby Stadion,0,0,2024/25
+championship round,29,Sun,2025-05-04,16:00,Brøndby,0–3,FC Copenhagen,,Brøndby Stadion,0,3,2024/25
+relegation round,29,Sun,2025-05-04,14:00,Silkeborg,1–1,Vejle BK,,JYSK Park,1,1,2024/25
+championship round,29,Sun,2025-05-04,18:00,Midtjylland,3–1,AGF,,MCH Arena,3,1,2024/25
 regular season,1,Fri,2023-07-21,19:00,Midtjylland,1–0,Hvidovre IF,7846.0,MCH Arena,1,0,2023/24
 regular season,1,Sat,2023-07-22,16:00,Lyngby,1–2,FC Copenhagen,9546.0,Lyngby Stadion,1,2,2023/24
 regular season,1,Sun,2023-07-23,14:00,AGF,1–0,Vejle BK,12215.0,Ceres Park,1,0,2023/24
