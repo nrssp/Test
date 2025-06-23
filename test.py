@@ -666,14 +666,15 @@ with tab5:
     )
 
 with tab6:
-    st.subheader("📊 Sammenlign med udvalgte holdgrupper")
+    st.subheader("📊 Sammenlign statistik og udvikling")
 
+    # Valg af holdgruppe
     gruppevalg = st.selectbox(
         "Vælg holdgruppe",
         ["Superliga", "Top 5 ligaer", "Top hold uden for top 5"]
     )
 
-    # FC København data (skal være med i alle sammenligninger)
+    # FC København (altid med)
     fck_data = pd.DataFrame({
         "Hold": ["FC København"],
         "xG": [52.3],
@@ -682,7 +683,6 @@ with tab6:
         "xGA": [38.2]
     })
 
-    # Dummydata for grupper (uden FCK)
     superliga_data = pd.DataFrame({
         "Hold": ["Brøndby IF", "FC Midtjylland", "AGF", "Randers FC"],
         "xG": [45.1, 48.7, 39.4, 41.2],
@@ -707,7 +707,6 @@ with tab6:
         "xGA": [35.0, 36.5, 37.2, 38.0, 39.1]
     })
 
-    # Vælg og tilføj FCK til gruppe
     if gruppevalg == "Superliga":
         df = pd.concat([superliga_data, fck_data], ignore_index=True)
     elif gruppevalg == "Top 5 ligaer":
@@ -715,40 +714,75 @@ with tab6:
     else:
         df = pd.concat([top_outside_data, fck_data], ignore_index=True)
 
-    # Diagramopsætning
+    # Diagramvalg
     chart_type = st.selectbox("Diagramtype", ["XY-kurve", "Søjlediagram", "Scatterplot"])
     numeric_cols = [col for col in df.columns if df[col].dtype in ['float64', 'int64']]
 
     x_axis = st.selectbox("X-akse (valgfri)", options=["(Ingen)"] + numeric_cols, index=0)
     y_axis = st.selectbox("Y-akse", options=["(Ingen)"] + numeric_cols, index=1)
 
+    # Udviklings-toggles
+    vis_seneste_5 = st.toggle("Vis udvikling – sidste 5 kampe", value=False)
+    vis_sidste_sæson = st.toggle("Vis udvikling – sidste sæson", value=False)
+
     if y_axis == "(Ingen)":
         st.info("Vælg en Y-akse for at vise et diagram.")
     else:
         x_final = x_axis if x_axis != "(Ingen)" else "Hold"
 
-        if chart_type == "XY-kurve":
-            chart = alt.Chart(df).mark_line(point=True).encode(
-                x=x_final,
-                y=y_axis,
-                color="Hold",
-                tooltip=["Hold", x_final, y_axis] if x_axis != "(Ingen)" else ["Hold", y_axis]
-            ).properties(title=f"{x_final} vs {y_axis} – XY-kurve")
+        # Hoveddiagram
+        base_chart = alt.Chart(df).mark_circle(size=150 if chart_type == "Scatterplot" else 100).encode(
+            x=x_final,
+            y=y_axis,
+            color="Hold",
+            tooltip=["Hold", x_final, y_axis] if x_axis != "(Ingen)" else ["Hold", y_axis]
+        )
 
+        if chart_type == "XY-kurve":
+            base_chart = base_chart.mark_line(point=True)
         elif chart_type == "Søjlediagram":
-            chart = alt.Chart(df).mark_bar().encode(
+            base_chart = alt.Chart(df).mark_bar().encode(
                 x=alt.X("Hold", sort="-y"),
                 y=y_axis,
                 color="Hold",
                 tooltip=["Hold", y_axis]
-            ).properties(title=f"{y_axis} pr. Hold – Søjlediagram")
+            )
 
-        elif chart_type == "Scatterplot":
-            chart = alt.Chart(df).mark_circle(size=150).encode(
-                x=x_final,
-                y=y_axis,
-                color="Hold",
-                tooltip=["Hold", x_final, y_axis] if x_axis != "(Ingen)" else ["Hold", y_axis]
-            ).properties(title=f"{x_final} vs {y_axis} – Scatterplot")
+        full_chart = base_chart.properties(title=f"{x_final} vs {y_axis}")
 
-        st.altair_chart(chart, use_container_width=True)
+        # Dummy udviklingsdata for FC København
+        form_data = []
+
+        if vis_seneste_5:
+            form_data.append(pd.DataFrame({
+                "Kamp": list(range(6, 11)),  # kamp 6–10
+                "Point": [7, 10, 12, 15, 18],
+                "Hold": ["FC København"] * 5,
+                "Periode": ["Seneste 5"] * 5
+            }))
+
+        if vis_sidste_sæson:
+            form_data.append(pd.DataFrame({
+                "Kamp": list(range(1, 11)),  # kamp 1–10
+                "Point": [0, 3, 6, 6, 7, 10, 11, 13, 14, 17],
+                "Hold": ["FC København"] * 10,
+                "Periode": ["Sidste sæson"] * 10
+            }))
+
+        if form_data:
+            udviklings_df = pd.concat(form_data, ignore_index=True)
+
+            udvikling_chart = alt.Chart(udviklings_df).mark_line(point=True).encode(
+                x="Kamp:O",
+                y="Point:Q",
+                color="Periode:N",
+                strokeDash="Periode:N",
+                tooltip=["Periode", "Kamp", "Point"]
+            ).properties(
+                title="FC Københavns formudvikling",
+                height=400
+            )
+
+            st.altair_chart(alt.vconcat(full_chart, udvikling_chart), use_container_width=True)
+        else:
+            st.altair_chart(full_chart, use_container_width=True)
