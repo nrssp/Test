@@ -668,19 +668,27 @@ with tab5:
 with tab6:
     st.subheader("📊 Sammenlign med udvalgte holdgrupper")
 
-    # Valg af holdgruppe
     gruppevalg = st.selectbox(
         "Vælg holdgruppe",
         ["Superliga", "Top 5 ligaer", "Top hold uden for top 5"]
     )
 
-    # Dummydata for hver gruppe
+    # FC København data (skal være med i alle sammenligninger)
+    fck_data = pd.DataFrame({
+        "Hold": ["FC København"],
+        "xG": [52.3],
+        "Mål": [50],
+        "Afslutninger": [420],
+        "xGA": [38.2]
+    })
+
+    # Dummydata for grupper (uden FCK)
     superliga_data = pd.DataFrame({
-        "Hold": ["FC København", "Brøndby IF", "FC Midtjylland", "AGF", "Randers FC"],
-        "xG": [52.3, 45.1, 48.7, 39.4, 41.2],
-        "Mål": [50, 43, 47, 37, 40],
-        "Afslutninger": [420, 390, 405, 360, 375],
-        "xGA": [38.2, 42.5, 40.1, 44.0, 43.3]
+        "Hold": ["Brøndby IF", "FC Midtjylland", "AGF", "Randers FC"],
+        "xG": [45.1, 48.7, 39.4, 41.2],
+        "Mål": [43, 47, 37, 40],
+        "Afslutninger": [390, 405, 360, 375],
+        "xGA": [42.5, 40.1, 44.0, 43.3]
     })
 
     top5_data = pd.DataFrame({
@@ -699,14 +707,15 @@ with tab6:
         "xGA": [35.0, 36.5, 37.2, 38.0, 39.1]
     })
 
+    # Vælg og tilføj FCK til gruppe
     if gruppevalg == "Superliga":
-        df = superliga_data
+        df = pd.concat([superliga_data, fck_data], ignore_index=True)
     elif gruppevalg == "Top 5 ligaer":
-        df = top5_data
+        df = pd.concat([top5_data, fck_data], ignore_index=True)
     else:
-        df = top_outside_data
+        df = pd.concat([top_outside_data, fck_data], ignore_index=True)
 
-    # Vælg diagramtype og akser
+    # Diagramopsætning
     chart_type = st.selectbox("Diagramtype", ["XY-kurve", "Søjlediagram", "Scatterplot"])
     numeric_cols = [col for col in df.columns if df[col].dtype in ['float64', 'int64']]
 
