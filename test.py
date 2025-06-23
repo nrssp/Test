@@ -37,24 +37,47 @@ st.markdown("""
 
 # Custom CSS for FCK style
 table_style = """
-    <style>
-    .centered-header th {
-        text-align: center !important;
-        background-color: #011a8b !important;
-        color: white !important;
-    }
-    .kampoversigt th {
-        text-align: center !important;
-        background-color: #011a8b !important;
-        color: white !important;
-    }
-    .kampoversigt td {
-        text-align: center !important;
-    }
-    table tr:hover td {
-        background-color: #f1f1f1;
-    }
-    </style>
+<style>
+/* Kolonneoverskrifter: centreret */
+.centered-header th {
+    text-align: center !important;
+    background-color: #011a8b !important;
+    color: white !important;
+}
+/* Alt indhold: centreret som udgangspunkt */
+.centered-header td {
+    text-align: center !important;
+}
+/* Undtagelse: "Team"-kolonnen (kolonne nr. 2) venstrestilles */
+.centered-header td:nth-child(2) {
+    text-align: left !important;
+}
+
+/* Statsfanen */
+.stats-table th {
+    text-align: center !important;
+    background-color: #011a8b !important;
+    color: white !important;
+}
+.stats-table td {
+    text-align: left !important;
+}
+
+/* Kampoversigt: behold centreret */
+.kampoversigt th {
+    text-align: center !important;
+    background-color: #011a8b !important;
+    color: white !important;
+}
+.kampoversigt td {
+    text-align: center !important;
+}
+
+/* Hover-effekt */
+table tr:hover td {
+    background-color: #f1f1f1;
+}
+</style>
 """
 st.markdown(table_style, unsafe_allow_html=True)
 
@@ -641,3 +664,40 @@ with tab5:
         file_name="akkumuleret_pointudvikling.csv",
         mime="text/csv"
     )
+
+with tab6:
+    st.subheader("📊 Interaktiv statistik-graf")
+
+    # Dummydata til illustration
+    dummy_data = pd.DataFrame({
+        "Hold": ["FC København", "Brøndby IF", "FC Midtjylland", "AGF", "Randers FC"],
+        "xG": [52.3, 45.1, 48.7, 39.4, 41.2],
+        "Mål": [50, 43, 47, 37, 40],
+        "Afslutninger": [420, 390, 405, 360, 375]
+    })
+
+    chart_type = st.selectbox("Vælg diagramtype", ["XY-kurve", "Søjlediagram", "Scatterplot"])
+
+    if chart_type == "XY-kurve":
+        chart = alt.Chart(dummy_data).mark_line(point=True).encode(
+            x="xG",
+            y="Mål",
+            color="Hold"
+        ).properties(title="xG vs Mål – XY kurve")
+
+    elif chart_type == "Søjlediagram":
+        chart = alt.Chart(dummy_data).mark_bar().encode(
+            x=alt.X("Hold", sort="-y"),
+            y="Mål",
+            color="Hold"
+        ).properties(title="Mål pr. hold – Søjlediagram")
+
+    elif chart_type == "Scatterplot":
+        chart = alt.Chart(dummy_data).mark_circle(size=150).encode(
+            x="xG",
+            y="Afslutninger",
+            tooltip=["Hold", "xG", "Afslutninger"],
+            color="Hold"
+        ).properties(title="xG vs Afslutninger – Scatterplot")
+
+    st.altair_chart(chart, use_container_width=True)
