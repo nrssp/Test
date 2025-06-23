@@ -666,10 +666,16 @@ with tab5:
     )
 
 with tab6:
-    st.subheader("📊 Interaktiv statistik-graf")
+    st.subheader("📊 Sammenlign med udvalgte holdgrupper")
 
-    # Dummydata
-    dummy_data = pd.DataFrame({
+    # Valg af holdgruppe
+    gruppevalg = st.selectbox(
+        "Vælg holdgruppe",
+        ["Superliga", "Top 5 ligaer", "Top hold uden for top 5"]
+    )
+
+    # Dummydata for hver gruppe
+    superliga_data = pd.DataFrame({
         "Hold": ["FC København", "Brøndby IF", "FC Midtjylland", "AGF", "Randers FC"],
         "xG": [52.3, 45.1, 48.7, 39.4, 41.2],
         "Mål": [50, 43, 47, 37, 40],
@@ -677,10 +683,33 @@ with tab6:
         "xGA": [38.2, 42.5, 40.1, 44.0, 43.3]
     })
 
-    chart_type = st.selectbox("Diagramtype", ["XY-kurve", "Søjlediagram", "Scatterplot"])
-    numeric_cols = [col for col in dummy_data.columns if dummy_data[col].dtype in ['float64', 'int64']]
+    top5_data = pd.DataFrame({
+        "Hold": ["Manchester City", "Real Madrid", "Bayern München", "PSG", "Inter"],
+        "xG": [83.1, 78.5, 76.9, 74.0, 72.6],
+        "Mål": [85, 80, 79, 77, 75],
+        "Afslutninger": [630, 600, 590, 580, 570],
+        "xGA": [30.2, 32.5, 34.1, 33.0, 31.3]
+    })
 
-    # "Ingen" mulighed først
+    top_outside_data = pd.DataFrame({
+        "Hold": ["Club Brugge", "Celtic", "Shakhtar Donetsk", "Red Star Belgrade", "Basel"],
+        "xG": [65.3, 60.2, 58.5, 57.0, 55.8],
+        "Mål": [63, 59, 57, 56, 54],
+        "Afslutninger": [510, 490, 480, 470, 460],
+        "xGA": [35.0, 36.5, 37.2, 38.0, 39.1]
+    })
+
+    if gruppevalg == "Superliga":
+        df = superliga_data
+    elif gruppevalg == "Top 5 ligaer":
+        df = top5_data
+    else:
+        df = top_outside_data
+
+    # Vælg diagramtype og akser
+    chart_type = st.selectbox("Diagramtype", ["XY-kurve", "Søjlediagram", "Scatterplot"])
+    numeric_cols = [col for col in df.columns if df[col].dtype in ['float64', 'int64']]
+
     x_axis = st.selectbox("X-akse (valgfri)", options=["(Ingen)"] + numeric_cols, index=0)
     y_axis = st.selectbox("Y-akse", options=["(Ingen)"] + numeric_cols, index=1)
 
@@ -690,7 +719,7 @@ with tab6:
         x_final = x_axis if x_axis != "(Ingen)" else "Hold"
 
         if chart_type == "XY-kurve":
-            chart = alt.Chart(dummy_data).mark_line(point=True).encode(
+            chart = alt.Chart(df).mark_line(point=True).encode(
                 x=x_final,
                 y=y_axis,
                 color="Hold",
@@ -698,7 +727,7 @@ with tab6:
             ).properties(title=f"{x_final} vs {y_axis} – XY-kurve")
 
         elif chart_type == "Søjlediagram":
-            chart = alt.Chart(dummy_data).mark_bar().encode(
+            chart = alt.Chart(df).mark_bar().encode(
                 x=alt.X("Hold", sort="-y"),
                 y=y_axis,
                 color="Hold",
@@ -706,7 +735,7 @@ with tab6:
             ).properties(title=f"{y_axis} pr. Hold – Søjlediagram")
 
         elif chart_type == "Scatterplot":
-            chart = alt.Chart(dummy_data).mark_circle(size=150).encode(
+            chart = alt.Chart(df).mark_circle(size=150).encode(
                 x=x_final,
                 y=y_axis,
                 color="Hold",
