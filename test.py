@@ -668,7 +668,7 @@ with tab5:
 with tab6:
     st.subheader("📊 Interaktiv statistik-graf")
 
-    # Dummydata til illustration
+    # Dummydata
     dummy_data = pd.DataFrame({
         "Hold": ["FC København", "Brøndby IF", "FC Midtjylland", "AGF", "Randers FC"],
         "xG": [52.3, 45.1, 48.7, 39.4, 41.2],
@@ -677,38 +677,40 @@ with tab6:
         "xGA": [38.2, 42.5, 40.1, 44.0, 43.3]
     })
 
-    st.markdown("**Vælg diagramtype og akser:**")
-
     chart_type = st.selectbox("Diagramtype", ["XY-kurve", "Søjlediagram", "Scatterplot"])
     numeric_cols = [col for col in dummy_data.columns if dummy_data[col].dtype in ['float64', 'int64']]
 
-    x_axis = st.selectbox("X-akse", options=numeric_cols, index=0)
-    y_axis = st.selectbox("Y-akse", options=numeric_cols, index=1)
+    # "Ingen" mulighed først
+    x_axis = st.selectbox("X-akse (valgfri)", options=["(Ingen)"] + numeric_cols, index=0)
+    y_axis = st.selectbox("Y-akse", options=["(Ingen)"] + numeric_cols, index=1)
 
-    # Tegn diagram baseret på valg
-    if chart_type == "XY-kurve":
-        chart = alt.Chart(dummy_data).mark_line(point=True).encode(
-            x=x_axis,
-            y=y_axis,
-            color="Hold",
-            tooltip=["Hold", x_axis, y_axis]
-        ).properties(title=f"{x_axis} vs {y_axis} – XY-kurve")
+    if y_axis == "(Ingen)":
+        st.info("Vælg en Y-akse for at vise et diagram.")
+    else:
+        x_final = x_axis if x_axis != "(Ingen)" else "Hold"
 
-    elif chart_type == "Søjlediagram":
-        chart = alt.Chart(dummy_data).mark_bar().encode(
-            x=alt.X("Hold", sort="-y"),
-            y=y_axis,
-            color="Hold",
-            tooltip=["Hold", y_axis]
-        ).properties(title=f"{y_axis} pr. Hold – Søjlediagram")
+        if chart_type == "XY-kurve":
+            chart = alt.Chart(dummy_data).mark_line(point=True).encode(
+                x=x_final,
+                y=y_axis,
+                color="Hold",
+                tooltip=["Hold", x_final, y_axis] if x_axis != "(Ingen)" else ["Hold", y_axis]
+            ).properties(title=f"{x_final} vs {y_axis} – XY-kurve")
 
-    elif chart_type == "Scatterplot":
-        chart = alt.Chart(dummy_data).mark_circle(size=150).encode(
-            x=x_axis,
-            y=y_axis,
-            color="Hold",
-            tooltip=["Hold", x_axis, y_axis]
-        ).properties(title=f"{x_axis} vs {y_axis} – Scatterplot")
+        elif chart_type == "Søjlediagram":
+            chart = alt.Chart(dummy_data).mark_bar().encode(
+                x=alt.X("Hold", sort="-y"),
+                y=y_axis,
+                color="Hold",
+                tooltip=["Hold", y_axis]
+            ).properties(title=f"{y_axis} pr. Hold – Søjlediagram")
 
-    st.altair_chart(chart, use_container_width=True)
+        elif chart_type == "Scatterplot":
+            chart = alt.Chart(dummy_data).mark_circle(size=150).encode(
+                x=x_final,
+                y=y_axis,
+                color="Hold",
+                tooltip=["Hold", x_final, y_axis] if x_axis != "(Ingen)" else ["Hold", y_axis]
+            ).properties(title=f"{x_final} vs {y_axis} – Scatterplot")
 
+        st.altair_chart(chart, use_container_width=True)
