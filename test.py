@@ -805,7 +805,8 @@ with tab7:
         player_name_map = {}
         for player in root_f24.findall(".//Player"):
             player_id = player.get("uID")
-            player_name = player.get("Name")
+            name_element = player.find("Name")
+            player_name = name_element.text if name_element is not None else None
             if player_id and player_name:
                 player_name_map[player_id.replace("p", "")] = player_name
 
