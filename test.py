@@ -303,7 +303,7 @@ table["Team"] = table.apply(
 )
 
 # Tabs: League table, Matches, Trends
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel", "🧮 Akkumuleret liga", "Stats"])
+tab1, tab2, tab3, tab4, tab5, tab7 = st.tabs(["📊 Ligatabel", "📅 Kampe", "📈 Udvikling", "🏆 Intern tabel", "🧮 Akkumuleret liga", "Stats", "xT"])
 
 # Farver til hold (bruges i både udvikling og akkumuleret point)
 color_map = {
