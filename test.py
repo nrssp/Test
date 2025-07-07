@@ -783,3 +783,50 @@ with tab6:
 
         st.altair_chart(chart, use_container_width=True)
 
+with tab7:
+    st.subheader("Expected Threat (xT) Model")
+
+    st.info("Upload Opta F24, F70 og F73 filer for at beregne Expected Threat (xT) model.")
+
+    f24_file = st.file_uploader("Upload F24 (Event Data)", type=["xml"], key="f24")
+    f70_file = st.file_uploader("Upload F70 (xG Data)", type=["json", "xml"], key="f70")
+    f73_file = st.file_uploader("Upload F73 (Possession Data)", type=["json", "xml"], key="f73")
+
+    if f24_file and f70_file and f73_file:
+        st.success("Filer uploadet korrekt. Behandler...")
+
+        # Dummy placeholder: Integrer her din xT-model pipeline
+        # I praksis skal du parse filerne, lave grid-baseret xT model og vise resultat
+        # Herunder er et placeholder flow med dummy xT grid
+
+        import numpy as np
+        import matplotlib.pyplot as plt
+
+        GRID_HEIGHT, GRID_WIDTH = 12, 16
+        dummy_xt = np.random.rand(GRID_HEIGHT, GRID_WIDTH) * 0.05
+
+        st.subheader("xT Value Surface (dummy data)")
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+        cax = ax.matshow(dummy_xt, cmap="Reds")
+        fig.colorbar(cax, ax=ax, orientation="vertical")
+        ax.set_title("Expected Threat (xT) Heatmap")
+        ax.set_xlabel("Pitch Width Zones")
+        ax.set_ylabel("Pitch Length Zones")
+        st.pyplot(fig)
+
+        st.info("I den fulde version vil heatmap'et vise xT-værdier beregnet fra dine uploads.")
+
+        # Eksempel-pipeline at integrere:
+        # - Parse F24 til dataframe
+        # - Parse F70 til xG-data
+        # - Parse F73 til possessions
+        # - Generer carry-events (evt. fra tracking)
+        # - Inddel banen i grid
+        # - Beregn overgangssandsynligheder
+        # - Løs xT-ligninger
+        # - Vis heatmap og top xT-actions
+        # - Mulighed for CSV-download af xT-værdier per action
+
+    else:
+        st.warning("Upload alle tre filer for at beregne xT.")
