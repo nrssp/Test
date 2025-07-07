@@ -784,21 +784,18 @@ with tab6:
         st.altair_chart(chart, use_container_width=True)
 
 with tab7:
-    st.subheader("Expected Threat (xT) Model")
+    st.subheader("Expected Threat (xT) Model – Spilleroversigt")
 
-    st.info("Upload Opta F24, F70 og F73 filer for at beregne Expected Threat (xT) model.")
+    st.info("Upload Opta F24 (Event Data) og F70 (xG Data) filer for at beregne Expected Threat (xT) model for spillere.")
 
     f24_file = st.file_uploader("Upload F24 (Event Data)", type=["xml"], key="f24")
     f70_file = st.file_uploader("Upload F70 (xG Data)", type=["xml"], key="f70")
-    f73_file = st.file_uploader("Upload F73 (Possession Data)", type=["xml"], key="f73")
 
-    if f24_file and f70_file and f73_file:
+    if f24_file and f70_file:
         st.success("Filer uploadet korrekt. Behandler...")
 
         import pandas as pd
         import xml.etree.ElementTree as ET
-        import numpy as np
-        import matplotlib.pyplot as plt
 
         # Parse F24 event XML
         tree_f24 = ET.parse(f24_file)
@@ -806,27 +803,11 @@ with tab7:
 
         events_data = []
         for event in root_f24.findall(".//Event"):
-            event_id = event.get("event_id")
             event_type = event.get("type_id")
-            outcome = event.get("outcome")
-            team_id = event.get("team_id")
             player_id = event.get("player_id")
-            x = float(event.get("x"))
-            y = float(event.get("y"))
-            end_x = event.get("end_x")
-            end_y = event.get("end_y")
-            end_x = float(end_x) if end_x is not None else None
-            end_y = float(end_y) if end_y is not None else None
-            timestamp = event.get("min") + ":" + event.get("sec")
             events_data.append({
-                "event_id": int(event_id) if event_id else None,
-                "type_id": int(event_type),
-                "outcome": int(outcome) if outcome is not None else None,
-                "team_id": team_id,
-                "player_id": player_id,
-                "x": x, "y": y,
-                "end_x": end_x, "end_y": end_y,
-                "time": timestamp
+                "type_id": int(event_type) if event_type else None,
+                "player_id": player_id
             })
 
         events_df = pd.DataFrame(events_data)
@@ -837,53 +818,37 @@ with tab7:
 
         xg_data = []
         for shot in root_f70.findall(".//ExpectedGoalEvent"):
-            event_id = shot.get("EventID")
+            player_id = shot.get("player_id")
             xg_value = shot.get("xg_value")
             xg_data.append({
-                "event_id": int(event_id) if event_id else None,
+                "player_id": player_id,
                 "xg": float(xg_value) if xg_value else None
             })
 
         f70_df = pd.DataFrame(xg_data)
 
-        # Debug: check parsed F70 data
-        st.write("Events Data Columns:", events_df.columns.tolist())
-        st.write("F70 Data Columns:", f70_df.columns.tolist())
+        # Sammenlæg F24 og F70 baseret på player_id
+        merged_df = pd.merge(events_df, f70_df, how="inner", on="player_id")
 
-        # Merge F24 and F70 on event_id if possible
-        if "event_id" in events_df.columns and "event_id" in f70_df.columns:
-            if events_df["event_id"].notnull().any() and f70_df["event_id"].notnull().any():
-                events_df = pd.merge(events_df, f70_df, how="left", on="event_id")
-            else:
-                st.error("'event_id' kolonnen findes, men er tom i én eller begge filer. Merge ikke mulig.")
-        else:
-            st.error("'event_id' kolonne mangler i én eller begge filer – merge ikke mulig.")
+        # Filtrer kun skud-events (type_id: 2, 3, 4)
+        shots_df = merged_df[merged_df["type_id"].isin([2, 3, 4])]
 
-        if "xg" in events_df.columns:
-            # Grid-setup og beregning
-            GRID_HEIGHT, GRID_WIDTH = 12, 16
-            events_df["start_zone_x"] = (events_df["x"] * GRID_WIDTH / 100).astype(int).clip(0, GRID_WIDTH - 1)
-            events_df["start_zone_y"] = (events_df["y"] * GRID_HEIGHT / 100).astype(int).clip(0, GRID_HEIGHT - 1)
+        # Udregn total xG og skud pr. spiller
+        player_stats = shots_df.groupby("player_id").agg(
+            Total_Shots=("type_id", "count"),
+            Total_xG=("xg", "sum")
+        ).reset_index().sort_values(by="Total_xG", ascending=False)
 
-            xt_grid = np.zeros((GRID_HEIGHT, GRID_WIDTH))
+        st.subheader("Spilleroversigt – Skud & xG")
+        st.dataframe(player_stats, use_container_width=True)
 
-            # Tæl xG for skud i hver zone
-            shots = events_df[events_df["type_id"].isin([2, 3, 4])]
-            for _, row in shots.iterrows():
-                xt_grid[row["start_zone_y"], row["start_zone_x"]] += row.get("xg", 0.0)
-
-            # Vis xT heatmap
-            st.subheader("xT Value Surface (baseret på dine filer)")
-
-            fig, ax = plt.subplots(figsize=(10, 6))
-            cax = ax.matshow(xt_grid, cmap="Reds")
-            fig.colorbar(cax, ax=ax, orientation="vertical")
-            ax.set_title("Expected Threat (xT) Heatmap")
-            ax.set_xlabel("Pitch Width Zones")
-            ax.set_ylabel("Pitch Length Zones")
-            st.pyplot(fig)
-
-            st.info("Heatmap viser nu reelle xG-data fra dine uploads. Du kan senere udvide til fuld xT-model.")
+        # Download CSV
+        st.download_button(
+            label="Download spillerdata som CSV",
+            data=player_stats.to_csv(index=False),
+            file_name="spiller_xg_stats.csv",
+            mime="text/csv"
+        )
 
     else:
-        st.warning("Upload alle tre filer for at beregne xT.")
+        st.warning("Upload både F24 og F70 filer for at beregne spillerdata.")
