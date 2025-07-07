@@ -847,11 +847,18 @@ with tab7:
         f70_df = pd.DataFrame(xg_data)
 
         # Debug: check parsed F70 data
+        st.write("Events Data Columns:", events_df.columns)
         st.write("F70 Data Columns:", f70_df.columns)
-        st.write(f70_df.head())
 
-        # Merge F24 and F70 on event_id
-        events_df = pd.merge(events_df, f70_df, how="left", on="event_id")
+        # Check for matching column
+        common_cols = set(events_df.columns) & set(f70_df.columns)
+        st.write("Fælles kolonner til merge:", common_cols)
+
+        # Merge F24 and F70 on event_id (fejlsikret)
+        if "event_id" in events_df.columns and "event_id" in f70_df.columns:
+            events_df = pd.merge(events_df, f70_df, how="left", on="event_id")
+        else:
+            st.error("event_id kolonne mangler i en af filerne – merge ikke mulig.")
 
         # Grid-setup og beregning
         GRID_HEIGHT, GRID_WIDTH = 12, 16
