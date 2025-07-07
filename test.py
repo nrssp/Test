@@ -795,38 +795,68 @@ with tab7:
     if f24_file and f70_file and f73_file:
         st.success("Filer uploadet korrekt. Behandler...")
 
-        # Dummy placeholder: Integrer her din xT-model pipeline
-        # I praksis skal du parse filerne, lave grid-baseret xT model og vise resultat
-        # Herunder er et placeholder flow med dummy xT grid
-
+        import pandas as pd
+        import xml.etree.ElementTree as ET
         import numpy as np
         import matplotlib.pyplot as plt
 
-        GRID_HEIGHT, GRID_WIDTH = 12, 16
-        dummy_xt = np.random.rand(GRID_HEIGHT, GRID_WIDTH) * 0.05
+        # Parse F24 event XML
+        tree = ET.parse(f24_file)
+        root = tree.getroot()
 
-        st.subheader("xT Value Surface (dummy data)")
+        events_data = []
+        for event in root.findall(".//Event"):
+            event_type = event.get("type_id")
+            outcome = event.get("outcome")
+            team_id = event.get("team_id")
+            player_id = event.get("player_id")
+            x = float(event.get("x"))
+            y = float(event.get("y"))
+            end_x = event.get("end_x")
+            end_y = event.get("end_y")
+            end_x = float(end_x) if end_x is not None else None
+            end_y = float(end_y) if end_y is not None else None
+            timestamp = event.get("min") + ":" + event.get("sec")
+            events_data.append({
+                "type_id": int(event_type),
+                "outcome": int(outcome) if outcome is not None else None,
+                "team_id": team_id,
+                "player_id": player_id,
+                "x": x, "y": y,
+                "end_x": end_x, "end_y": end_y,
+                "time": timestamp
+            })
+
+        events_df = pd.DataFrame(events_data)
+
+        # Dummy: parse F70 og F73 - kan tilpasses til din datamodel
+        f70_df = pd.read_json(f70_file)
+        events_df = pd.merge(events_df, f70_df[["event_id", "xg"]], how="left", left_index=True, right_index=True)
+
+        # Grid-setup og dummy beregning (her skal din rigtige model ind)
+        GRID_HEIGHT, GRID_WIDTH = 12, 16
+        events_df["start_zone_x"] = (events_df["x"] * GRID_WIDTH / 100).astype(int).clip(0, GRID_WIDTH-1)
+        events_df["start_zone_y"] = (events_df["y"] * GRID_HEIGHT / 100).astype(int).clip(0, GRID_HEIGHT-1)
+
+        xt_grid = np.zeros((GRID_HEIGHT, GRID_WIDTH))
+
+        # Eksempel: tæl skud i hver zone (meget simpel placeholder)
+        shots = events_df[events_df["type_id"].isin([2, 3, 4])]
+        for _, row in shots.iterrows():
+            xt_grid[row["start_zone_y"], row["start_zone_x"]] += row.get("xg", 0.0)
+
+        # Vis xT heatmap
+        st.subheader("xT Value Surface (baseret på dine filer)")
 
         fig, ax = plt.subplots(figsize=(10, 6))
-        cax = ax.matshow(dummy_xt, cmap="Reds")
+        cax = ax.matshow(xt_grid, cmap="Reds")
         fig.colorbar(cax, ax=ax, orientation="vertical")
         ax.set_title("Expected Threat (xT) Heatmap")
         ax.set_xlabel("Pitch Width Zones")
         ax.set_ylabel("Pitch Length Zones")
         st.pyplot(fig)
 
-        st.info("I den fulde version vil heatmap'et vise xT-værdier beregnet fra dine uploads.")
-
-        # Eksempel-pipeline at integrere:
-        # - Parse F24 til dataframe
-        # - Parse F70 til xG-data
-        # - Parse F73 til possessions
-        # - Generer carry-events (evt. fra tracking)
-        # - Inddel banen i grid
-        # - Beregn overgangssandsynligheder
-        # - Løs xT-ligninger
-        # - Vis heatmap og top xT-actions
-        # - Mulighed for CSV-download af xT-værdier per action
+        st.info("Heatmap viser nu reelle data fra dine uploads. Du kan senere udvide til fuld xT-model.")
 
     else:
         st.warning("Upload alle tre filer for at beregne xT.")
