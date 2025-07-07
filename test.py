@@ -786,12 +786,12 @@ with tab6:
 with tab7:
     st.subheader("Expected Threat (xT) Model – Spilleroversigt")
 
-    st.info("Upload Opta F24 (Event Data) og F70 (xG Data) filer for at beregne Expected Threat (xT) model for spillere.")
+    st.info("Upload Opta F24 (Event Data) og F73 (Possession Data) filer for at beregne Expected Threat (xT) model for spillere.")
 
     f24_file = st.file_uploader("Upload F24 (Event Data)", type=["xml"], key="f24")
-    f70_file = st.file_uploader("Upload F70 (xG Data)", type=["xml"], key="f70")
+    f73_file = st.file_uploader("Upload F73 (Possession Data)", type=["xml"], key="f73")
 
-    if f24_file and f70_file:
+    if f24_file and f73_file:
         st.success("Filer uploadet korrekt. Behandler...")
 
         import pandas as pd
@@ -803,52 +803,42 @@ with tab7:
 
         events_data = []
         for event in root_f24.findall(".//Event"):
-            event_type = event.get("type_id")
             player_id = event.get("player_id")
-            events_data.append({
-                "type_id": int(event_type) if event_type else None,
-                "player_id": player_id
-            })
+            x = event.get("x")
+            y = event.get("y")
+            event_type = event.get("type_id")
+            if player_id and x and y and event_type:
+                events_data.append({
+                    "player_id": player_id,
+                    "x": float(x),
+                    "y": float(y),
+                    "type_id": int(event_type)
+                })
 
         events_df = pd.DataFrame(events_data)
 
-        # Parse F70 XML (xG Data)
-        tree_f70 = ET.parse(f70_file)
-        root_f70 = tree_f70.getroot()
+        # Dummy xT-model (for demoformål – brug rigtig model i produktion)
+        def calculate_xt(x, y):
+            return (x / 100) * (y / 100)
 
-        xg_data = []
-        for shot in root_f70.findall(".//ExpectedGoalEvent"):
-            player_id = shot.get("player_id")
-            xg_value = shot.get("xg_value")
-            xg_data.append({
-                "player_id": player_id,
-                "xg": float(xg_value) if xg_value else None
-            })
+        events_df["xT"] = events_df.apply(lambda row: calculate_xt(row["x"], row["y"]) if row["type_id"] in [1, 2, 3, 4, 7, 8] else 0, axis=1)
 
-        f70_df = pd.DataFrame(xg_data)
+        # Summeret xT per spiller
+        player_xt_stats = events_df.groupby("player_id").agg(
+            Total_Actions=("type_id", "count"),
+            Total_xT=("xT", "sum")
+        ).reset_index().sort_values(by="Total_xT", ascending=False)
 
-        # Sammenlæg F24 og F70 baseret på player_id
-        merged_df = pd.merge(events_df, f70_df, how="inner", on="player_id")
-
-        # Filtrer kun skud-events (type_id: 2, 3, 4)
-        shots_df = merged_df[merged_df["type_id"].isin([2, 3, 4])]
-
-        # Udregn total xG og skud pr. spiller
-        player_stats = shots_df.groupby("player_id").agg(
-            Total_Shots=("type_id", "count"),
-            Total_xG=("xg", "sum")
-        ).reset_index().sort_values(by="Total_xG", ascending=False)
-
-        st.subheader("Spilleroversigt – Skud & xG")
-        st.dataframe(player_stats, use_container_width=True)
+        st.subheader("Spilleroversigt – Aktioner & xT")
+        st.dataframe(player_xt_stats, use_container_width=True)
 
         # Download CSV
         st.download_button(
             label="Download spillerdata som CSV",
-            data=player_stats.to_csv(index=False),
-            file_name="spiller_xg_stats.csv",
+            data=player_xt_stats.to_csv(index=False),
+            file_name="spiller_xt_stats.csv",
             mime="text/csv"
         )
 
     else:
-        st.warning("Upload både F24 og F70 filer for at beregne spillerdata.")
+        st.warning("Upload både F24 og F73 filer for at beregne spillerdata.")
