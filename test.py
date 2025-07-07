@@ -786,39 +786,46 @@ with tab6:
 with tab7:
     st.subheader("Expected Threat (xT) Model – Spilleroversigt")
 
-    st.info("Upload Opta F24 (Event Data) og F73 (Possession Data) filer for at beregne Expected Threat (xT) model for spillere.")
+    st.info("Upload Opta F24 (Event Data), F73 (Possession Data) og en spiller-metadatafil for at beregne Expected Threat (xT) model for spillere.")
 
     f24_file = st.file_uploader("Upload F24 (Event Data)", type=["xml"], key="f24")
     f73_file = st.file_uploader("Upload F73 (Possession Data)", type=["xml"], key="f73")
+    player_meta_file = st.file_uploader("Upload spiller-metadatafil (F7, F75, SRML eller Tracking Metadata)", type=["xml", "json", "jsonl"], key="player_meta")
 
-    if f24_file and f73_file:
+    if f24_file and f73_file and player_meta_file:
         st.success("Filer uploadet korrekt. Behandler...")
 
         import pandas as pd
         import xml.etree.ElementTree as ET
+        import json
 
         # Parse F24 event XML
         tree_f24 = ET.parse(f24_file)
         root_f24 = tree_f24.getroot()
 
-        # Hent spiller-ID og navne
+        # Hent spiller-ID og navne fra spiller-metadatafil
         player_name_map = {}
-        for player in root_f24.findall(".//Player"):
-            player_id = player.get("uID")
-            name_element = player.find("Name")
-            player_name = name_element.text if name_element is not None else None
-            if player_id and player_name:
-                player_name_map[player_id.replace("p", "")] = player_name
+        try:
+            if player_meta_file.name.endswith(".json") or player_meta_file.name.endswith(".jsonl"):
+                meta_data = json.load(player_meta_file)
+                for player in meta_data.get("players", []):
+                    player_id = str(player.get("playerId"))
+                    player_name = player.get("name")
+                    if player_id and player_name:
+                        player_name_map[player_id] = player_name
+            elif player_meta_file.name.endswith(".xml"):
+                meta_tree = ET.parse(player_meta_file)
+                meta_root = meta_tree.getroot()
+                for player in meta_root.findall(".//Player"):
+                    player_id = player.get("uID")
+                    name_element = player.find("Name")
+                    player_name = name_element.text if name_element is not None else None
+                    if player_id and player_name:
+                        player_name_map[player_id.replace("p", "")] = player_name
+        except Exception as e:
+            st.warning(f"Kunne ikke læse spiller-metadatafil korrekt: {e}")
 
-        # Hvis ingen spillere fundet, prøv under Team
-        if not player_name_map:
-            for player in root_f24.findall(".//Team//Player"):
-                player_id = player.get("uID")
-                name_element = player.find("Name")
-                player_name = name_element.text if name_element is not None else None
-                if player_id and player_name:
-                    player_name_map[player_id.replace("p", "")] = player_name
-
+        # Parse events fra F24
         events_data = []
         for event in root_f24.findall(".//Event"):
             player_id = event.get("player_id")
@@ -835,7 +842,7 @@ with tab7:
 
         events_df = pd.DataFrame(events_data)
 
-        # Dummy xT-model (for demoformål – brug rigtig model i produktion)
+        # Dummy xT-model (for demoformål)
         def calculate_xt(x, y):
             return (x / 100) * (y / 100)
 
@@ -864,4 +871,4 @@ with tab7:
         )
 
     else:
-        st.warning("Upload både F24 og F73 filer for at beregne spillerdata.")
+        st.warning("Upload både F24, F73 og spiller-metadatafil for at beregne spillerdata.")
