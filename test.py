@@ -837,7 +837,7 @@ with tab7:
 
         xg_data = []
         for shot in root_f70.findall(".//ExpectedGoalEvent"):
-            event_id = shot.get("event_id")
+            event_id = shot.get("EventID")  # Korrekt nøgle her
             xg_value = shot.get("xg_value")
             xg_data.append({
                 "event_id": int(event_id) if event_id else None,
