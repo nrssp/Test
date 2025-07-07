@@ -839,13 +839,16 @@ with tab7:
         for shot in root_f70.findall(".//ExpectedGoalEvent"):
             event_id = shot.get("event_id")
             xg_value = shot.get("xg_value")
-            if event_id and xg_value:
-                xg_data.append({
-                    "event_id": int(event_id),
-                    "xg": float(xg_value)
-                })
+            xg_data.append({
+                "event_id": int(event_id) if event_id else None,
+                "xg": float(xg_value) if xg_value else None
+            })
 
         f70_df = pd.DataFrame(xg_data)
+
+        # Debug: check parsed F70 data
+        st.write("F70 Data Columns:", f70_df.columns)
+        st.write(f70_df.head())
 
         # Merge F24 and F70 on event_id
         events_df = pd.merge(events_df, f70_df, how="left", on="event_id")
