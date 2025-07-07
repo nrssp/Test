@@ -837,7 +837,7 @@ with tab7:
 
         xg_data = []
         for shot in root_f70.findall(".//ExpectedGoalEvent"):
-            event_id = shot.get("EventID")  # Korrekt nøgle her
+            event_id = shot.get("EventID")
             xg_value = shot.get("xg_value")
             xg_data.append({
                 "event_id": int(event_id) if event_id else None,
@@ -847,43 +847,43 @@ with tab7:
         f70_df = pd.DataFrame(xg_data)
 
         # Debug: check parsed F70 data
-        st.write("Events Data Columns:", events_df.columns)
-        st.write("F70 Data Columns:", f70_df.columns)
+        st.write("Events Data Columns:", events_df.columns.tolist())
+        st.write("F70 Data Columns:", f70_df.columns.tolist())
 
-        # Check for matching column
-        common_cols = set(events_df.columns) & set(f70_df.columns)
-        st.write("Fælles kolonner til merge:", common_cols)
-
-        # Merge F24 and F70 on event_id (fejlsikret)
+        # Merge F24 and F70 on event_id if possible
         if "event_id" in events_df.columns and "event_id" in f70_df.columns:
-            events_df = pd.merge(events_df, f70_df, how="left", on="event_id")
+            if events_df["event_id"].notnull().any() and f70_df["event_id"].notnull().any():
+                events_df = pd.merge(events_df, f70_df, how="left", on="event_id")
+            else:
+                st.error("'event_id' kolonnen findes, men er tom i én eller begge filer. Merge ikke mulig.")
         else:
-            st.error("event_id kolonne mangler i en af filerne – merge ikke mulig.")
+            st.error("'event_id' kolonne mangler i én eller begge filer – merge ikke mulig.")
 
-        # Grid-setup og beregning
-        GRID_HEIGHT, GRID_WIDTH = 12, 16
-        events_df["start_zone_x"] = (events_df["x"] * GRID_WIDTH / 100).astype(int).clip(0, GRID_WIDTH-1)
-        events_df["start_zone_y"] = (events_df["y"] * GRID_HEIGHT / 100).astype(int).clip(0, GRID_HEIGHT-1)
+        if "xg" in events_df.columns:
+            # Grid-setup og beregning
+            GRID_HEIGHT, GRID_WIDTH = 12, 16
+            events_df["start_zone_x"] = (events_df["x"] * GRID_WIDTH / 100).astype(int).clip(0, GRID_WIDTH - 1)
+            events_df["start_zone_y"] = (events_df["y"] * GRID_HEIGHT / 100).astype(int).clip(0, GRID_HEIGHT - 1)
 
-        xt_grid = np.zeros((GRID_HEIGHT, GRID_WIDTH))
+            xt_grid = np.zeros((GRID_HEIGHT, GRID_WIDTH))
 
-        # Tæl xG for skud i hver zone
-        shots = events_df[events_df["type_id"].isin([2, 3, 4])]
-        for _, row in shots.iterrows():
-            xt_grid[row["start_zone_y"], row["start_zone_x"]] += row.get("xg", 0.0)
+            # Tæl xG for skud i hver zone
+            shots = events_df[events_df["type_id"].isin([2, 3, 4])]
+            for _, row in shots.iterrows():
+                xt_grid[row["start_zone_y"], row["start_zone_x"]] += row.get("xg", 0.0)
 
-        # Vis xT heatmap
-        st.subheader("xT Value Surface (baseret på dine filer)")
+            # Vis xT heatmap
+            st.subheader("xT Value Surface (baseret på dine filer)")
 
-        fig, ax = plt.subplots(figsize=(10, 6))
-        cax = ax.matshow(xt_grid, cmap="Reds")
-        fig.colorbar(cax, ax=ax, orientation="vertical")
-        ax.set_title("Expected Threat (xT) Heatmap")
-        ax.set_xlabel("Pitch Width Zones")
-        ax.set_ylabel("Pitch Length Zones")
-        st.pyplot(fig)
+            fig, ax = plt.subplots(figsize=(10, 6))
+            cax = ax.matshow(xt_grid, cmap="Reds")
+            fig.colorbar(cax, ax=ax, orientation="vertical")
+            ax.set_title("Expected Threat (xT) Heatmap")
+            ax.set_xlabel("Pitch Width Zones")
+            ax.set_ylabel("Pitch Length Zones")
+            st.pyplot(fig)
 
-        st.info("Heatmap viser nu reelle xG-data fra dine uploads. Du kan senere udvide til fuld xT-model.")
+            st.info("Heatmap viser nu reelle xG-data fra dine uploads. Du kan senere udvide til fuld xT-model.")
 
     else:
         st.warning("Upload alle tre filer for at beregne xT.")
