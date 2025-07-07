@@ -801,6 +801,14 @@ with tab7:
         tree_f24 = ET.parse(f24_file)
         root_f24 = tree_f24.getroot()
 
+        # Hent spiller-ID og navne
+        player_name_map = {}
+        for player in root_f24.findall(".//Player"):
+            player_id = player.get("uID")
+            player_name = player.get("Name")
+            if player_id and player_name:
+                player_name_map[player_id.replace("p", "")] = player_name
+
         events_data = []
         for event in root_f24.findall(".//Event"):
             player_id = event.get("player_id")
@@ -827,7 +835,12 @@ with tab7:
         player_xt_stats = events_df.groupby("player_id").agg(
             Total_Actions=("type_id", "count"),
             Total_xT=("xT", "sum")
-        ).reset_index().sort_values(by="Total_xT", ascending=False)
+        ).reset_index()
+
+        # Tilføj spiller-navn
+        player_xt_stats["Player"] = player_xt_stats["player_id"].map(player_name_map)
+        player_xt_stats = player_xt_stats[["Player", "player_id", "Total_Actions", "Total_xT"]]
+        player_xt_stats = player_xt_stats.sort_values(by="Total_xT", ascending=False)
 
         st.subheader("Spilleroversigt – Aktioner & xT")
         st.dataframe(player_xt_stats, use_container_width=True)
