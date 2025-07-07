@@ -810,6 +810,15 @@ with tab7:
             if player_id and player_name:
                 player_name_map[player_id.replace("p", "")] = player_name
 
+        # Hvis ingen spillere fundet, prøv under Team
+        if not player_name_map:
+            for player in root_f24.findall(".//Team//Player"):
+                player_id = player.get("uID")
+                name_element = player.find("Name")
+                player_name = name_element.text if name_element is not None else None
+                if player_id and player_name:
+                    player_name_map[player_id.replace("p", "")] = player_name
+
         events_data = []
         for event in root_f24.findall(".//Event"):
             player_id = event.get("player_id")
