@@ -789,8 +789,8 @@ with tab7:
     st.info("Upload Opta F24, F70 og F73 filer for at beregne Expected Threat (xT) model.")
 
     f24_file = st.file_uploader("Upload F24 (Event Data)", type=["xml"], key="f24")
-    f70_file = st.file_uploader("Upload F70 (xG Data)", type=["json", "xml"], key="f70")
-    f73_file = st.file_uploader("Upload F73 (Possession Data)", type=["json", "xml"], key="f73")
+    f70_file = st.file_uploader("Upload F70 (xG Data)", type=["xml"], key="f70")
+    f73_file = st.file_uploader("Upload F73 (Possession Data)", type=["xml"], key="f73")
 
     if f24_file and f70_file and f73_file:
         st.success("Filer uploadet korrekt. Behandler...")
@@ -801,11 +801,12 @@ with tab7:
         import matplotlib.pyplot as plt
 
         # Parse F24 event XML
-        tree = ET.parse(f24_file)
-        root = tree.getroot()
+        tree_f24 = ET.parse(f24_file)
+        root_f24 = tree_f24.getroot()
 
         events_data = []
-        for event in root.findall(".//Event"):
+        for event in root_f24.findall(".//Event"):
+            event_id = event.get("event_id")
             event_type = event.get("type_id")
             outcome = event.get("outcome")
             team_id = event.get("team_id")
@@ -818,6 +819,7 @@ with tab7:
             end_y = float(end_y) if end_y is not None else None
             timestamp = event.get("min") + ":" + event.get("sec")
             events_data.append({
+                "event_id": int(event_id) if event_id else None,
                 "type_id": int(event_type),
                 "outcome": int(outcome) if outcome is not None else None,
                 "team_id": team_id,
@@ -829,18 +831,33 @@ with tab7:
 
         events_df = pd.DataFrame(events_data)
 
-        # Dummy: parse F70 og F73 - kan tilpasses til din datamodel
-        f70_df = pd.read_json(f70_file)
-        events_df = pd.merge(events_df, f70_df[["event_id", "xg"]], how="left", left_index=True, right_index=True)
+        # Parse F70 XML (xG Data)
+        tree_f70 = ET.parse(f70_file)
+        root_f70 = tree_f70.getroot()
 
-        # Grid-setup og dummy beregning (her skal din rigtige model ind)
+        xg_data = []
+        for shot in root_f70.findall(".//ExpectedGoalEvent"):
+            event_id = shot.get("event_id")
+            xg_value = shot.get("xg_value")
+            if event_id and xg_value:
+                xg_data.append({
+                    "event_id": int(event_id),
+                    "xg": float(xg_value)
+                })
+
+        f70_df = pd.DataFrame(xg_data)
+
+        # Merge F24 and F70 on event_id
+        events_df = pd.merge(events_df, f70_df, how="left", on="event_id")
+
+        # Grid-setup og beregning
         GRID_HEIGHT, GRID_WIDTH = 12, 16
         events_df["start_zone_x"] = (events_df["x"] * GRID_WIDTH / 100).astype(int).clip(0, GRID_WIDTH-1)
         events_df["start_zone_y"] = (events_df["y"] * GRID_HEIGHT / 100).astype(int).clip(0, GRID_HEIGHT-1)
 
         xt_grid = np.zeros((GRID_HEIGHT, GRID_WIDTH))
 
-        # Eksempel: tæl skud i hver zone (meget simpel placeholder)
+        # Tæl xG for skud i hver zone
         shots = events_df[events_df["type_id"].isin([2, 3, 4])]
         for _, row in shots.iterrows():
             xt_grid[row["start_zone_y"], row["start_zone_x"]] += row.get("xg", 0.0)
@@ -856,7 +873,7 @@ with tab7:
         ax.set_ylabel("Pitch Length Zones")
         st.pyplot(fig)
 
-        st.info("Heatmap viser nu reelle data fra dine uploads. Du kan senere udvide til fuld xT-model.")
+        st.info("Heatmap viser nu reelle xG-data fra dine uploads. Du kan senere udvide til fuld xT-model.")
 
     else:
         st.warning("Upload alle tre filer for at beregne xT.")
