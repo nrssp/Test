@@ -784,37 +784,100 @@ with tab6:
         st.altair_chart(chart, use_container_width=True)
 
 with tab7:
-    st.subheader("Expected Threat (xT) – Pasninger (fra Opta Event Data)")
+    st.subheader("Expected Threat (xT) – Pasninger (Randers FC vs. FC København)")
 
     # Indlæs xT-data for pasninger fra GitHub
     xt_passes_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_pass_xt.csv"
     xt_passes_df = pd.read_csv(xt_passes_url)
 
-    # Spilleroversigt – unikke spillernavne
-    all_players = sorted(xt_passes_df["playerName"].dropna().unique())
+    # Korrekt spiller-til-hold mapping (for denne kamp)
+    player_to_team_map = {
+        "A. Chiakha": "FC København",
+        "A. Cornelius": "FC København",
+        "B. Meling": "FC København",
+        "D. Ramaj": "FC København",
+        "E. Achouri": "FC København",
+        "Gabriel Pereira": "FC København",
+        "J. Larsson": "FC København",
+        "L. Lerager": "FC København",
+        "M. Elyounoussi": "FC København",
+        "M. López": "FC København",
+        "M. Mattsson": "FC København",
+        "P. Hatzidiakos": "FC København",
+        "R. Falk": "FC København",
+        "R. Huescas": "FC København",
+        "V. Claesson": "FC København",
+        "V. Froholdt": "FC København",
+        "A. Rømer": "Randers FC",
+        "B. Kopplin": "Randers FC",
+        "D. Høegh": "Randers FC",
+        "E. Mahmoud": "Randers FC",
+        "J. Björkengren": "Randers FC",
+        "L. Pedersen": "Randers FC",
+        "M. Greve": "Randers FC",
+        "M. Themsen": "Randers FC",
+        "M. Touré": "Randers FC",
+        "N. Campbell": "Randers FC",
+        "N. Dyhr": "Randers FC",
+        "O. Olsen": "Randers FC",
+        "P. Izzo": "Randers FC",
+        "S. Nordli": "Randers FC",
+        "S. Odey": "Randers FC",
+        "W. Dammers": "Randers FC"
+    }
 
-    # Sidebar multiselect til spillerfilter
+    # Tilføj hold til dataframe
+    xt_passes_df["Team"] = xt_passes_df["playerName"].map(player_to_team_map).fillna("Ukendt Hold")
+
+    # Hold-vælger
+    selected_teams = st.multiselect(
+        "Vælg hold",
+        options=sorted(xt_passes_df["Team"].unique()),
+        default=[]
+    )
+
+    # Filtrér på hold
+    if selected_teams:
+        team_filtered_df = xt_passes_df[xt_passes_df["Team"].isin(selected_teams)]
+    else:
+        team_filtered_df = xt_passes_df.copy()
+
+    # Spiller-vælger (kun spillere fra valgte hold)
+    all_players = sorted(team_filtered_df["playerName"].dropna().unique())
     selected_players = st.multiselect(
-        "Vælg spiller(e) for at filtrere pasnings-xT",
+        "Vælg spiller(e)",
         options=all_players,
         default=[]
     )
 
-    # Filtrér data efter valgte spillere (hvis nogen valgt)
+    # Filtrér på spillere (hvis valgt)
     if selected_players:
-        filtered_xt_passes = xt_passes_df[xt_passes_df["playerName"].isin(selected_players)]
+        filtered_xt_passes = team_filtered_df[team_filtered_df["playerName"].isin(selected_players)]
     else:
-        filtered_xt_passes = xt_passes_df
+        filtered_xt_passes = team_filtered_df.copy()
 
-    st.info(f"Viser {len(filtered_xt_passes)} pasninger fra {len(selected_players) if selected_players else 'alle spillere'}.")
+    st.info(f"Viser {len(filtered_xt_passes)} pasninger fra {len(selected_players) if selected_players else 'alle spillere'} på {len(selected_teams) if selected_teams else 'alle hold'}.")
 
-    # Vis tabel med filtreret data
+    # Vis tabel
     st.dataframe(filtered_xt_passes, use_container_width=True)
 
-    # Download-knap til filtreret data
+    # Download-knap
     st.download_button(
         label="Download filtreret pasnings-xT som CSV",
         data=filtered_xt_passes.to_csv(index=False),
         file_name="filtreret_pasnings_xt.csv",
         mime="text/csv"
     )
+
+    # Top 5 spillere (baseret på total xT)
+    st.subheader("Top 5 spillere i kampen (baseret på total xT)")
+
+    top5_df = (
+        filtered_xt_passes.groupby("playerName")
+        .agg(Total_xT=("xT_gain", "sum"), Antal_Pasninger=("xT_gain", "count"))
+        .reset_index()
+        .sort_values(by="Total_xT", ascending=False)
+        .head(5)
+    )
+
+    st.dataframe(top5_df, use_container_width=True)
