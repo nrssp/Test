@@ -787,7 +787,7 @@ with tab7:
     st.subheader("Expected Threat (xT) – Pasninger (Randers FC vs. FC København)")
 
     # Indlæs xT-data for pasninger fra GitHub
-    xt_passes_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_pass_xt.csv"
+    xt_passes_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_pass_xt_corrected.csv"
     xt_passes_df = pd.read_csv(xt_passes_url, encoding="utf-8")
 
     # Fix spillernavne med unicode_escape
