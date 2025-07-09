@@ -788,7 +788,12 @@ with tab7:
 
     # Indlæs xT-data for pasninger fra GitHub
     xt_passes_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_pass_xt.csv"
-    xt_passes_df = pd.read_csv(xt_passes_url, encoding="utf-8-sig")
+    xt_passes_df = pd.read_csv(xt_passes_url, encoding="utf-8")
+
+    # Fix spillernavne med unicode_escape
+    xt_passes_df["playerName"] = xt_passes_df["playerName"].apply(
+        lambda x: bytes(x, "utf-8").decode("unicode_escape") if isinstance(x, str) else x
+    )
 
     # Korrekt spiller-til-hold mapping (for denne kamp)
     player_to_team_map = {
