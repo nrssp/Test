@@ -784,91 +784,37 @@ with tab6:
         st.altair_chart(chart, use_container_width=True)
 
 with tab7:
-    st.subheader("Expected Threat (xT) Model – Spilleroversigt")
+    st.subheader("Expected Threat (xT) – Pasninger (fra Opta Event Data)")
 
-    st.info("Upload Opta F24 (Event Data), F73 (Possession Data) og en spiller-metadatafil for at beregne Expected Threat (xT) model for spillere.")
+    # Indlæs xT-data for pasninger fra GitHub
+    xt_passes_url = "https://raw.githubusercontent.com/nrssp/Test/main/superliga_pass_xt.csv"
+    xt_passes_df = pd.read_csv(xt_passes_url)
 
-    f24_file = st.file_uploader("Upload F24 (Event Data)", type=["xml"], key="f24")
-    f73_file = st.file_uploader("Upload F73 (Possession Data)", type=["xml"], key="f73")
-    player_meta_file = st.file_uploader("Upload spiller-metadatafil (F7, F75, SRML eller Tracking Metadata)", type=["xml", "json", "jsonl"], key="player_meta")
+    # Spilleroversigt – unikke spillernavne
+    all_players = sorted(xt_passes_df["playerName"].dropna().unique())
 
-    if f24_file and f73_file and player_meta_file:
-        st.success("Filer uploadet korrekt. Behandler...")
+    # Sidebar multiselect til spillerfilter
+    selected_players = st.multiselect(
+        "Vælg spiller(e) for at filtrere pasnings-xT",
+        options=all_players,
+        default=[]
+    )
 
-        import pandas as pd
-        import xml.etree.ElementTree as ET
-        import json
-
-        # Parse F24 event XML
-        tree_f24 = ET.parse(f24_file)
-        root_f24 = tree_f24.getroot()
-
-        # Hent spiller-ID og navne fra spiller-metadatafil
-        player_name_map = {}
-        try:
-            if player_meta_file.name.endswith(".json") or player_meta_file.name.endswith(".jsonl"):
-                meta_data = json.load(player_meta_file)
-                for player in meta_data.get("players", []):
-                    player_id = str(player.get("playerId"))
-                    player_name = player.get("name")
-                    if player_id and player_name:
-                        player_name_map[player_id] = player_name
-            elif player_meta_file.name.endswith(".xml"):
-                meta_tree = ET.parse(player_meta_file)
-                meta_root = meta_tree.getroot()
-                for player in meta_root.findall(".//Player"):
-                    player_id = player.get("uID")
-                    name_element = player.find("Name")
-                    player_name = name_element.text if name_element is not None else None
-                    if player_id and player_name:
-                        player_name_map[player_id.replace("p", "")] = player_name
-        except Exception as e:
-            st.warning(f"Kunne ikke læse spiller-metadatafil korrekt: {e}")
-
-        # Parse events fra F24
-        events_data = []
-        for event in root_f24.findall(".//Event"):
-            player_id = event.get("player_id")
-            x = event.get("x")
-            y = event.get("y")
-            event_type = event.get("type_id")
-            if player_id and x and y and event_type:
-                events_data.append({
-                    "player_id": player_id,
-                    "x": float(x),
-                    "y": float(y),
-                    "type_id": int(event_type)
-                })
-
-        events_df = pd.DataFrame(events_data)
-
-        # Dummy xT-model (for demoformål)
-        def calculate_xt(x, y):
-            return (x / 100) * (y / 100)
-
-        events_df["xT"] = events_df.apply(lambda row: calculate_xt(row["x"], row["y"]) if row["type_id"] in [1, 2, 3, 4, 7, 8] else 0, axis=1)
-
-        # Summeret xT per spiller
-        player_xt_stats = events_df.groupby("player_id").agg(
-            Total_Actions=("type_id", "count"),
-            Total_xT=("xT", "sum")
-        ).reset_index()
-
-        # Tilføj spiller-navn
-        player_xt_stats["Player"] = player_xt_stats["player_id"].map(player_name_map)
-        player_xt_stats = player_xt_stats[["Player", "player_id", "Total_Actions", "Total_xT"]]
-        player_xt_stats = player_xt_stats.sort_values(by="Total_xT", ascending=False)
-
-        st.subheader("Spilleroversigt – Aktioner & xT")
-        st.dataframe(player_xt_stats, use_container_width=True)
-
-        # Download CSV
-        st.download_button(
-            label="Download spillerdata som CSV",
-            data=player_xt_stats.to_csv(index=False),
-            file_name="spiller_xt_stats.csv",
-            mime="text/csv"
-        )
-
+    # Filtrér data efter valgte spillere (hvis nogen valgt)
+    if selected_players:
+        filtered_xt_passes = xt_passes_df[xt_passes_df["playerName"].isin(selected_players)]
     else:
-        st.warning("Upload både F24, F73 og spiller-metadatafil for at beregne spillerdata.")
+        filtered_xt_passes = xt_passes_df
+
+    st.info(f"Viser {len(filtered_xt_passes)} pasninger fra {len(selected_players) if selected_players else 'alle spillere'}.")
+
+    # Vis tabel med filtreret data
+    st.dataframe(filtered_xt_passes, use_container_width=True)
+
+    # Download-knap til filtreret data
+    st.download_button(
+        label="Download filtreret pasnings-xT som CSV",
+        data=filtered_xt_passes.to_csv(index=False),
+        file_name="filtreret_pasnings_xt.csv",
+        mime="text/csv"
+    )
