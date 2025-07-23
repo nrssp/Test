@@ -905,7 +905,8 @@ with tab8:
         root_f70 = tree_f70.getroot()
 
         shot_type_ids = {"13", "14", "15", "16"}
-        home_team_id = root_f24.find(".//Team[@side='home']").attrib.get("team_id")
+        home_team_element = root_f24.find(".//Team[@side='home']")
+        home_team_id = home_team_element.attrib.get("team_id") if home_team_element is not None else None
 
         shot_events = []
         for event in root_f24.findall(".//Event"):
