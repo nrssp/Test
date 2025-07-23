@@ -902,19 +902,16 @@ with tab8:
     kickoff_half1 = st.text_input("Tidspunkt for kickoff 1. halvleg (TT:MM:SS)", value="00:00:00")
     kickoff_half2 = st.text_input("Tidspunkt for kickoff 2. halvleg (TT:MM:SS)", value="00:45:00")
 
-    def time_to_seconds(timestr):
+    def parse_time_to_seconds(t_str):
         try:
-            t = datetime.datetime.strptime(timestr, "%H:%M:%S")
+            t = datetime.datetime.strptime(t_str.strip(), "%H:%M:%S")
             return t.hour * 3600 + t.minute * 60 + t.second
-        except:
-            return None
+        except ValueError:
+            st.error(f"Tidspunktet '{t_str}' er ikke i formatet TT:MM:SS.")
+            st.stop()
 
-    kickoff1_secs = time_to_seconds(kickoff_half1)
-    kickoff2_secs = time_to_seconds(kickoff_half2)
-
-    if kickoff1_secs is None or kickoff2_secs is None:
-        st.error("Kickoff-tidspunkterne skal være i formatet TT:MM:SS.")
-        st.stop()
+    kickoff1_secs = parse_time_to_seconds(kickoff_half1)
+    kickoff2_secs = parse_time_to_seconds(kickoff_half2)
 
     if f24_file and f70_file:
         tree_f24 = ET.parse(f24_file)
