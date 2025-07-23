@@ -905,12 +905,11 @@ with tab8:
         root_f70 = tree_f70.getroot()
 
         shot_type_ids = {"13", "14", "15", "16"}
-        team_ids = {}
-        for team in root_f24.findall(".//Team"):
-            side = team.attrib.get("side")
-            team_id = team.attrib.get("team_id")
-            if side and team_id:
-                team_ids[side] = team_id
+
+        home_team = root_f24.find(".//Team[@side='home']")
+        away_team = root_f24.find(".//Team[@side='away']")
+        home_team_id = home_team.attrib.get("team_id") if home_team is not None else None
+        away_team_id = away_team.attrib.get("team_id") if away_team is not None else None
 
         shot_events = []
         for event in root_f24.findall(".//Event"):
@@ -935,7 +934,8 @@ with tab8:
             xg_val = xg_lookup.get(shot["event_id"])
             if xg_val is not None:
                 total_seconds = shot["min"] * 60 + shot["sec"]
-                is_home = shot["team_id"] == team_ids.get("home")
+                team_id = shot["team_id"]
+                is_home = team_id == home_team_id
                 shots_with_xg.append({
                     "id": len(shots_with_xg) + 1,
                     "event_id": shot["event_id"],
@@ -1003,4 +1003,3 @@ with tab8:
             file_name="sportscode_xg_export.xml",
             mime="application/xml"
         )
-
