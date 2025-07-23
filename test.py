@@ -906,11 +906,9 @@ with tab8:
 
         shot_type_ids = {"13", "14", "15", "16"}
 
-        home_team_elem = root_f24.find(".//Team[@side='home']")
-        away_team_elem = root_f24.find(".//Team[@side='away']")
-
-        home_team_id = home_team_elem.attrib.get("uID") if home_team_elem is not None else None
-        away_team_id = away_team_elem.attrib.get("uID") if away_team_elem is not None else None
+        game_elem = root_f24.find(".//Game")
+        home_team_id = game_elem.attrib.get("home_team_id")
+        away_team_id = game_elem.attrib.get("away_team_id")
 
         shot_events = []
         for event in root_f24.findall(".//Event"):
@@ -932,12 +930,13 @@ with tab8:
 
         shots_home = []
         shots_away = []
+        shot_id = 1
         for shot in shot_events:
             xg_val = xg_lookup.get(shot["event_id"])
             if xg_val is not None:
                 total_seconds = shot["min"] * 60 + shot["sec"]
                 shot_data = {
-                    "id": len(shots_home) + len(shots_away) + 1,
+                    "id": shot_id,
                     "event_id": shot["event_id"],
                     "xg": float(xg_val),
                     "start": max(0, total_seconds - 10),
@@ -945,8 +944,9 @@ with tab8:
                 }
                 if shot["team_id"] == home_team_id:
                     shots_home.append(shot_data)
-                else:
+                elif shot["team_id"] == away_team_id:
                     shots_away.append(shot_data)
+                shot_id += 1
 
         def create_instance_block(shot, label):
             return f"""
