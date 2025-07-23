@@ -892,20 +892,28 @@ with tab7:
 with tab8:
     import xml.etree.ElementTree as ET
     import tempfile
+    import datetime
 
     st.subheader("Sportscode xG XML Export")
 
     f24_file = st.file_uploader("Upload F24-fil (eventdetails)", type="xml", key="f24_upload")
     f70_file = st.file_uploader("Upload F70-fil (expectedgoals)", type="xml", key="f70_upload")
 
-    kickoff_half1 = st.text_input("Tidspunkt for kickoff 1. halvleg (i sekunder)", value="0")
-    kickoff_half2 = st.text_input("Tidspunkt for kickoff 2. halvleg (i sekunder)", value="2700")
+    kickoff_half1 = st.text_input("Tidspunkt for kickoff 1. halvleg (TT:MM:SS)", value="00:00:00")
+    kickoff_half2 = st.text_input("Tidspunkt for kickoff 2. halvleg (TT:MM:SS)", value="00:45:00")
 
-    try:
-        kickoff_half1 = float(kickoff_half1)
-        kickoff_half2 = float(kickoff_half2)
-    except ValueError:
-        st.error("Kickoff-tidspunkterne skal være tal i sekunder.")
+    def time_to_seconds(timestr):
+        try:
+            t = datetime.datetime.strptime(timestr, "%H:%M:%S")
+            return t.hour * 3600 + t.minute * 60 + t.second
+        except:
+            return None
+
+    kickoff1_secs = time_to_seconds(kickoff_half1)
+    kickoff2_secs = time_to_seconds(kickoff_half2)
+
+    if kickoff1_secs is None or kickoff2_secs is None:
+        st.error("Kickoff-tidspunkterne skal være i formatet TT:MM:SS.")
         st.stop()
 
     if f24_file and f70_file:
@@ -945,7 +953,7 @@ with tab8:
             xg_val = xg_lookup.get(shot["event_id"])
             if xg_val is not None:
                 raw_seconds = shot["min"] * 60 + shot["sec"]
-                adjusted_seconds = (kickoff_half1 if shot["period"] == 1 else kickoff_half2) + raw_seconds
+                adjusted_seconds = (kickoff1_secs if shot["period"] == 1 else kickoff2_secs) + raw_seconds
                 shot_data = {
                     "id": shot_id,
                     "event_id": shot["event_id"],
