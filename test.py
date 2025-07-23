@@ -898,6 +898,16 @@ with tab8:
     f24_file = st.file_uploader("Upload F24-fil (eventdetails)", type="xml", key="f24_upload")
     f70_file = st.file_uploader("Upload F70-fil (expectedgoals)", type="xml", key="f70_upload")
 
+    kickoff_half1 = st.text_input("Tidspunkt for kickoff 1. halvleg (i sekunder)", value="0")
+    kickoff_half2 = st.text_input("Tidspunkt for kickoff 2. halvleg (i sekunder)", value="2700")
+
+    try:
+        kickoff_half1 = float(kickoff_half1)
+        kickoff_half2 = float(kickoff_half2)
+    except ValueError:
+        st.error("Kickoff-tidspunkterne skal være tal i sekunder.")
+        st.stop()
+
     if f24_file and f70_file:
         tree_f24 = ET.parse(f24_file)
         root_f24 = tree_f24.getroot()
@@ -934,13 +944,14 @@ with tab8:
         for shot in shot_events:
             xg_val = xg_lookup.get(shot["event_id"])
             if xg_val is not None:
-                total_seconds = shot["min"] * 60 + shot["sec"]
+                raw_seconds = shot["min"] * 60 + shot["sec"]
+                adjusted_seconds = (kickoff_half1 if shot["period"] == 1 else kickoff_half2) + raw_seconds
                 shot_data = {
                     "id": shot_id,
                     "event_id": shot["event_id"],
                     "xg": float(xg_val),
-                    "start": max(0, total_seconds - 10),
-                    "end": total_seconds + 2
+                    "start": max(0, adjusted_seconds - 10),
+                    "end": adjusted_seconds + 2
                 }
                 if shot["team_id"] == home_team_id:
                     shots_home.append(shot_data)
