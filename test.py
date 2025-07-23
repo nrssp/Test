@@ -893,118 +893,107 @@ with tab8:
     import xml.etree.ElementTree as ET
     import tempfile
 
-    st.subheader("🎯 Sportscode xG")
+    st.subheader("Sportscode xG XML Export")
 
     f24_file = st.file_uploader("Upload F24-fil (eventdetails)", type="xml", key="f24_upload")
-    f70_file = st.file_uploader("Upload F70-fil (expected goals)", type="xml", key="f70_upload")
+    f70_file = st.file_uploader("Upload F70-fil (expectedgoals)", type="xml", key="f70_upload")
 
     if f24_file and f70_file:
-        # Gem filerne midlertidigt
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".xml") as temp_f24:
-            temp_f24.write(f24_file.read())
-            f24_path = temp_f24.name
-
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".xml") as temp_f70:
-            temp_f70.write(f70_file.read())
-            f70_path = temp_f70.name
-
-        # Parse F24
-        tree_f24 = ET.parse(f24_path)
+        tree_f24 = ET.parse(f24_file)
         root_f24 = tree_f24.getroot()
-
-        # Parse F70
-        tree_f70 = ET.parse(f70_path)
+        tree_f70 = ET.parse(f70_file)
         root_f70 = tree_f70.getroot()
 
-        # Find match home team ID
-        match_info = root_f24.find(".//MatchData")
-        home_team_id = match_info.attrib.get("home_team_id") if match_info is not None else None
-
-        # Shot event types
         shot_type_ids = {"13", "14", "15", "16"}
+        home_team_id = root_f24.find(".//Team[@side='home']").attrib.get("team_id")
 
         shot_events = []
         for event in root_f24.findall(".//Event"):
             if event.attrib.get("type_id") in shot_type_ids:
                 shot_events.append({
                     "event_id": event.attrib.get("event_id"),
-                    "team_id": event.attrib.get("team_id"),
                     "period": int(event.attrib.get("period_id")),
                     "min": int(event.attrib.get("min")),
                     "sec": int(event.attrib.get("sec")),
+                    "team_id": event.attrib.get("team_id")
                 })
 
-        # Extract xG values from f70
         xg_lookup = {}
         for event in root_f70.findall(".//Event"):
             event_id = event.attrib.get("event_id")
             for q in event.findall("Q"):
                 if q.attrib.get("qualifier_id") == "321":
-                    xg_lookup[event_id] = float(q.attrib.get("value"))
+                    xg_lookup[event_id] = q.attrib.get("value")
 
-        # Combine with xG and sort
-        combined_shots = []
-        for i, shot in enumerate(shot_events):
-            xg = xg_lookup.get(shot["event_id"])
-            if xg is not None:
-                timestamp_sec = shot["min"] * 60 + shot["sec"]
-                team_type = "Home" if shot["team_id"] == home_team_id else "Away"
-                combined_shots.append({
-                    "id": i + 1,
-                    "code": f"xG shot {team_type}",
-                    "xg": round(xg, 3),
-                    "start": max(0, timestamp_sec - 10),
-                    "end": timestamp_sec + 2
+        shots_with_xg = []
+        for shot in shot_events:
+            xg_val = xg_lookup.get(shot["event_id"])
+            if xg_val is not None:
+                total_seconds = shot["min"] * 60 + shot["sec"]
+                shots_with_xg.append({
+                    "id": len(shots_with_xg) + 1,
+                    "event_id": shot["event_id"],
+                    "xg": float(xg_val),
+                    "start": max(0, total_seconds - 10),
+                    "end": total_seconds + 2,
+                    "is_home": shot["team_id"] == home_team_id
                 })
 
-        # Sort by time
-        combined_shots.sort(key=lambda x: x["start"])
+        instances = []
+        for shot in shots_with_xg:
+            label = "xG shot home" if shot["is_home"] else "xG shot away"
+            instances.append(f"""
+    <instance>
+      <id>{shot['id']}</id>
+      <code>{label}</code>
+      <end>{shot['end']:.3f}</end>
+      <end_agg/>
+      <free_text></free_text>
+      <ID>{shot['id']}</ID>
+      <ID_agg/>
+      <label>
+        <group></group>
+        <text>{shot['xg']:.3f}</text>
+      </label>
+      <start>{shot['start']:.3f}</start>
+      <start_agg/>
+    </instance>""")
 
-        # Build Sportscode XML
-        xml_lines = ['<?xml version="1.0" ?>', '<file>', '  <ALL_INSTANCES>']
-        for i, inst in enumerate(combined_shots, start=1):
-            xml_lines += [
-                '    <instance>',
-                f'      <id>{i}</id>',
-                f'      <code>{inst["code"]}</code>',
-                f'      <end>{inst["end"]:.3f}</end>',
-                f'      <end_agg/>',
-                f'      <free_text></free_text>',
-                f'      <ID>{i}</ID>',
-                f'      <ID_agg/>',
-                f'      <label>',
-                f'        <group></group>',
-                f'        <text>{inst["xg"]:.3f}</text>',
-                f'      </label>',
-                f'      <start>{inst["start"]:.3f}</start>',
-                f'      <start_agg/>',
-                '    </instance>'
-            ]
-        xml_lines += ['  </ALL_INSTANCES>', '  <ROWS>']
-        for code in ["xG shot Home", "xG shot Away"]:
-            xml_lines += [
-                '    <row>',
-                '      <B>0</B>',
-                '      <B_agg/>',
-                f'      <code>{code}</code>',
-                '      <G>255</G>',
-                '      <G_agg/>',
-                '      <R>0</R>',
-                '      <R_agg/>',
-                '    </row>'
-            ]
-        xml_lines += ['  </ROWS>', '</file>']
+        rows = """
+    <row>
+      <B>0</B>
+      <B_agg/>
+      <code>xG shot home</code>
+      <G>255</G>
+      <G_agg/>
+      <R>0</R>
+      <R_agg/>
+    </row>
+    <row>
+      <B>0</B>
+      <B_agg/>
+      <code>xG shot away</code>
+      <G>128</G>
+      <G_agg/>
+      <R>0</R>
+      <R_agg/>
+    </row>"""
 
-        # Download
-        xml_content = "\n".join(xml_lines)
+        final_xml = f"""<?xml version="1.0" ?>
+<file>
+  <ALL_INSTANCES>
+{''.join(instances)}
+  </ALL_INSTANCES>
+  <ROWS>
+{rows}
+  </ROWS>
+</file>"""
+
+        st.success("Sportscode XML genereret. Download herunder.")
+
         st.download_button(
-            label="📥 Download SportsCode XML",
-            data=xml_content,
-            file_name="sportscode_xg.xml",
+            label="Download XML",
+            data=final_xml,
+            file_name="sportscode_xg_export.xml",
             mime="application/xml"
         )
-
-        st.success("Sportscode XML genereret med succes!")
-
-    else:
-        st.info("Upload både F24 og F70 for at generere XML.")
