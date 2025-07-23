@@ -950,7 +950,13 @@ with tab8:
             xg_val = xg_lookup.get(shot["event_id"])
             if xg_val is not None:
                 raw_seconds = shot["min"] * 60 + shot["sec"]
-                adjusted_seconds = (kickoff1_secs if shot["period"] == 1 else kickoff2_secs) + raw_seconds
+                if shot["period"] == 1:
+                    adjusted_seconds = kickoff1_secs + raw_seconds
+                elif shot["period"] == 2:
+                    adjusted_seconds = kickoff2_secs + raw_seconds
+                else:
+                    continue  # skip other periods
+
                 shot_data = {
                     "id": shot_id,
                     "event_id": shot["event_id"],
