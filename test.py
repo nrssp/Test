@@ -930,26 +930,26 @@ with tab8:
                 if q.attrib.get("qualifier_id") == "321":
                     xg_lookup[event_id] = q.attrib.get("value")
 
-        shots_with_xg = []
+        shots_home = []
+        shots_away = []
         for shot in shot_events:
             xg_val = xg_lookup.get(shot["event_id"])
             if xg_val is not None:
                 total_seconds = shot["min"] * 60 + shot["sec"]
-                team_id = shot["team_id"]
-                is_home = team_id == home_team_id
-                shots_with_xg.append({
-                    "id": len(shots_with_xg) + 1,
+                shot_data = {
+                    "id": len(shots_home) + len(shots_away) + 1,
                     "event_id": shot["event_id"],
                     "xg": float(xg_val),
                     "start": max(0, total_seconds - 10),
-                    "end": total_seconds + 2,
-                    "is_home": is_home
-                })
+                    "end": total_seconds + 2
+                }
+                if shot["team_id"] == home_team_id:
+                    shots_home.append(shot_data)
+                else:
+                    shots_away.append(shot_data)
 
-        instances = []
-        for shot in shots_with_xg:
-            label = "xG shot home" if shot["is_home"] else "xG shot away"
-            instances.append(f"""
+        def create_instance_block(shot, label):
+            return f"""
     <instance>
       <id>{shot['id']}</id>
       <code>{label}</code>
@@ -964,7 +964,13 @@ with tab8:
       </label>
       <start>{shot['start']:.3f}</start>
       <start_agg/>
-    </instance>""")
+    </instance>"""
+
+        instances = []
+        for shot in shots_home:
+            instances.append(create_instance_block(shot, "xG shot home"))
+        for shot in shots_away:
+            instances.append(create_instance_block(shot, "xG shot away"))
 
         rows = """
     <row>
