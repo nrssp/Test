@@ -906,10 +906,11 @@ with tab8:
 
         shot_type_ids = {"13", "14", "15", "16"}
 
-        home_team = root_f24.find(".//Team[@side='home']")
-        away_team = root_f24.find(".//Team[@side='away']")
-        home_team_id = home_team.attrib.get("team_id") if home_team is not None else None
-        away_team_id = away_team.attrib.get("team_id") if away_team is not None else None
+        home_team_elem = root_f24.find(".//Team[@side='home']")
+        away_team_elem = root_f24.find(".//Team[@side='away']")
+
+        home_team_id = home_team_elem.attrib.get("uID") if home_team_elem is not None else None
+        away_team_id = away_team_elem.attrib.get("uID") if away_team_elem is not None else None
 
         shot_events = []
         for event in root_f24.findall(".//Event"):
